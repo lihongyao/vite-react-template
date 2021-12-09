@@ -2,7 +2,7 @@
  * @Author: Lee
  * @Date: 2021-08-31 15:50:32
  * @LastEditors: Lee
- * @LastEditTime: 2021-11-13 16:36:19
+ * @LastEditTime: 2021-12-09 21:56:16
  */
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -21,6 +21,7 @@ if (import.meta.env.VITE_APP_ENV !== 'pro') {
 
 // 2. 记录出入进入程序时的url地址（用于配置iOS js-sdk）
 window.CONFIG_URL_FOR_IOS = window.location.href;
+console.log(window.CONFIG_URL_FOR_IOS);
 // 3. 渲染视图
 ReactDOM.render(
   <React.StrictMode>

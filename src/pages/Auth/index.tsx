@@ -2,10 +2,10 @@
  * @Author: Lee
  * @Date: 2021-09-01 09:24:26
  * @LastEditors: Lee
- * @LastEditTime: 2021-11-13 16:31:57
+ * @LastEditTime: 2021-12-09 21:50:36
  */
 import Toast from '@/components/@lgs-react/Toast';
-import WXLib from '@/utils/weixin-lib';
+import LibForWeixin from '@/utils/LibForWeixin';
 import Cookie from 'lg-cookie';
 import Tools from 'lg-tools';
 import React, { useEffect, useState } from 'react';
@@ -25,7 +25,7 @@ const Auth: React.FC = () => {
   // methods
   const jump = () => {
     // -- 拉起授权
-    WXLib.auth({
+    LibForWeixin.auth({
       appid: import.meta.env.VITE_APP_APPID_WEIXIN,
       state: from ? (from as string) : undefined,
       base: import.meta.env.VITE_APP_BASE,

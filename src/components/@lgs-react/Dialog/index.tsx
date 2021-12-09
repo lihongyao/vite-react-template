@@ -2,7 +2,7 @@
  * @Author: Lee
  * @Date: 2021-10-18 15:30:07
  * @LastEditors: Lee
- * @LastEditTime: 2021-11-24 11:29:13
+ * @LastEditTime: 2021-10-21 11:19:44
  */
 import classNames from "lg-classnames";
 import React, { CSSProperties, FC, memo, useEffect, useRef } from "react";
@@ -60,7 +60,7 @@ const Dialog: FC<IProps> = ({
             onClick={onClose}
           />
         )}
-      </div> 
+      </div>
     </div>
   );
 };
