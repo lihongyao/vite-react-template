@@ -2,7 +2,7 @@
  * @Author: Lee
  * @Date: 2021-08-31 15:50:32
  * @LastEditors: Lee
- * @LastEditTime: 2021-12-09 21:56:16
+ * @LastEditTime: 2021-12-13 18:05:33
  */
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -10,7 +10,7 @@ import ErrorBoundary from '@/components/@lgs-react/ErrorBoundary';
 
 import '@/utils/rem';
 import '@/index.css';
-import { AppRouter, AppRoutes } from './App';
+import { AppRouter, AppRoutes, GuardEnv } from './App';
 
 // import vconsole from 'vconsole';
 
@@ -26,9 +26,11 @@ console.log(window.CONFIG_URL_FOR_IOS);
 ReactDOM.render(
   <React.StrictMode>
     <ErrorBoundary>
-      <AppRouter>
-        <AppRoutes />
-      </AppRouter>
+      <GuardEnv>
+        <AppRouter>
+          <AppRoutes />
+        </AppRouter>
+      </GuardEnv>
     </ErrorBoundary>
   </React.StrictMode>,
   document.getElementById('root')
