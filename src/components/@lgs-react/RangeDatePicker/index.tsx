@@ -2,7 +2,7 @@
  * @Author: Lee
  * @Date: 2021-12-09 20:37:46
  * @LastEditors: Lee
- * @LastEditTime: 2021-12-09 21:40:31
+ * @LastEditTime: 2021-12-14 10:35:40
  */
 
 import React, { memo, useCallback, useState } from 'react';
@@ -29,6 +29,22 @@ const RangeDatePicker: React.FC<IProps> = ({
   onStartDateConfirm,
   onEndDateConfirm,
 }) => {
+  const dateFormat = (() => {
+    switch (precision) {
+      case 'year':
+        return 'YYYY年';
+      case 'month':
+        return 'YYYY-MM';
+      case 'day':
+        return 'YYYY-MM-DD';
+      case 'hour':
+        return 'YYYY-MM-DD HH';
+      case 'minute':
+        return 'YYYY-MM-DD HH:mm';
+      case 'second':
+        return 'YYYY-MM-DD HH:mm:ss';
+    }
+  })();
   // state
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
@@ -59,7 +75,7 @@ const RangeDatePicker: React.FC<IProps> = ({
           className='range-date-picker__item'
           onClick={() => setShowStartDatePicker(true)}
         >
-          <div>{Tools.dateFormat(startDate, 'YYYY-MM-DD HH:mm')}</div>
+          <div>{Tools.dateFormat(startDate, dateFormat)}</div>
           <img
             className='range-date-picker__icon'
             src='https://qn.d-dou.com/dcep/dbean/d71b111a77ff4de0b2f8bdc55c14dbc5xol16p.png'
@@ -70,7 +86,7 @@ const RangeDatePicker: React.FC<IProps> = ({
           className='range-date-picker__item'
           onClick={() => setShowEndDatePicker(true)}
         >
-          <div>{Tools.dateFormat(endDate, 'YYYY-MM-DD HH:mm')}</div>
+          <div>{Tools.dateFormat(endDate, dateFormat)}</div>
           <img
             className='range-date-picker__icon'
             src='https://qn.d-dou.com/dcep/dbean/d71b111a77ff4de0b2f8bdc55c14dbc5xol16p.png'
@@ -83,17 +99,15 @@ const RangeDatePicker: React.FC<IProps> = ({
         onClose={() => setShowStartDatePicker(false)}
         precision={precision}
         min={min}
-        max={new Date()}
+        max={endDate}
         renderLabel={labelRenderer}
         onConfirm={(v: Date) => {
           setShowStartDatePicker(false);
           onStartDateConfirm(v);
-          // 处理结束时间
-          // 如果开始时间更新，则根据时间间隔计算结束时间
-          // 如果计算出来的结束时间大于设置的最大时间
-          // 则显示最大时间，否则显示计算出来的结束时间
-          let t = new Date(v.getTime() + gap * 24 * 60 * 60 * 1000);
-          onEndDateConfirm(t > max ? max : t);
+          if (gap) {
+            let t = new Date(v.getTime() + gap * 24 * 60 * 60 * 1000);
+            onEndDateConfirm(t > max ? max : t);
+          }
         }}
       />
       <DatePicker
