@@ -109,7 +109,7 @@ const AppHeader = React.forwardRef<IRefs, IProps>((props, ref) => {
   // effects
   useEffect(() => {
     setIsBangScreen(
-      window && window.screen.height >= 812 && window.devicePixelRatio >= 2,
+      window && window.screen.height >= 812 && window.devicePixelRatio >= 2
     );
   }, []);
 
@@ -122,16 +122,16 @@ const AppHeader = React.forwardRef<IRefs, IProps>((props, ref) => {
   }, [gradientColor]);
   // render
   return (
-    <div ref={headerRef} className="app-header">
+    <div ref={headerRef} className='app-header'>
       {/* 占位元素 */}
       {!gradientColor && backgroundColor !== 'transparent' && (
         <div
-          className="app-header__place"
+          className='app-header__place'
           style={{ height: isBangScreen ? '88px' : '64px' }}
         />
       )}
       <div
-        className="app-header__wrapper"
+        className='app-header__wrapper'
         style={{
           background: backgroundColor,
           color: theme === 'dark' ? '#333333' : '#FFFFFF',
@@ -139,9 +139,9 @@ const AppHeader = React.forwardRef<IRefs, IProps>((props, ref) => {
         }}
       >
         {/* 标题栏 */}
-        <div className="app-header__titleBar">
+        <div className='app-header__titleBar'>
           {/* 左侧按钮 */}
-          <div className="app-header__leftButton">
+          <div className='app-header__leftButton'>
             {showBack && (
               <div
                 className={`app-header__backButton ${
@@ -150,8 +150,14 @@ const AppHeader = React.forwardRef<IRefs, IProps>((props, ref) => {
                 style={{
                   background: `url(${
                     theme === 'dark'
-                      ? require('./images/back_btn_dark.png')
-                      : require('./images/back_btn_light.png')
+                      ? new URL(
+                          './images/back_btn_dark.png',
+                          import.meta.url
+                        ).toString()
+                      : new URL(
+                          './images/back_btn_light.png',
+                          import.meta.url
+                        ).toString()
                   }) no-repeat 0 center`,
                 }}
                 onClick={handleGoBackButtonTap}
@@ -161,7 +167,7 @@ const AppHeader = React.forwardRef<IRefs, IProps>((props, ref) => {
           </div>
           {/* 中间标题 */}
           <div
-            className="app-header__title"
+            className='app-header__title'
             style={{
               ...titleStyle,
               opacity: fadeInTitle ? opacity : 1,
@@ -171,7 +177,7 @@ const AppHeader = React.forwardRef<IRefs, IProps>((props, ref) => {
             {renderTitle && renderTitle()}
           </div>
           {/* 右侧按钮 */}
-          <div className="app-header__rightButton">
+          <div className='app-header__rightButton'>
             {rightButtonText && (
               <span onClick={handleRightButtonTap}>{rightButtonText}</span>
             )}
@@ -183,8 +189,14 @@ const AppHeader = React.forwardRef<IRefs, IProps>((props, ref) => {
                 style={{
                   background: `url(${
                     theme === 'dark'
-                      ? require('./images/refresh_btn_dark.png')
-                      : require('./images/refresh_btn_light.png')
+                      ? new URL(
+                          './images/refresh_btn_dark.png',
+                          import.meta.url
+                        ).toString()
+                      : new URL(
+                          './images/refresh_btn_light.png',
+                          import.meta.url
+                        ).toString()
                   }) no-repeat 100% center`,
                 }}
                 onClick={handleRefreshButtonTap}
@@ -197,7 +209,7 @@ const AppHeader = React.forwardRef<IRefs, IProps>((props, ref) => {
         {/* 渐变层 */}
         {gradientColor && (
           <div
-            className="app-header__mask"
+            className='app-header__mask'
             style={{ background: gradientColor, opacity }}
           />
         )}

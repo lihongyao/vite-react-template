@@ -22,6 +22,12 @@
     padding: 20px;
     border-radius: 12px;
     position: relative;
+    &.fullScreen {
+      width: 100%;
+      padding: 0;
+      border-radius: 0;
+      background-color: transparent;
+    }
   }
 
   &__close {
@@ -31,7 +37,7 @@
     top: -40px;
     right: 0;
     &.bottom {
-      top: ~"calc(100% + 20px)";
+      top: ~'calc(100% + 20px)';
       left: 50%;
       transform: translateX(-50%);
     }
