@@ -9,8 +9,7 @@ import React, { Suspense } from 'react';
 import {
   BrowserRouter as Router,
   Route,
-  Routes,
-  Navigate,
+  Routes
 } from 'react-router-dom';
 
 import Fallback from '@/components/@lgs-react/Fallback';

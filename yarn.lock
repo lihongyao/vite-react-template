@@ -250,6 +250,18 @@
   resolved "https://registry.npmjs.org/@better-scroll/shared-utils/-/shared-utils-2.4.2.tgz#1ac5c97495727093a22a8009560795dd5e3c18da"
   integrity sha512-Gy/Jfbpu+hq0u+PcjkTqyXGqAf+0dexTzEZ5IDXEVwJVLmd3cx8A73oTcAZ8QZgk4wSHvlMjXecSaptkhnNPEw==
 
+"@fortawesome/fontawesome-common-types@^0.2.36":
+  version "0.2.36"
+  resolved "https://registry.npmjs.org/@fortawesome/fontawesome-common-types/-/fontawesome-common-types-0.2.36.tgz#b44e52db3b6b20523e0c57ef8c42d315532cb903"
+  integrity sha512-a/7BiSgobHAgBWeN7N0w+lAhInrGxksn13uK7231n2m8EDPE3BMCl9NZLTGrj9ZXfCmC6LM0QLqXidIizVQ6yg==
+
+"@fortawesome/free-solid-svg-icons@^5.15.3":
+  version "5.15.4"
+  resolved "https://registry.npmjs.org/@fortawesome/free-solid-svg-icons/-/free-solid-svg-icons-5.15.4.tgz#2a68f3fc3ddda12e52645654142b9e4e8fbb6cc5"
+  integrity sha512-JLmQfz6tdtwxoihXLg6lT78BorrFyCf59SAwBM6qV/0zXyVeDygJVb3fk+j5Qat+Yvcxp1buLTY5iDh1ZSAQ8w==
+  dependencies:
+    "@fortawesome/fontawesome-common-types" "^0.2.36"
+
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
   resolved "https://registry.npmjs.org/@nodelib/fs.scandir/-/fs.scandir-2.1.5.tgz#7619c2eb21b25483f6d167548b4cfd5a7488c3d5"
@@ -644,12 +656,27 @@ convert-source-map@^1.7.0:
   dependencies:
     safe-buffer "~5.1.1"
 
+cookie-storage@^6.1.0:
+  version "6.1.0"
+  resolved "https://registry.npmjs.org/cookie-storage/-/cookie-storage-6.1.0.tgz#291b2f662d961be44f999626593421cbfcf23790"
+  integrity sha512-HeVqbVy8BjXhAAuFtL6MTG+witHoLbxfky2jgVh9FmxmyL6IKa9gSSyPNjevXCCCxPu6Tzd9J8+eXTRQzYU/cg==
+
 copy-anything@^2.0.1:
   version "2.0.3"
   resolved "https://registry.npmjs.org/copy-anything/-/copy-anything-2.0.3.tgz#842407ba02466b0df844819bbe3baebbe5d45d87"
   integrity sha512-GK6QUtisv4fNS+XcI7shX0Gx9ORg7QqIznyfho79JTnX1XhLiyZHfftvGiziqzRiEi/Bjhgpi+D2o7HxJFPnDQ==
   dependencies:
     is-what "^3.12.0"
+
+copy-text-to-clipboard@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.npmjs.org/copy-text-to-clipboard/-/copy-text-to-clipboard-3.0.1.tgz#8cbf8f90e0a47f12e4a24743736265d157bce69c"
+  integrity sha512-rvVsHrpFcL4F2P8ihsoLdFHmd404+CMg71S756oRSeQgqk51U3kicGdnvfkrxva0xXH92SjGS62B0XIJsbh+9Q==
+
+core-js@^3.11.0:
+  version "3.20.0"
+  resolved "https://registry.npmjs.org/core-js/-/core-js-3.20.0.tgz#1c5ac07986b8d15473ab192e45a2e115a4a95b79"
+  integrity sha512-KjbKU7UEfg4YPpskMtMXPhUKn7m/1OdTHTVjy09ScR2LVaoUXe8Jh0UdvN2EKUR6iKTJph52SJP95mAB0MnVLQ==
 
 core-js@^3.19.1:
   version "3.19.3"
@@ -1192,6 +1219,11 @@ ms@^2.1.1:
   resolved "https://registry.npmjs.org/ms/-/ms-2.1.3.tgz#574c8138ce1d2b5861f0b44579dbadd60c6615b2"
   integrity sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==
 
+mutation-observer@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.npmjs.org/mutation-observer/-/mutation-observer-1.0.3.tgz#42e9222b101bca82e5ba9d5a7acf4a14c0f263d0"
+  integrity sha512-M/O/4rF2h776hV7qGMZUH3utZLO/jK7p8rnNgGkjKUw8zCGjRQPxB8z6+5l8+VjRUQ3dNYu4vjqXYLr+U8ZVNA==
+
 nanoid@^3.1.30:
   version "3.1.30"
   resolved "https://registry.npmjs.org/nanoid/-/nanoid-3.1.30.tgz#63f93cc548d2a113dc5dfbc63bfa09e2b9b64362"
@@ -1536,6 +1568,11 @@ supports-color@^7.1.0:
   dependencies:
     has-flag "^4.0.0"
 
+svelte-fa@^2.2.1:
+  version "2.4.0"
+  resolved "https://registry.npmjs.org/svelte-fa/-/svelte-fa-2.4.0.tgz#d94285151a975b92b29efec6ec9e2c11c57780ef"
+  integrity sha512-0bnbMGbsE1LUnlioDcf27tl2O8kjuXlTXMXzIxC7LoIOWmqn0D+zd539HfLiQbdLuOHGTaynwN9V+4ehhEu1Jw==
+
 systemjs@^6.11.0:
   version "6.11.0"
   resolved "https://registry.npmjs.org/systemjs/-/systemjs-6.11.0.tgz#8df8e74fc05822e6c40170aa409b9ca64833315f"
@@ -1577,6 +1614,18 @@ utils-merge@1.0.1:
   version "1.0.1"
   resolved "https://registry.npmjs.org/utils-merge/-/utils-merge-1.0.1.tgz#9f95710f50a267947b2ccc124741c1028427e713"
   integrity sha1-n5VxD1CiZ5R7LMwSR0HBAoQn5xM=
+
+vconsole@^3.9.5:
+  version "3.9.5"
+  resolved "https://registry.npmjs.org/vconsole/-/vconsole-3.9.5.tgz#c05d4b26eebb5de3e754963c06fa85118c515200"
+  integrity sha512-myecIEw9dvszjLPsodHc1W+zgGyP8939iO7JrcboF88gHTgRijdH3gMKT3QtWS1r/5EhtDOsGG7paRC9TX9hBQ==
+  dependencies:
+    "@fortawesome/free-solid-svg-icons" "^5.15.3"
+    cookie-storage "^6.1.0"
+    copy-text-to-clipboard "^3.0.1"
+    core-js "^3.11.0"
+    mutation-observer "^1.0.3"
+    svelte-fa "^2.2.1"
 
 vite-plugin-mock@^2.9.6:
   version "2.9.6"

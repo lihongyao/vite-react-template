@@ -6,7 +6,6 @@
  * @Description: 微信Api
  */
 
-
 import api from '@/api';
 import Validator from 'lg-validator';
 
@@ -21,6 +20,8 @@ interface JSSDKConfigPorps {
 }
 
 class LibForWeixin {
+  /*
+  // OPPO 机型无法打开
   private static instance: LibForWeixin;
   private constructor() {}
   static defaultWXSDK() {
@@ -28,7 +29,7 @@ class LibForWeixin {
       this.instance = new LibForWeixin();
     }
     return this.instance;
-  }
+  }*/
 
   /**
    * 微信授权
@@ -39,7 +40,9 @@ class LibForWeixin {
     base?: string /** 基路径，部署二级目录时传入，如二级目录名为“H5”，则传入的值为：“/H5/” */;
     state?: string /** 携带回传参数 */;
     path?: string /** 回调path，默认：/auth/callback */;
-    scope?: 'snsapi_userinfo' | 'snsapi_base' /** 授权scope，snsapi_userinfo（用户信息）/ snsapi_base（静默授权）默认：snsapi_userinfo */;
+    scope?:
+      | 'snsapi_userinfo'
+      | 'snsapi_base' /** 授权scope，snsapi_userinfo（用户信息）/ snsapi_base（静默授权）默认：snsapi_userinfo */;
   }) {
     // 1. 解构参数
     let {

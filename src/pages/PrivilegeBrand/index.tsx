@@ -2,13 +2,14 @@
  * @Author: Lee
  * @Date: 2021-09-04 14:21:34
  * @LastEditors: Lee
- * @LastEditTime: 2021-11-13 15:15:05
+ * @LastEditTime: 2021-12-17 13:11:30
  */
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Navigate } from 'react-router-dom';
 import './index.less';
 const PrivilegeBrand: React.FC = () => {
+  document.title='权益';
   return (
     <div className='tab-page'>
       <div className='coming-soon'>Demo Example</div>

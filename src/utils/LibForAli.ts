@@ -2,7 +2,7 @@
  * @Author: Lee
  * @Date: 2021-08-20 12:33:26
  * @LastEditors: Lee
- * @LastEditTime: 2021-11-30 20:47:26
+ * @LastEditTime: 2021-12-17 14:02:24
  * @Description: 支付宝Api
  */
 export interface AlipayLocationProps {
@@ -21,6 +21,8 @@ export interface AlipayLocationProps {
 }
 
 class LibForAli {
+  /*
+  // OPPO 机型无法打开
   private static instance: LibForAli;
   private constructor() {}
   static defaultWXSDK() {
@@ -29,6 +31,7 @@ class LibForAli {
     }
     return this.instance;
   }
+  */
 
   public static isIntalled(callback: Function) {
     // 如果jsbridge已经注入则直接调用
@@ -37,7 +40,7 @@ class LibForAli {
     } else {
       // 如果没有注入则监听注入的事件
       // @ts-ignore
-      window.document.addEventListener("AlipayJSBridgeReady", callback, false);
+      window.document.addEventListener('AlipayJSBridgeReady', callback, false);
     }
   }
 }
