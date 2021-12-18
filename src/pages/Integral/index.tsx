@@ -2,9 +2,10 @@
  * @Author: Lee
  * @Date: 2021-09-04 14:21:21
  * @LastEditors: Lee
- * @LastEditTime: 2021-12-17 13:11:06
+ * @LastEditTime: 2021-12-18 22:18:18
  */
 
+import Loading from '@/components/@lgs-react/Loading';
 import React from 'react';
 import './index.less';
 const Integral: React.FC = () => {
@@ -12,6 +13,7 @@ const Integral: React.FC = () => {
   return (
     <div className='tab-page'>
       <div className='coming-soon'>Demo Example</div>
+      <Loading tips='加载中' color='blue'/>
     </div>
   );
 };

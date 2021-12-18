@@ -2,7 +2,7 @@
  * @Author: Lee
  * @Date: 2021-08-31 17:18:49
  * @LastEditors: Lee
- * @LastEditTime: 2021-10-18 12:30:42
+ * @LastEditTime: 2021-12-18 21:12:23
  */
 
 /*
@@ -17,7 +17,6 @@
 import { AxiosRequestConfig } from "axios";
 import { LazyExoticComponent } from "react";
 export {};
-
 // => axios 模块定义
 declare module 'axios' {
   export interface AxiosInstance {

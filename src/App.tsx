@@ -2,7 +2,7 @@
  * @Author: Lee
  * @Date: 2021-11-12 14:46:06
  * @LastEditors: Lee
- * @LastEditTime: 2021-12-13 18:13:33
+ * @LastEditTime: 2021-12-18 21:18:15
  */
 
 import React, { Suspense } from 'react';
@@ -25,6 +25,7 @@ import NotEnv from './components/@lgs-react/NotEnv';
 import Tools from 'lg-tools';
 
 const Details = React.lazy(() => import('@/pages/Details'));
+const Download = React.lazy(() => import('@/pages/Download'));
 
 /**
  * 环境判断
@@ -68,6 +69,7 @@ export const AppRoutes: React.FC = () => {
         <Route path='mine' element={<Mine />} />
       </Route>
       <Route path='/details' element={<Details />} />
+      <Route path='/download' element={<Download />} />
       <Route path='/auth/:type' element={<Auth />} />
       <Route path='*' element={<NotFound />} />
     </Routes>
