@@ -420,7 +420,7 @@
   resolved "https://registry.npmjs.org/@use-gesture/core/-/core-10.2.4.tgz#139370223174b0589bd4b4f8ac7c0beb6ba64ba2"
   integrity sha512-fk1LjCBj43BKb8NE05qkdtPOR0ngA7PwgvEqfFap/h+s7QHi+JTv4/mtDQ4wI9zzem+Ry5EKrHS/cVdBehI4wA==
 
-"@use-gesture/react@^10.2.2":
+"@use-gesture/react@^10.2.4":
   version "10.2.4"
   resolved "https://registry.npmjs.org/@use-gesture/react/-/react-10.2.4.tgz#b333e91b00670785ee32e8f4f1530ac6b8894bbc"
   integrity sha512-CbqyRj+qNbRBOGmS8OWtaOa29fxEr7bKTYHvPuMQ1wsgQDh2/DqQxbp7cFxAg6WZ8oZjppDj/EkWnw22WpIIWQ==
@@ -489,14 +489,14 @@ antd-mobile-v5-count@^1.0.1:
   resolved "https://registry.npmjs.org/antd-mobile-v5-count/-/antd-mobile-v5-count-1.0.1.tgz#85f20c46d1635c24e856bcf5ad55e8c98e44a523"
   integrity sha512-YGsiEDCPUDz3SzfXi6gLZn/HpeSMW+jgPc4qiYUr1fSopg3hkUie2TnooJdExgfiETHefH3Ggs58He0OVfegLA==
 
-antd-mobile@^5.0.0-rc.5:
-  version "5.0.0-rc.5"
-  resolved "https://registry.npmjs.org/antd-mobile/-/antd-mobile-5.0.0-rc.5.tgz#3af0ea0dcb7552a84f019faffd2f98dc998f1cea"
-  integrity sha512-XFq8iydoC/roPzDP8R+26siduoohdVXkkkjYvxaCj9D0fqnoXij398b6JBHOOdMYYhxA+/T1hVQZ53Im8pj2kw==
+antd-mobile@^5.0.0-rc.6:
+  version "5.0.0-rc.6"
+  resolved "https://registry.npmjs.org/antd-mobile/-/antd-mobile-5.0.0-rc.6.tgz#3b818a3f68c39167128ab7f90d99d496e46f42a6"
+  integrity sha512-D4y/Ofo8nyG1OZwpEbwPH9k4cY5DdBXhZIxZafQ58VGC8ZY792qS1ykml75KfY/57YXn0sBgdbFkoet4TiLPZg==
   dependencies:
     "@react-spring/web" "^9.3.1"
     "@types/resize-observer-browser" "^0.1.6"
-    "@use-gesture/react" "^10.2.2"
+    "@use-gesture/react" "^10.2.4"
     ahooks "^2.10.14"
     antd-mobile-icons "^0.2.2"
     antd-mobile-v5-count "^1.0.1"
