@@ -2,15 +2,11 @@
  * @Author: Lee
  * @Date: 2021-11-12 14:46:06
  * @LastEditors: Lee
- * @LastEditTime: 2021-12-18 21:18:15
+ * @LastEditTime: 2021-12-19 15:17:04
  */
 
 import React, { Suspense } from 'react';
-import {
-  BrowserRouter as Router,
-  Route,
-  Routes
-} from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 import Fallback from '@/components/@lgs-react/Fallback';
 import Layout from '@/layout';
@@ -26,6 +22,7 @@ import Tools from 'lg-tools';
 
 const Details = React.lazy(() => import('@/pages/Details'));
 const Download = React.lazy(() => import('@/pages/Download'));
+const Test = React.lazy(() => import('@/pages/Test'));
 
 /**
  * 环境判断
@@ -63,13 +60,14 @@ export const AppRoutes: React.FC = () => {
   return (
     <Routes>
       <Route path='/' element={<Layout />}>
-        <Route path='index' element={<IndexPage />} />
+        <Route index element={<IndexPage />} />
         <Route path='privilege-brand' element={<PrivilegeBrand />} />
         <Route path='integral' element={<Integral />} />
         <Route path='mine' element={<Mine />} />
       </Route>
       <Route path='/details' element={<Details />} />
       <Route path='/download' element={<Download />} />
+      <Route path='/test' element={<Test />} />
       <Route path='/auth/:type' element={<Auth />} />
       <Route path='*' element={<NotFound />} />
     </Routes>
