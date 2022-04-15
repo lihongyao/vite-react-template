@@ -2,7 +2,7 @@
  * @Author: Lee
  * @Date: 2021-11-12 14:46:06
  * @LastEditors: Lee
- * @LastEditTime: 2021-12-19 15:17:04
+ * @LastEditTime: 2022-04-15 17:18:05
  */
 
 import React, { Suspense } from 'react';
@@ -31,7 +31,9 @@ const Test = React.lazy(() => import('@/pages/Test'));
  * @param param0
  * @returns
  */
-export const GuardEnv: React.FC = ({ children }) => {
+export const GuardEnv: React.FC<{ children?: JSX.Element }> = ({
+  children,
+}) => {
   return import.meta.env.VITE_APP_SOURCE === 'mp' &&
     ['weixin', 'alipay'].indexOf(Tools.getEnv()) === -1 ? (
     <NotEnv />
@@ -44,7 +46,9 @@ export const GuardEnv: React.FC = ({ children }) => {
  * appRouter
  * @returns
  */
-export const AppRouter: React.FC = ({ children }) => {
+export const AppRouter: React.FC<{ children?: JSX.Element }> = ({
+  children,
+}) => {
   return (
     <Suspense fallback={Fallback}>
       <Router basename={import.meta.env.VITE_APP_BASE}>{children}</Router>
