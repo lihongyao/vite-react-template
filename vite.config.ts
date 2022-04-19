@@ -2,9 +2,9 @@
  * @Author: Lee
  * @Date: 2021-08-31 15:50:32
  * @LastEditors: Lee
- * @LastEditTime: 2021-12-18 22:41:40
+ * @LastEditTime: 2022-04-19 14:01:57
  */
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import { viteMockServe } from 'vite-plugin-mock';
 import reactRefresh from '@vitejs/plugin-react-refresh';
 import urlToModule from 'rollup-plugin-import-meta-url-to-module';
@@ -12,26 +12,33 @@ import { resolve } from 'path';
 import legacy from '@vitejs/plugin-legacy';
 
 // https://vitejs.dev/config/
-export default defineConfig({
-  build: {
-    outDir: 'react-h5',
-  },
-  resolve: {
-    alias: {
-      '@': resolve(__dirname, 'src'),
+export default ({ mode }) => {
+  // -- 获取环境变量
+  const env = loadEnv(mode, process.cwd());
+  // -- 返回配置信息
+  return defineConfig({
+    // 部署二级目录基础路径
+    base: env.VITE_APP_BASE || '/',
+    build: {
+      outDir: env.VITE_OUT_DIR,
     },
-  },
-  server: {
-    fs: {
-      strict: false,
+    resolve: {
+      alias: {
+        '@': resolve(__dirname, 'src'),
+      },
     },
-  },
-  plugins: [
-    reactRefresh(),
-    viteMockServe({}),
-    urlToModule(),
-    legacy({
-      targets: ['defaults', 'not IE 11'],
-    }),
-  ],
-});
+    server: {
+      fs: {
+        strict: false,
+      },
+    },
+    plugins: [
+      reactRefresh(),
+      viteMockServe({}),
+      urlToModule(),
+      legacy({
+        targets: ['defaults', 'not IE 11'],
+      }),
+    ],
+  });
+};
