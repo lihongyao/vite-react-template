@@ -2,7 +2,7 @@
  * @Author: Lee
  * @Date: 2021-08-31 17:34:21
  * @LastEditors: Lee
- * @LastEditTime: 2022-04-24 16:58:38
+ * @LastEditTime: 2022-04-24 18:14:29
  */
 
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
@@ -48,6 +48,10 @@ service.interceptors.response.use(
         return response.data;
       case -10:
         // token过期
+        /*
+        // -- 二级目录
+        const base = import.meta.env.VITE_APP_BASE;
+        const url = base ? base + 'login' : "/login"*/
         history.replace('/login');
         history.go(0);
         return response.data;
