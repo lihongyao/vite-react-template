@@ -2,13 +2,15 @@
  * @Author: Lee
  * @Date: 2021-08-31 17:34:21
  * @LastEditors: Lee
- * @LastEditTime: 2021-08-31 17:38:38
+ * @LastEditTime: 2022-04-24 16:58:38
  */
 
-import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
-import Cookie from "lg-cookie";
-import Tools from "lg-tools";
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import Cookie from 'lg-cookie';
+import Tools from 'lg-tools';
+import { createBrowserHistory } from 'history';
 
+const history = createBrowserHistory();
 const service = axios.create({
   baseURL: import.meta.env.VITE_APP_HOST,
   timeout: 20000,
@@ -25,10 +27,10 @@ service.interceptors.request.use(
       };
     }
     // => 配置请求头
-    const token = Cookie.get<string>("AUTHORIZATION_TOKEN");
+    const token = Cookie.get<string>('AUTHORIZATION_TOKEN');
     config.headers = {
-      "Content-Type": "application/json",
-      Authorization: Cookie.get<string>("AUTHORIZATION_TOKEN"),
+      'Content-Type': 'application/json',
+      Authorization: Cookie.get<string>('AUTHORIZATION_TOKEN'),
     };
     return config;
   },
@@ -44,6 +46,11 @@ service.interceptors.response.use(
     switch (code) {
       case 0:
         return response.data;
+      case -10:
+        // token过期
+        history.replace('/login');
+        history.go(0);
+        return response.data;
       default:
         console.log(msg);
         return response.data;
@@ -51,7 +58,7 @@ service.interceptors.response.use(
   },
   (error: any) => {
     console.log(error);
-    /timeout/.test(error.message) && console.log("请求超时，请检查网络");
+    /timeout/.test(error.message) && console.log('请求超时，请检查网络');
     return Promise.reject(error);
   }
 );
