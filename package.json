@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "vite --mode dev --host=0.0.0.0",
-    "test": "tsc && vite build --mode test --base=/dirName/",
+    "test": "tsc && vite build --mode test",
     "build": "tsc && vite build --mode production",
     "serve": "vite preview"
   },

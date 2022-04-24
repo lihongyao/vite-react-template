@@ -2,7 +2,7 @@
  * @Author: Lee
  * @Date: 2021-08-31 15:50:32
  * @LastEditors: Lee
- * @LastEditTime: 2022-04-19 14:01:57
+ * @LastEditTime: 2022-04-24 10:20:48
  */
 import { defineConfig, loadEnv } from 'vite';
 import { viteMockServe } from 'vite-plugin-mock';
@@ -21,6 +21,7 @@ export default ({ mode }) => {
     base: env.VITE_APP_BASE || '/',
     build: {
       outDir: env.VITE_OUT_DIR,
+      chunkSizeWarningLimit: 1000,
     },
     resolve: {
       alias: {
