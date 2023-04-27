@@ -1,0 +1,31 @@
+.lg-tab-bar {
+  width: 100%;
+  background-color: #ffffff;
+  border-top: 1px solid #eeeeee;
+  height: ~"calc(50PX + env(safe-area-inset-bottom))";
+  display: flex;
+  position: fixed;
+  bottom: 0;
+  padding-bottom: env(safe-area-inset-bottom);
+ 
+  &__item {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+    color: #aaaaaa;
+    &.active {
+      color: #222222;
+    }
+    .icon {
+      width: 22px;
+      height: 22px;
+    }
+    .text {
+      margin-top: 1px;
+      font-size: 10px;
+      line-height: 14px;
+    }
+  }
+}

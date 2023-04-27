@@ -1,0 +1,64 @@
+.lg-tabs {
+  &__place {
+    height: 44px;
+  }
+  &__menu {
+    height: 44px;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    white-space: nowrap;
+    background-color: #fff;
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+    &.bordered {
+      border-bottom: 1px solid #eeeeee;
+    }
+    &.fixed {
+      width: 100%;
+      position: fixed;
+      top: 0;
+      z-index: 1;
+    }
+
+    &_wrapper {
+      height: inherit;
+      min-width: 100%;
+      width: fit-content;
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
+    &_item {
+      margin: 0 20px;
+      position: relative;
+      font-size: 15px;
+      color: #444444;
+      &.disabled {
+        opacity: 0.3;
+      }
+    }
+    &_badge {
+      padding: 0 4px;
+      border-radius: 8px;
+      background-color: #ff0624;
+      font-size: 8px;
+      position: absolute;
+      left: 100%;
+      top: -8px;
+      transform: translateX(-30%);
+      color: #ffffff;
+    }
+  }
+  &__cursor {
+    width: 30px;
+    height: 4px;
+    border-radius: 4px;
+    background: #2d46f1;
+    transition: transform 0.15s linear;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+  }
+}
