@@ -1,15 +1,7 @@
-/*
- * @Author: Li-HONGYAO
- * @Date: 2021-06-18 15:23:59
- * @LastEditors: Lee
- * @LastEditTime: 2023-04-27 15:29:42
- * @Description: 微信Api
- */
 
-import service from '@/service';
-import Validator from 'lg-validator';
+import Validator from '@likg/validator';
 
-/**k
+/**
  * 后端返回的初始化JS-SDK所需要的配置类型
  */
 interface JSSDKConfigPorps {
@@ -19,7 +11,7 @@ interface JSSDKConfigPorps {
   signature: string;
 }
 
-class LibForWeixin {
+export default class LibForWeixin {
   /*
   // OPPO 机型无法打开
   private static instance: LibForWeixin;
@@ -41,11 +33,11 @@ class LibForWeixin {
     state?: string /** 携带回传参数 */;
     path?: string /** 回调path，默认：/auth/callback */;
     scope?:
-      | 'snsapi_userinfo'
-      | 'snsapi_base' /** 授权scope，snsapi_userinfo（用户信息）/ snsapi_base（静默授权）默认：snsapi_userinfo */;
+    | 'snsapi_userinfo'
+    | 'snsapi_base' /** 授权scope，snsapi_userinfo（用户信息）/ snsapi_base（静默授权）默认：snsapi_userinfo */;
   }) {
     // 1. 解构参数
-    let {
+    const {
       appid,
       state,
       base,
@@ -53,15 +45,13 @@ class LibForWeixin {
       scope = 'snsapi_userinfo',
     } = options;
     // 2. 解析redirect_uri
-    let redirect_uri = encodeURIComponent(
-      `${window.location.origin}${
-        base ? base.slice(0, base.length - 1) : ''
+    const redirect_uri = encodeURIComponent(
+      `${window.location.origin}${base ? base.slice(0, base.length - 1) : ''
       }${path}`
     );
     // 3. 跳转授权页
     window.location.replace(
-      `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${appid}&redirect_uri=${redirect_uri}&response_type=code&scope=${scope}&state=${
-        state ? encodeURIComponent(state) : ''
+      `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${appid}&redirect_uri=${redirect_uri}&response_type=code&scope=${scope}&state=${state ? encodeURIComponent(state) : ''
       }#wechat_redirect`
     );
   }
@@ -75,7 +65,7 @@ class LibForWeixin {
     return new Promise((resolve, reject) => {
       // 1. 处理url（注：iOS 需拿到进入时的URL，已动态记录存入全局window对象，key值为：CONFIG_URL_FOR_IOS）
       let url = '';
-      if (Validator.ios()) {
+      if (Validator.isiOS()) {
         url = window.CONFIG_URL_FOR_IOS;
       } else {
         url = window.location.href;
@@ -113,4 +103,4 @@ class LibForWeixin {
   }
 }
 
-export default LibForWeixin;
+

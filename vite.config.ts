@@ -1,80 +1,92 @@
-/*
- * @Author: Lee
- * @Date: 2023-04-27 10:54:26
- * @LastEditors: Lee
- * @LastEditTime: 2023-04-27 16:11:05
- * @Description:
- */
-import { defineConfig, loadEnv } from 'vite';
-import { resolve } from 'path';
-import react from '@vitejs/plugin-react';
-import legacy from '@vitejs/plugin-legacy';
-import urlToModule from 'rollup-plugin-import-meta-url-to-module';
-import mockDevServerPlugin from 'vite-plugin-mock-dev-server';
-import autoprefixer from 'autoprefixer';
-import postCssPxToRem from 'postcss-pxtorem';
-// https://vitejs.dev/config/
-export default ({ mode }) => {
+import type { UserConfig, ConfigEnv } from 'vite';
+import { defineConfig, loadEnv } from 'vite'
+import { resolve } from 'node:path';
+import react from '@vitejs/plugin-react'
+import viteCompression from "vite-plugin-compression";
+import legacy from '@vitejs/plugin-legacy'
+import { visualizer } from "rollup-plugin-visualizer";
+import { viteMockServe } from 'vite-plugin-mock'
+import px2vw from 'postcss-px-to-viewport-8-plugin'
+import autoprefixer from 'autoprefixer'
+// https://cn.vitejs.dev/config/
+export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
+
+  // -- 获取当前工作目录路径
+  const root = process.cwd();
+  const pathResolve = (path: string) => resolve(root, '.', path);
   // -- 获取环境变量
-  const env = loadEnv(mode, process.cwd());
-  // -- 返回配置信息
-  return defineConfig({
-    // 1.部署二级目录基础路径
-    base: env.VITE_APP_BASE || '/',
-    // 2.构建相关
-    build: {
-      outDir: env.VITE_OUT_DIR,
-      chunkSizeWarningLimit: 1000,
-    },
-    // 3.别名解析
+  const env = loadEnv(mode, root, "VITE_");
+  console.log(env);
+  return {
     resolve: {
       alias: {
-        '@': resolve(__dirname, 'src'),
+        "@": pathResolve('src'),
       },
     },
-    // 4. 服务器选项
-    server: {
-      port: 3000,
-      host: '0.0.0.0',
-      fs: {
-        strict: false,
-      },
-      proxy: {
-        '^/api': {
-          target: 'http://example.com',
-        },
-      },
-    },
-    // 5. 插件相关
     plugins: [
       react(),
-      // https://github.com/pengzhanbo/vite-plugin-mock-dev-server
-      mockDevServerPlugin(),
-      urlToModule(),
+      viteCompression({
+        deleteOriginFile: false
+      }),
+      // @ts-ignore
       legacy({
         targets: ['defaults', 'not IE 11'],
       }),
+      visualizer({
+        open: true,
+        gzipSize: true,
+        brotliSize: true,
+        filename: 'stats.html',
+      }),
+      viteMockServe({
+        mockPath: 'mock',
+        enable: true,
+        logger: true,
+      }),
+
     ],
-    // 6. 样式相关
+    server: {
+      host: "0.0.0.0",
+      port: 5173,
+      strictPort: false,
+      open: true,
+      cors: true,
+      proxy: {
+        '/api': {
+          target: 'http://0.0.0.0:5173',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api/, ''),
+        },
+      },
+    },
     css: {
       postcss: {
         plugins: [
-          postCssPxToRem({
-            rootValue: 37.5,
-            propList: ['*'],
-            selectorBlackList: ['.norem'],
-          }),
           autoprefixer({
-            overrideBrowserslist: [
-              'Android 4.1',
-              'iOS 7.1',
-              'Chrome > 31',
-              'ff > 31',
-              'ie >= 8',
-            ],
+            overrideBrowserslist: ['last 2 versions', 'iOS >= 10']
           }),
-        ],
-      },
+          px2vw({
+            unitToConvert: 'px',
+            viewportWidth: 375,
+            unitPrecision: 5,
+            propList: ['*'],
+            viewportUnit: 'vw',
+            fontViewportUnit: 'vw',
+            selectorBlackList: [],
+            minPixelValue: 1,
+            mediaQuery: false
+          })
+        ]
+      }
     },
-  });
-};
+    build: {
+      outDir: env.VITE_OUT_DIR,
+      chunkSizeWarningLimit: 2000,
+      reportCompressedSize: false
+    },
+    esbuild: {
+      drop: ['debugger'],
+      pure: ['console.log']
+    }
+  };
+});

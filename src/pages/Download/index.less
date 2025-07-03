@@ -1,32 +1,41 @@
 .download-app {
-  background: url('https://qn.d-dou.com/dcep/dbean/8c665fe9d983444db2060f87581abe095vasla.png')
-    no-repeat top center;
-  background-size: cover;
-  .open-tips {
-    display: none;
-    width: 160px;
-    height: auto;
-    position: fixed;
-    right: 6px;
-    top: 0;
-    &.show {
-      display: block;
-    }
-    &.ani {
-      animation: debounce 1s;
-    }
-  }
-  .phone {
-    width: 287px;
-  }
-  .box {
-    height: 200px;
-    background: #ffffff;
-    bottom: 0;
-    position: fixed;
-    .download-button {
-      width: 177px;
-      height: 42px;
-    }
-  }
+	.parttern {
+		width: 20%;
+	}
+
+	.download-btn {
+		width: 182px;
+		height: 40px;
+	}
+
+	/* 微信环境提示 */
+	.tips {
+		display: none;
+		padding: 6px 10px;
+		border-radius: 6px;
+		position: fixed;
+		top: 10px;
+		right: 10px;
+		background: rgba(0, 0, 0, 0.75);
+		color: #fff;
+	}
+	.tips::before {
+		content: '';
+		width: 0;
+		height: 0;
+		position: absolute;
+		top: -8px;
+		right: 10px;
+		display: block;
+		border-style: solid;
+		border-color: transparent transparent rgba(0, 0, 0, 0.75) transparent;
+		border-width: 0 6px 8px 6px;
+	}
+
+	.tips.show {
+		display: block;
+	}
+	.tips.ani {
+		animation: debounce 1s;
+	}
 }

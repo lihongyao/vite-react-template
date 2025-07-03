@@ -1,88 +1,94 @@
-/*
- * @Author: Lee
- * @Date: 2021-10-18 15:30:08
- * @LastEditors: Lee
- * @LastEditTime: 2021-10-18 16:05:24
- */
-import classNames from "lg-classnames";
-import React from "react";
-import ReactDom from "react-dom";
-import "./index.less";
+import { useState } from 'react';
+import { createRoot } from 'react-dom/client';
+import clsx from 'clsx';
+import './index.less';
 
 interface IConfigs {
-  message?: string;
-  duration?: number;
-  type: "loading" | "info";
+	message?: string;
+	duration?: number;
+	type: 'loading' | 'info';
 }
 
-let TOAST_TIMER: any;
-const getToast = (props: { message?: string; loading: boolean }) => {
-  return (
-    <div className="lg-toast__wrapper">
-      <div
-        className={classNames([
-          "lg-toast__content",
-          { loading: props.loading },
-        ])}
-      >
-        {props.loading && (
-          <img
-            src={new URL("./images/loading.png", import.meta.url).toString()}
-            alt=""
-            className="lg-toast__loading"
-          />
-        )}
-        {props.message && <div className="lg-toast__tips">{props.message}</div>}
-      </div>
-    </div>
-  );
+let TOAST_TIMER: NodeJS.Timeout;
+
+// eslint-disable-next-line react-refresh/only-export-components
+const ToastContent = ({
+	message,
+	loading
+}: {
+	message?: string;
+	loading: boolean;
+}) => (
+	<div className="lg-toast__wrapper">
+		<div className={clsx(['lg-toast__content', { loading }])}>
+			{loading && (
+				<img
+					src={new URL('./images/loading.png', import.meta.url).toString()}
+					alt=""
+					className="lg-toast__loading"
+				/>
+			)}
+			{message && <div className="lg-toast__tips">{message}</div>}
+		</div>
+	</div>
+);
+
+const useToast = () => {
+	const [toastConfig, setToastConfig] = useState<IConfigs | null>(null);
+
+	const render = (configs: IConfigs) => {
+		clearTimeout(TOAST_TIMER);
+		setToastConfig(configs);
+
+		if (configs.duration) {
+			TOAST_TIMER = setTimeout(() => {
+				setToastConfig(null);
+			}, configs.duration * 1000);
+		}
+	};
+
+	const info = (message: string, duration: number = 1.5) => {
+		render({ message, duration, type: 'info' });
+	};
+
+	const loading = (message?: string) => {
+		render({ message, type: 'loading' });
+	};
+
+	const hide = () => {
+		setToastConfig(null);
+	};
+
+	return {
+		toast: toastConfig && (
+			<ToastContent
+				message={toastConfig.message}
+				loading={toastConfig.type === 'loading'}
+			/>
+		),
+		info,
+		loading,
+		hide
+	};
 };
 
-const getWrap = () => {
-  let wrap = document.querySelector(".lg-toast");
-  if (!wrap) {
-    wrap = document.createElement("div");
-    wrap.setAttribute("class", "lg-toast");
-    document.body.appendChild(wrap);
-  }
-  const child = wrap.querySelector("lg-toast__box");
-  if (child) {
-    child.remove();
-  }
-  return wrap;
+// 兼容旧版API
+const legacyToast = {
+	info: (message: string, duration: number = 1.5) => {
+		const root = createRoot(document.createElement('div'));
+		root.render(<ToastContent message={message} loading={false} />);
+
+		setTimeout(() => {
+			root.unmount();
+		}, duration * 1000);
+	},
+	loading: (message?: string) => {
+		const root = createRoot(document.createElement('div'));
+		root.render(<ToastContent message={message} loading={true} />);
+		return () => root.unmount();
+	},
+	hide: () => {} // 需要额外处理
 };
 
-const render = (configs: IConfigs) => {
-  clearTimeout(TOAST_TIMER);
-  const wrap = getWrap();
-  ReactDom.render(
-    getToast({
-      message: configs.message,
-      loading: configs.type === "loading",
-    }),
-    wrap
-  );
-  if (configs.duration) {
-    TOAST_TIMER = setTimeout(() => {
-      ReactDom.unmountComponentAtNode(wrap);
-      clearTimeout(TOAST_TIMER);
-    }, configs.duration * 1000);
-  }
-};
-
-const info = (message: string, duration: number = 1.5) => {
-  render({ message, duration, type: "info" });
-};
-const loading = (message?: string) => {
-  render({ message, type: "loading" });
-};
-const hide = () => {
-  const wrap = getWrap();
-  ReactDom.unmountComponentAtNode(wrap);
-};
-
-export default {
-  info,
-  loading,
-  hide,
-};
+export default useToast;
+export { legacyToast as toast };

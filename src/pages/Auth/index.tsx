@@ -1,15 +1,10 @@
-/*
- * @Author: Lee
- * @Date: 2021-09-01 09:24:26
- * @LastEditors: Lee
- * @LastEditTime: 2023-04-27 16:32:33
- */
-import Toast from '@/components/@lgs-react/Toast';
-import LibForWeixin from '@/utils/LibForWeixin';
-import Cookie from 'lg-cookie';
-import Tools from 'lg-tools';
-import React, { useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import useToast from "@/components/@lgs-react/Toast";
+import LibForWeixin from "@/utils/LibForWeixin";
+import Cookie from "@likg/cookie";
+import Tools from "@likg/tools";
+import { useMount } from "ahooks";
+import { Toast } from "antd-mobile";
+import { useNavigate, useParams } from "react-router";
 
 interface QueryProps {
   from: string;
@@ -17,7 +12,7 @@ interface QueryProps {
   state: string;
 }
 
-const Auth: React.FC = () => {
+export default function Page() {
   const { type } = useParams();
   const { from, code, state } = Tools.query<QueryProps>();
   const navigate = useNavigate();
@@ -31,39 +26,38 @@ const Auth: React.FC = () => {
       base: import.meta.env.VITE_APP_BASE,
     });
   };
+
   const callback = () => {
+    console.log("授权回调 code = ", code);
     // 提示信息
-    Toast.loading('加载中');
+    Toast.show({ icon: "loading", content: "处理中" });
     // 每次授权回调的时候重新记录下这个路由（微信回调过来时相当于项目重新加载了）
     window.CONFIG_URL_FOR_IOS = window.location.href;
     // -- 调用微信后置接口 -- 执行登录操作等
     setTimeout(() => {
-      Toast.hide();
+      Toast.clear();
       // 1. 保存Token
-      Cookie.set('AUTHORIZATION_TOKEN', '123');
+      Cookie.set("AUTHORIZATION_TOKEN", "123");
       // 2. 处理跳转
       if (state) {
         navigate(decodeURIComponent(state as string), { replace: true });
       } else {
-        navigate('/index', { replace: true });
+        navigate("/", { replace: true });
       }
     }, 1000);
   };
 
   // effects
-  useEffect(() => {
+  useMount(() => {
     switch (type) {
-      case 'jump':
+      case "jump":
         jump();
         break;
-      case 'callback':
+      case "callback":
         callback();
         break;
       default:
     }
-  }, []);
-
+  });
   return <></>;
-};
-
-export default Auth;
+}

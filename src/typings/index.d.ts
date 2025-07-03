@@ -1,21 +1,19 @@
-/*
- * @Author: Li-HONGYAO
- * @Date: 2021-03-26 22:51:19
- * @LastEditTime: 2023-04-27 15:07:32
- * @LastEditors: Lee
- * @Description:
- * @FilePath: \vite-vue-template__H5\src\typings\index.d.ts
- */
+export { };
 
-export {};
 declare global {
+  // 👉 定义全局属性
   interface Window {
+    /** 百度统计 */
     _hmt: any;
+    /** 微信S*/
     wx: any;
+    /** 百度地图 */
+    AMap: any;
+    /** 腾讯地图 */
+    qq: any;
+    /** 支付宝 */
     AlipayJSBridge: any;
+    /** iOS回调地址 */
     CONFIG_URL_FOR_IOS: string;
-  }
-  namespace Types {
-    // Define intercaces...
   }
 }

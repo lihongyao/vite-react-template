@@ -1,164 +1,175 @@
-import React, { FC, memo, useEffect, useRef, useState } from 'react';
-import './index.less';
+import React, { useEffect, useRef, useState, memo, useCallback } from 'react';
 
-/** 组件属性接口 */
-interface IProps {
-  /** 拖拽元素 */
-  children: JSX.Element | JSX.Element[];
-  /** 拖拽元素初始位置 */
-  position?: {
-    top?: number;
-    right?: number;
-    bottom?: number;
-    left?: number;
-  };
-  /** 点击事件 */
-  onTap?: () => void;
-}
-
-const DragView: FC<IProps> = props => {
-  // 设置默认初始位置
-  const { position = { right: 15, bottom: 80 } } = props;
-
-  // refs
-  const lgWrapper = useRef<HTMLDivElement | null>(null); /** 存储容器对象 */
-
-  // states
-  const [rect, setRect] = useState(() => ({
-    width: 0,
-    height: 0,
-  })); /** 屏幕尺寸 */
-  const [bounding, setBounding] = useState(() => ({
-    x: 0,
-    y: 0,
-  })); /** 拖拽边界值 */
-  const [pos, setPos] = useState(() => ({ x: 0, y: 0 })); /** 拖拽元素坐标 */
-
-  // methods
-  const calc = () => {
-    // 获取屏幕的尺寸信息
-    const clientWidth = window.innerWidth;
-    const clientHeight = window.innerHeight;
-
-    if (lgWrapper.current) {
-      // 获取容器元素的尺寸信息
-      const _rect = lgWrapper.current.getBoundingClientRect();
-
-      // 获取用户设置的位置信息
-      const { top, right, bottom, left } = position;
-
-      // 定义_pos记录临时坐标，默认在右下侧
-      const _pos = {
-        x: clientWidth - _rect.width,
-        y: clientHeight - _rect.height,
-      };
-
-      // 单独判断并设置各方向的值
-      if (top !== undefined) {
-        _pos.y = top;
-      }
-      if (right !== undefined) {
-        _pos.x = clientWidth - right - _rect.width;
-      }
-      if (bottom !== undefined) {
-        _pos.y = clientHeight - bottom - _rect.height;
-      }
-      if (left !== undefined) {
-        _pos.x = left;
-      }
-
-      // 同一方向，如果同时设置top、bottom值，则bottom值有效；
-      if (top !== undefined && bottom !== undefined) {
-        _pos.y = clientHeight - bottom - _rect.height;
-      }
-
-      // 同一方向，如果同时设置left、right值，则right值有效；
-      if (left !== undefined && right !== undefined) {
-        _pos.x = clientWidth - right - _rect.width;
-      }
-
-      // 更新拖拽元素位置
-      setPos({ ..._pos });
-
-      // 记录容器尺寸信息
-      setRect(_rect);
-
-      // 获取拖拽元素在屏幕内可拖拽的边界值
-      setBounding({
-        x: clientWidth - _rect.width,
-        y: clientHeight - _rect.height,
-      });
-    }
-  };
-  // effects
-  useEffect(() => {
-    if (lgWrapper.current) {
-      // 当组件一加载就计算初始位置信息
-      calc();
-    }
-  }, [lgWrapper]);
-
-  useEffect(() => {
-    // 拖拽事件处理函数
-    const onMove = (event: TouchEvent) => {
-      // 获取触点
-      const touch = event.touches[0];
-
-      // 定位滑块的位置
-      let x = touch.clientX - rect.width / 2;
-      let y = touch.clientY - rect.height / 2;
-
-      // 处理边界
-      if (x < 0) {
-        x = 0;
-      } else if (x > bounding.x) {
-        x = bounding.x;
-      }
-      if (y < 0) {
-        y = 0;
-      } else if (y > bounding.y) {
-        y = bounding.y;
-      }
-
-      // 更新拖拽视图位置
-      setPos({ x, y });
-
-      // 阻止默认行为
-      event.preventDefault();
-
-      // 阻止事件冒泡
-      event.stopPropagation();
-    };
-
-    // 监听拖拽事件
-    if (lgWrapper.current) {
-      lgWrapper.current.addEventListener('touchmove', onMove, {
-        passive: false,
-      });
-    }
-    // 移除拖拽事件
-    return () => {
-      if (lgWrapper.current)
-        lgWrapper.current.removeEventListener('touchmove', onMove);
-    };
-  }, [lgWrapper, bounding, rect]);
-
-  // render
-  return (
-    <div
-      ref={lgWrapper}
-      className="lg-drag-view"
-      style={{
-        left: `${pos.x}px`,
-        top: `${pos.y}px`,
-      }}
-      onClick={() => {
-        if (props.onTap) props.onTap();
-      }}
-    >
-      {props.children}
-    </div>
-  );
+type Point = { x: number; y: number };
+type Position = {
+	top?: number;
+	right?: number;
+	bottom?: number;
+	left?: number;
 };
 
-export default memo(DragView);
+export default memo(function DragView({
+	children,
+	zIndex = 1,
+	position = { right: 15, bottom: 80 },
+	onPress
+}: {
+	/** 拖拽元素 */
+	children: React.ReactElement;
+	/** 层级 */
+	zIndex?: number;
+	/** 拖拽元素初始位置 */
+	position?: Position;
+	/** 点击事件 */
+	onPress?: () => void;
+}) {
+	const container = useRef<HTMLDivElement | null>(null);
+	const isTrigger = useRef(false);
+	const timer = useRef<NodeJS.Timeout>(undefined);
+
+	const initPosition = useRef(position);
+	const [offset, setOffset] = useState<Point>(() => ({ x: 0, y: 0 }));
+
+	const dragStart = (
+		event: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>
+	) => {
+		// -- 阻止事件冒泡
+		event.stopPropagation();
+		// -- 长按激活拖拽状态
+		timer.current = setTimeout(() => {
+			// -- 激活拖拽状态
+			isTrigger.current = true;
+			// -- 禁止交互
+			document.body.style.overflow = 'hidden';
+		}, 250);
+		// -- 事件监听
+		document.addEventListener('mousemove', dragging);
+		document.addEventListener('mouseup', dragEnd);
+		document.addEventListener('touchmove', dragging);
+		document.addEventListener('touchend', dragEnd);
+	};
+	const dragging = (event: MouseEvent | TouchEvent) => {
+		// -- 阻止事件冒泡
+		event.stopPropagation();
+		// -- 异常处理
+		if (!isTrigger.current || !container.current) return;
+		// -- 获取当前移动的位置
+		const { width, height } = container.current.getBoundingClientRect();
+
+		// -- 计算可移动的最大距离
+		const maxOffsetX = window.innerWidth - width;
+		const maxOffsetY = window.innerHeight - height;
+
+		// -- 获取鼠标当前位置
+		const x = 'clientX' in event ? event.clientX : event.touches[0].clientX;
+		const y = 'clientY' in event ? event.clientY : event.touches[0].clientY;
+
+		// -- 位移距离
+		let offsetX = x - width / 2;
+		let offsetY = y - height / 2;
+
+		// -- 判断边界
+		if (offsetX < 0) {
+			offsetX = 0;
+		} else if (offsetX > maxOffsetX) {
+			offsetX = maxOffsetX;
+		}
+		if (offsetY < 0) {
+			offsetY = 0;
+		} else if (offsetY > maxOffsetY) {
+			offsetY = maxOffsetY;
+		}
+		// -- 更新位置
+		setOffset({ x: offsetX, y: offsetY });
+	};
+	const dragEnd = (event: MouseEvent | TouchEvent) => {
+		// -- 阻止事件冒泡
+		event.stopPropagation();
+		// -- 移除
+		clearTimeout(timer.current);
+		// -- 判断是否激活点击事件
+		if (isTrigger.current) {
+			// -- 更新状态
+			isTrigger.current = false;
+			// -- 允许交互
+			document.body.style.overflow = 'auto';
+		} else {
+			onPress?.();
+		}
+		// -- 移除事件
+		document.removeEventListener('mousemove', dragging);
+		document.removeEventListener('mouseup', dragEnd);
+		document.removeEventListener('touchmove', dragging);
+		document.removeEventListener('touchend', dragEnd);
+	};
+
+	// methods
+	const setInitialPosition = useCallback(() => {
+		if (container.current === null) return;
+		// -- 获取容器元素的尺寸信息
+		const { width: containerW, height: containerH } =
+			container.current.getBoundingClientRect();
+		// -- 获取用户设置的位置信息
+		const { top, right, bottom, left } = initPosition.current;
+
+		// 定义_pos记录临时坐标，默认在右下侧
+		let offsetX = 0;
+		let offsetY = 0;
+
+		// -- 单独判断并设置各方向的值
+		if (top !== undefined) {
+			offsetY = top;
+		}
+		if (right !== undefined) {
+			offsetX = window.innerWidth - right - containerW;
+		}
+		if (bottom !== undefined) {
+			offsetY = window.innerHeight - bottom - containerH;
+		}
+		if (left !== undefined) {
+			offsetX = left;
+		}
+
+		// -- 同一方向，如果同时设置top、bottom值，则bottom值有效；
+		if (top !== undefined && bottom !== undefined) {
+			offsetY = window.innerHeight - bottom - containerH;
+		}
+
+		// -- 同一方向，如果同时设置left、right值，则right值有效；
+		if (left !== undefined && right !== undefined) {
+			offsetX = window.innerWidth - right - containerW;
+		}
+
+		// -- 更新拖拽元素位置
+		setOffset({ x: offsetX, y: offsetY });
+	}, []);
+
+	useEffect(() => {
+		setInitialPosition();
+	}, [setInitialPosition]);
+
+	useEffect(() => {
+		const onResize = () => setInitialPosition();
+		window.addEventListener('resize', onResize);
+		return () => window.removeEventListener('resize', onResize);
+	}, [setInitialPosition]);
+
+	// render
+	return (
+		<div
+			ref={container}
+			className="drag-view"
+			style={{
+				position: 'fixed',
+				left: offset.x + 'px',
+				top: offset.y + 'px',
+				zIndex,
+				cursor: 'move'
+			}}
+			onMouseDown={dragStart}
+			onTouchStart={dragStart}
+		>
+			{children}
+		</div>
+	);
+});

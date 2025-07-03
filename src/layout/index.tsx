@@ -1,21 +1,12 @@
-/*
- * @Author: Lee
- * @Date: 2021-11-12 11:11:26
- * @LastEditors: Lee
- * @LastEditTime: 2023-04-27 14:28:07
- */
-
-import TabBar from '@/components/@lgs-react/TabBar';
-import React from 'react';
-import { Outlet } from 'react-router-dom';
-
-const Layout: React.FC = () => {
+import TabBar from "@/components/@lgs-react/TabBar";
+import { Outlet } from "react-router";
+export default function Layout() {
   return (
     <>
+      {/* 视图容器，类似于vue中的 router-view */}
       <Outlet />
+      {/* 标签栏 */}
       <TabBar />
     </>
   );
-};
-
-export default Layout;
+}

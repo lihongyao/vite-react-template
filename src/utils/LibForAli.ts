@@ -1,10 +1,4 @@
-/*
- * @Author: Lee
- * @Date: 2021-08-20 12:33:26
- * @LastEditors: Lee
- * @LastEditTime: 2021-12-17 14:02:24
- * @Description: 支付宝Api
- */
+
 export interface AlipayLocationProps {
   longitude: string;
   latitude: string;
@@ -20,7 +14,7 @@ export interface AlipayLocationProps {
   };
 }
 
-class LibForAli {
+export default class LibForAli {
   /*
   // OPPO 机型无法打开
   private static instance: LibForAli;
@@ -33,10 +27,10 @@ class LibForAli {
   }
   */
 
-  public static isIntalled(callback: Function) {
+  public static isIntalled(callback: () => void) {
     // 如果jsbridge已经注入则直接调用
     if (window.AlipayJSBridge) {
-      callback && callback();
+      callback?.();
     } else {
       // 如果没有注入则监听注入的事件
       // @ts-ignore
@@ -44,4 +38,4 @@ class LibForAli {
     }
   }
 }
-export default LibForAli;
+
