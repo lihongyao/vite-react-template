@@ -15,7 +15,10 @@ const errorStyles: CSSProperties = {
 	letterSpacing: '2px',
 	paddingTop: '100px'
 };
-export class ErrorBoundary extends React.Component<{ children?: JSX.Element }, { hasError: boolean }> {
+export class ErrorBoundary extends React.Component<
+	{ children?: JSX.Element },
+	{ hasError: boolean }
+> {
 	constructor(props: { children?: JSX.Element }) {
 		super(props);
 		this.state = { hasError: false };
@@ -45,6 +48,13 @@ export class ErrorBoundary extends React.Component<{ children?: JSX.Element }, {
  * @param param0
  * @returns
  */
-export const GuardEnv: React.FC<{ children?: JSX.Element }> = ({ children }) => {
-	return import.meta.env.VITE_APP_SOURCE === 'mp' && ['weixin', 'alipay'].indexOf(Tools.getEnv()) === -1 ? <NotEnv /> : <>{children}</>;
+export const GuardEnv: React.FC<{ children?: JSX.Element }> = ({
+	children
+}) => {
+	return import.meta.env.VITE_APP_SOURCE === 'mp' &&
+		['weixin', 'alipay'].indexOf(Tools.getEnv()) === -1 ? (
+		<NotEnv />
+	) : (
+		<>{children}</>
+	);
 };

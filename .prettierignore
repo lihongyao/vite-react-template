@@ -1,0 +1,6 @@
+# !注意：需使用 Prettier 作为格式化工具才能生效
+# "[css]": {
+#   "editor.defaultFormatter": "esbenp.prettier-vscode"
+# },
+
+index.css

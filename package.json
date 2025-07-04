@@ -25,6 +25,7 @@
     "@likg/schemes": "^1.0.2",
     "@likg/tools": "^2.0.8",
     "@likg/validator": "^1.0.9",
+    "@reduxjs/toolkit": "^2.8.2",
     "ahooks": "^3.9.0",
     "antd-mobile": "5.40.0",
     "axios": "^1.10.0",
@@ -32,7 +33,10 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-error-boundary": "^6.0.0",
-    "react-router": "^7.6.3"
+    "react-redux": "^9.2.0",
+    "react-router": "^7.6.3",
+    "redux-persist": "^6.0.0",
+    "redux-persist-transform-filter": "^0.0.22"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",

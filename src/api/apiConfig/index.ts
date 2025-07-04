@@ -2,7 +2,6 @@
 import type {
   AxiosError,
   AxiosRequestConfig,
-  CancelTokenSource,
   InternalAxiosRequestConfig,
 } from 'axios';
 import axios from 'axios';
@@ -18,10 +17,9 @@ interface ApiResponse<T = any> {
 const instance = axios.create({
   baseURL: import.meta.env.VITE_API_HOST,
   timeout: 60000,
-  withCredentials: true,
+  withCredentials: false,
   headers: {
     'Access-Control-Allow-Origin': '*',
-    'Content-Type': 'application/json',
   },
 });
 

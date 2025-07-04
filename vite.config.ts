@@ -52,12 +52,14 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       open: true,
       cors: true,
       proxy: {
+        // 代理规则：将所有以 /api 开头的请求转发到目标服务器
         '/api': {
-          target: 'http://0.0.0.0:5173',
-          changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api/, ''),
-        },
-      },
+          target: 'http://xxx', // 后端服务器地址
+          changeOrigin: true, // 修改请求头中的 Origin 为目标服务器地址
+          secure: false, // 如果是https接口，需要配置为false
+          rewrite: (path) => path.replace(/^\/api/, ''), // 可选：移除路径前缀
+        }
+      }
     },
     css: {
       postcss: {

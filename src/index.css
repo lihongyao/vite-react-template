@@ -1082,6 +1082,14 @@ input { outline: none; border: none; }
 .break-all { word-break: break-all; }
 .break-keep { word-break: keep-all; }
 
+
+.underline { text-decoration-line: underline; }
+.overline { text-decoration-line: overline; }
+.line-through { text-decoration-line: line-through; }
+.no-underline { text-decoration-line: none; }
+
+
+
 /* TODO:继续补充 */
 
 /**********************
@@ -1195,7 +1203,6 @@ input { outline: none; border: none; }
 /* RichText */
 .rich-html * { max-width: 100% !important; }
 .rich-html img { height: auto !important; }
-
 
 
 /**********************
