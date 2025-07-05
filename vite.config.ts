@@ -18,6 +18,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
   const env = loadEnv(mode, root, "VITE_");
   console.log(env);
   return {
+    base: env.VITE_BASE,
     resolve: {
       alias: {
         "@": pathResolve('src'),

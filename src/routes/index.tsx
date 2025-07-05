@@ -33,7 +33,7 @@ const router = createBrowserRouter(
 	],
 	{
 		/** 部署二级目录时必须指定 */
-		basename: import.meta.env.VITE_APP_BASE
+		basename: import.meta.env.VITE_BASE.slice(0, -1)
 	}
 );
 
