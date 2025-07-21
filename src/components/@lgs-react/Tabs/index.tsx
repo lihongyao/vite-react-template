@@ -1,11 +1,5 @@
 import clsx from 'clsx';
-import React, {
-	memo,
-	useEffect,
-	useRef,
-	useState,
-	type ReactElement
-} from 'react';
+import React, { memo, useEffect, useRef, useState, type ReactElement } from 'react';
 import type { CSSProperties } from 'react';
 import './index.less';
 
@@ -59,7 +53,7 @@ const Tabs: React.FC<IProps> = ({
 	// refs
 	const menuRef = useRef<HTMLDivElement>(null);
 	const menuWrapperRef = useRef<HTMLDivElement>(null);
-	const menuItemsRef = useRef<HTMLElement[]>([]);
+	const menuItemsRef = useRef<Map<number, HTMLLIElement>>(new Map());
 	const cursorRef = useRef<HTMLElement>(null);
 	const tabsRef = useRef<HTMLDivElement>(null);
 
@@ -68,20 +62,13 @@ const Tabs: React.FC<IProps> = ({
 	const getScroller = (el: HTMLElement, root: ScrollElement = window) => {
 		let node = el;
 		const overflowScrollReg = /scroll|auto/i;
-		while (
-			node &&
-			node.tagName !== 'HTML' &&
-			node.nodeType === 1 &&
-			node !== root
-		) {
+		while (node && node.tagName !== 'HTML' && node.nodeType === 1 && node !== root) {
 			const { overflowY } = window.getComputedStyle(node);
 			if (overflowScrollReg.test(overflowY)) {
 				if (node.tagName !== 'BODY') {
 					return node;
 				}
-				const { overflowY: htmlOverflowY } = window.getComputedStyle(
-					node.parentNode as Element
-				);
+				const { overflowY: htmlOverflowY } = window.getComputedStyle(node.parentNode as Element);
 				if (overflowScrollReg.test(htmlOverflowY)) {
 					return node;
 				}
@@ -100,7 +87,8 @@ const Tabs: React.FC<IProps> = ({
 		}
 		onChange(index);
 		// 控制视图移动
-		const dom = menuItemsRef.current[index];
+		const dom = menuItemsRef.current.get(index);
+		if (!dom) return;
 		const itemLeft = dom.offsetLeft;
 		const itemHalf = dom.offsetWidth / 2;
 		const menuHalf = menuRef.current!.offsetWidth / 2;
@@ -108,12 +96,8 @@ const Tabs: React.FC<IProps> = ({
 		if (target < 0) {
 			target = 0;
 		}
-		if (
-			target >
-			menuWrapperRef.current!.offsetWidth - menuRef.current!.offsetWidth
-		) {
-			target =
-				menuWrapperRef.current!.offsetWidth - menuRef.current!.offsetWidth - 1;
+		if (target > menuWrapperRef.current!.offsetWidth - menuRef.current!.offsetWidth) {
+			target = menuWrapperRef.current!.offsetWidth - menuRef.current!.offsetWidth - 1;
 		}
 		// 帧动画
 		const minus = target - menuRef.current!.scrollLeft;
@@ -122,10 +106,7 @@ const Tabs: React.FC<IProps> = ({
 		const speed = minus / (duration / interval);
 		const timer = setInterval(() => {
 			menuRef.current!.scrollLeft += speed;
-			if (
-				Math.abs(target - menuRef.current!.scrollLeft) <= Math.abs(speed) ||
-				Math.abs(speed) < 1
-			) {
+			if (Math.abs(target - menuRef.current!.scrollLeft) <= Math.abs(speed) || Math.abs(speed) < 1) {
 				menuRef.current!.scrollLeft = target;
 				clearInterval(timer);
 			}
@@ -160,10 +141,7 @@ const Tabs: React.FC<IProps> = ({
 	useEffect(() => {
 		let parent: ScrollElement | null = null;
 		const onScroll = (e: any) => {
-			const scrollTop =
-				+e.target?.scrollTop ||
-				document.documentElement.scrollTop ||
-				document.body.scrollTop;
+			const scrollTop = +e.target?.scrollTop || document.documentElement.scrollTop || document.body.scrollTop;
 			if (scrollTop >= tabsRef.current!.offsetTop) {
 				setIsSticky(true);
 			} else {
@@ -179,7 +157,7 @@ const Tabs: React.FC<IProps> = ({
 				parent.removeEventListener('scroll', onScroll, false);
 			}
 		};
-	}, [tabsRef]);
+	}, [sticky]);
 
 	// render
 	return (
@@ -187,13 +165,7 @@ const Tabs: React.FC<IProps> = ({
 			{/* 占位 */}
 			{(fixed || isSticky) && <div className="lg-tabs__place" />}
 			{/* 菜单 */}
-			<div
-				className={clsx([
-					'lg-tabs__menu',
-					{ bordered, fixed: fixed || isSticky }
-				])}
-				ref={menuRef}
-			>
+			<div className={clsx(['lg-tabs__menu', { bordered, fixed: fixed || isSticky }])} ref={menuRef}>
 				{/* tab item's wrapper */}
 				<div
 					className="lg-tabs__menu_wrapper"
@@ -204,16 +176,15 @@ const Tabs: React.FC<IProps> = ({
 				>
 					{menus.map((item, i) => (
 						<section
-							ref={(dom: HTMLElement) => menuItemsRef.current.push(dom)}
-							className={clsx([
-								'lg-tabs__menu_item',
-								{ disabled: typeof item === 'object' && !!item.disabled }
-							])}
-							style={
-								current === i
-									? { ...itemStyle, ...activeStyle }
-									: { ...itemStyle }
-							}
+							ref={(node: HTMLLIElement | null) => {
+								if (node) {
+									menuItemsRef.current.set(i, node);
+								} else {
+									menuItemsRef.current.delete(i);
+								}
+							}}
+							className={clsx(['lg-tabs__menu_item', { disabled: typeof item === 'object' && !!item.disabled }])}
+							style={current === i ? { ...itemStyle, ...activeStyle } : { ...itemStyle }}
 							key={'tabs_menu_item_' + i}
 							onClick={() => {
 								onMenuItemTap(i);
@@ -224,9 +195,7 @@ const Tabs: React.FC<IProps> = ({
 							) : (
 								<>
 									{item.title}
-									{item.badge && (
-										<span className="lg-tabs__menu_badge">{item.badge}</span>
-									)}
+									{item.badge && <span className="lg-tabs__menu_badge">{item.badge}</span>}
 								</>
 							)}
 						</section>

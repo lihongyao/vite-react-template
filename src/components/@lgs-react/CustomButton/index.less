@@ -1,0 +1,20 @@
+@keyframes roate {
+	to {
+		transform: rotateZ(360deg);
+	}
+}
+.lg-button {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	cursor: pointer;
+	user-select: none;
+	&.disabled {
+		opacity: 0.5;
+	}
+}
+.lg-button__loading {
+	width: 18px;
+	animation: roate 1s linear infinite;
+	margin-right: 8px;
+}

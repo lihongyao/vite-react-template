@@ -1,4 +1,4 @@
-import ReactDom from 'react-dom';
+import { createRoot } from 'react-dom/client'; // React 19 使用 createRoot
 import Message from './Message';
 import type { IConfigs } from './Message';
 import './index.less';
@@ -21,10 +21,16 @@ const info = (options: IConfigs | string) => {
 	const divs = document.createElement('div');
 	divs.setAttribute('class', 'lg-message__wrapper');
 	wrap.appendChild(divs);
-	ReactDom.render(
-		<Message rootDom={wrap} parentDom={divs} config={options} />,
-		divs
-	);
+
+	// React 19 使用 createRoot 替代 ReactDom.render
+	const root = createRoot(divs);
+	root.render(<Message rootDom={wrap} parentDom={divs} config={options} />);
+
+	// 返回清理函数
+	return () => {
+		root.unmount(); // React 19 的清理方式
+		wrap?.removeChild(divs);
+	};
 };
 
 export default {

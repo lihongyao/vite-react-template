@@ -81,18 +81,9 @@ export default memo(function Field({
 				}}
 			/>
 			{clear && !disabled && String(value).length > 0 && (
-				<img
-					className="lg-field__clear"
-					src={new URL('./images/icon_clear.png', import.meta.url).toString()}
-					onClick={_onClear}
-					alt=""
-				/>
+				<img className="lg-field__clear" src={new URL('./images/icon_clear.png', import.meta.url).toString()} onClick={_onClear} alt="" />
 			)}
-			<div>
-				{underline && (
-					<div className="lg-field__underline" style={underlineStyle}></div>
-				)}
-			</div>
+			<div>{underline && <div className="lg-field__underline" style={underlineStyle}></div>}</div>
 		</div>
 	);
 });

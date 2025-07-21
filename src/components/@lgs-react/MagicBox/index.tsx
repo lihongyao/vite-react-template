@@ -18,15 +18,11 @@ export default memo(function MagicBox(props: IProps) {
 
 	useEffect(() => {
 		if (lgWrapper.current) {
-			const type = Object.prototype.toString
-				.call(props.children)
-				.slice(8, -1)
-				.toLowerCase();
+			const type = Object.prototype.toString.call(props.children).slice(8, -1).toLowerCase();
 			if (type === 'array') {
 				const children = props.children as unknown as ReactElement[];
 				const w = lgWrapper.current.getBoundingClientRect().width;
-				const columns =
-					children.length < maxColumns ? children.length : maxColumns;
+				const columns = children.length < maxColumns ? children.length : maxColumns;
 				setWidth(() => {
 					return (w - (columns - 1) * gap) / columns;
 				});
@@ -36,14 +32,10 @@ export default memo(function MagicBox(props: IProps) {
 	}, [lgWrapper]);
 
 	const renderItems = () => {
-		const type = Object.prototype.toString
-			.call(props.children)
-			.slice(8, -1)
-			.toLowerCase();
+		const type = Object.prototype.toString.call(props.children).slice(8, -1).toLowerCase();
 		if (type === 'array') {
 			const children = props.children as unknown as ReactElement[];
-			const columns =
-				children.length < maxColumns ? children.length : maxColumns;
+			const columns = children.length < maxColumns ? children.length : maxColumns;
 			return children.map((element: ReactElement, i: number) => {
 				return (
 					<section

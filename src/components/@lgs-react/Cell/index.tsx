@@ -70,11 +70,7 @@ export default memo(function Cell(props: IProps) {
 	// render
 	return (
 		<div
-			className={clsx([
-				'lg-cell',
-				props.customCls,
-				{ disabled: !!props.disabled }
-			])}
+			className={clsx(['lg-cell', props.customCls, { disabled: !!props.disabled }])}
 			style={cellStyle}
 			onClick={() => {
 				if (props.disabled) {
@@ -97,14 +93,7 @@ export default memo(function Cell(props: IProps) {
 				)}
 				{/* 标题 */}
 				{title && !icon && (
-					<div
-						className={clsx([
-							'lg-cell__title',
-							props.titleCls,
-							{ required: !!props.required }
-						])}
-						style={{ ...titleStyle }}
-					>
+					<div className={clsx(['lg-cell__title', props.titleCls, { required: !!props.required }])} style={{ ...titleStyle }}>
 						{String(title)
 							.split('')
 							.map((text, index) => (
@@ -119,19 +108,13 @@ export default memo(function Cell(props: IProps) {
 					{children && children}
 					{/* sub */}
 					{subTitle && (
-						<section
-							className={clsx(['lg-cell__sub_title', props.subTitleCls])}
-							style={subTitleStyle}
-						>
+						<section className={clsx(['lg-cell__sub_title', props.subTitleCls])} style={subTitleStyle}>
 							{subTitle}
 						</section>
 					)}
 					{/* 内容 */}
 					{(value !== undefined || renderValue) && (
-						<section
-							className={clsx(['lg-cell__value', props.valueCls])}
-							style={valueStyle}
-						>
+						<section className={clsx(['lg-cell__value', props.valueCls])} style={valueStyle}>
 							{value}
 							{renderValue?.()}
 						</section>
@@ -139,10 +122,7 @@ export default memo(function Cell(props: IProps) {
 
 					{/* 描述信息 */}
 					{(label || renderLabel) && (
-						<section
-							className={clsx(['lg-cell__label', props.labelCls])}
-							style={labelStyle}
-						>
+						<section className={clsx(['lg-cell__label', props.labelCls])} style={labelStyle}>
 							{label}
 							{renderLabel?.()}
 						</section>
@@ -152,35 +132,17 @@ export default memo(function Cell(props: IProps) {
 
 			{/* 最右侧内容 */}
 			{(extra || renderExtra) && (
-				<div
-					className={clsx(['lg-cell__extra', props.extraCls])}
-					style={extraStyle}
-				>
+				<div className={clsx(['lg-cell__extra', props.extraCls])} style={extraStyle}>
 					{extra}
 					{renderExtra?.()}
 				</div>
 			)}
 
 			{/* 右侧箭头 */}
-			{isLink && (
-				<img
-					src={
-						linkIcon
-							? linkIcon
-							: new URL(
-									'./images/icon_arrow_right.png',
-									import.meta.url
-								).toString()
-					}
-					alt=""
-					className="lg-cell__link"
-				/>
-			)}
+			{isLink && <img src={linkIcon ? linkIcon : new URL('./images/icon_arrow_right.png', import.meta.url).toString()} alt="" className="lg-cell__link" />}
 
 			{/* 装饰线 */}
-			{underline && (
-				<div className="lg-cell__underline" style={{ ...underlineStyle }}></div>
-			)}
+			{underline && <div className="lg-cell__underline" style={{ ...underlineStyle }}></div>}
 		</div>
 	);
 });

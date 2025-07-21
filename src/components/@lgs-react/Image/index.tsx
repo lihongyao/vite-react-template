@@ -15,17 +15,7 @@ interface IProps {
 	onTap?: () => void /** 监听点击 */;
 }
 
-export default memo(function ImageX({
-	className = '',
-	src,
-	defaultImage,
-	alt,
-	width = 45,
-	height = 45,
-	style = {},
-	round,
-	onTap
-}: IProps) {
+export default memo(function ImageX({ className = '', src, defaultImage, alt, width = 45, height = 45, style = {}, round, onTap }: IProps) {
 	const [innerSrc, setInnerSrc] = useState(defaultImage);
 	// ref
 	const imgRef = useRef<HTMLImageElement>(null);

@@ -1,12 +1,21 @@
+/**
+<CityPicker
+	open={openPickerCity}
+	onCancel={setOpenPickerCity}
+	onChange={(value) => {
+		console.log(value);
+	}}
+/>
+ */
 import { memo, useRef } from 'react';
 import { citys as citysData } from './data/citys';
 import type { CSSProperties, ReactElement } from 'react';
 import './index.less';
 
 interface IProps {
-	visible: boolean;
+	open: boolean;
 	anchorStyle?: CSSProperties;
-	onClose: () => void;
+	onCancel: (isOpen: boolean) => void;
 	onChange: (city: string) => void;
 	renderTitle?: () => ReactElement;
 }
@@ -28,9 +37,9 @@ export default memo(function CityPicker(props: IProps) {
 	// render
 	return (
 		<div
-			className={`lg-city-picker ${props.visible ? 'visible' : ''}`}
+			className={`lg-city-picker ${props.open ? 'open' : ''}`}
 			onClick={() => {
-				props.onClose();
+				props.onCancel(false);
 			}}
 		>
 			<div
@@ -39,9 +48,7 @@ export default memo(function CityPicker(props: IProps) {
 				}}
 				className="lg-city-picker__content"
 			>
-				<div className="lg-city-picker__title">
-					{props.renderTitle ? props.renderTitle() : '选择城市'}
-				</div>
+				<div className="lg-city-picker__title">{props.renderTitle ? props.renderTitle() : '选择城市'}</div>
 				<div ref={itemListWrapper} className="lg-city-picker__groups">
 					{citysData.map((el, index) => {
 						return (
@@ -59,7 +66,7 @@ export default memo(function CityPicker(props: IProps) {
 											className="lg-city-picker__item_city"
 											onClick={() => {
 												props.onChange(city);
-												props.onClose();
+												props.onCancel(false);
 											}}
 											key={`city${cityIndex}`}
 										>

@@ -16,12 +16,7 @@ interface IProps {
 }
 
 export default memo(function Progress(props: IProps) {
-	const {
-		percent = 0,
-		showInfo = false,
-		trailColor = '#E2E2E2',
-		strokeColor = '#FF9B19'
-	} = props;
+	const { percent = 0, showInfo = false, trailColor = '#E2E2E2', strokeColor = '#FF9B19' } = props;
 
 	return (
 		<div className="lg-progress">

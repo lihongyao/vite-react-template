@@ -15,7 +15,7 @@ interface IProps {
 	onDisabled?: () => void /** 禁用状态时点击 */;
 	onTap?: () => void /** 点击按钮 */;
 }
-export default memo(function Button({
+export default memo(function CustomButton({
 	text,
 	icon,
 	style = {},
@@ -35,20 +35,10 @@ export default memo(function Button({
 		}
 	};
 	return (
-		<div
-			className={clsx(['lg-button', className, { disabled }])}
-			style={{ ...style }}
-			onClick={_onTap}
-		>
+		<div className={clsx(['lg-button', className, { disabled }])} style={{ ...style }} onClick={_onTap}>
 			{loading ? (
 				<>
-					<img
-						src={
-							icon ||
-							new URL('./images/loading.png', import.meta.url).toString()
-						}
-						className="lg-button__loading"
-					/>
+					<img src={icon || new URL('./images/loading.png', import.meta.url).toString()} className="lg-button__loading" />
 					<span>{loadingText}</span>
 				</>
 			) : (

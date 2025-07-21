@@ -65,26 +65,14 @@ export default memo(function RangeDatePicker({
 	return (
 		<div className="range-date-picker">
 			<div className="range-date-picker__content">
-				<div
-					className="range-date-picker__item"
-					onClick={() => setShowStartDatePicker(true)}
-				>
+				<div className="range-date-picker__item" onClick={() => setShowStartDatePicker(true)}>
 					<div>{Tools.dateFormat(startDate, dateFormat)}</div>
-					<img
-						className="range-date-picker__icon"
-						src="https://qn.d-dou.com/dcep/dbean/d71b111a77ff4de0b2f8bdc55c14dbc5xol16p.png"
-					/>
+					<img className="range-date-picker__icon" src="https://qn.d-dou.com/dcep/dbean/d71b111a77ff4de0b2f8bdc55c14dbc5xol16p.png" />
 				</div>
 				<div className="range-date-picker__spacing">至</div>
-				<div
-					className="range-date-picker__item"
-					onClick={() => setShowEndDatePicker(true)}
-				>
+				<div className="range-date-picker__item" onClick={() => setShowEndDatePicker(true)}>
 					<div>{Tools.dateFormat(endDate, dateFormat)}</div>
-					<img
-						className="range-date-picker__icon"
-						src="https://qn.d-dou.com/dcep/dbean/d71b111a77ff4de0b2f8bdc55c14dbc5xol16p.png"
-					/>
+					<img className="range-date-picker__icon" src="https://qn.d-dou.com/dcep/dbean/d71b111a77ff4de0b2f8bdc55c14dbc5xol16p.png" />
 				</div>
 			</div>
 			<DatePicker

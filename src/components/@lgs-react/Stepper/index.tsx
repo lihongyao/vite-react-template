@@ -26,10 +26,7 @@ export default memo(function Stepper(props: IProps) {
 			{props.disabled || props.value <= min ? (
 				<section className="lg-stepper__item lg-stepper__buton lg-stepper__minus lg-stepper__disabled" />
 			) : (
-				<section
-					className="lg-stepper__item lg-stepper__buton lg-stepper__minus"
-					onClick={() => onChange(props.value - step)}
-				/>
+				<section className="lg-stepper__item lg-stepper__buton lg-stepper__minus" onClick={() => onChange(props.value - step)} />
 			)}
 			{/* value */}
 			<div className="lg-stepper__item lg-stepper__value">{props.value}</div>
@@ -37,10 +34,7 @@ export default memo(function Stepper(props: IProps) {
 			{props.disabled || props.value >= max ? (
 				<section className="lg-stepper__item lg-stepper__buton lg-stepper__plus lg-stepper__disabled" />
 			) : (
-				<section
-					className="lg-stepper__item lg-stepper__buton lg-stepper__plus"
-					onClick={() => onChange(props.value + step)}
-				/>
+				<section className="lg-stepper__item lg-stepper__buton lg-stepper__plus" onClick={() => onChange(props.value + step)} />
 			)}
 		</div>
 	);

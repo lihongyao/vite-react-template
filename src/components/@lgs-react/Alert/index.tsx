@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 /**
 使用示例：
 const unmount = Alert.info({
@@ -16,8 +15,7 @@ const unmount = Alert.info({
 });
  */
 import clsx from 'clsx';
-import { memo, useActionState } from 'react';
-import { createRoot } from 'react-dom/client';
+import { createRoot, type Root } from 'react-dom/client';
 import './index.less';
 
 interface IOptions {
@@ -34,19 +32,21 @@ interface IOptions {
 interface AlertProps {
 	dom: Element;
 	config: IOptions;
+	root: Root;
 }
 
-const Alert = memo(({ config }: AlertProps) => {
+function Alert({ config, root }: AlertProps) {
 	const { title, message, align = 'left', sureButtonText = '确定', cancelButtonText = '取消', showCancel, onSure, onCancel } = config;
 
-	const [_error, submitAction, isPending] = useActionState(async () => {
-		await onSure?.();
-		return null;
-	}, null);
-
 	const onButtonTap = (type: 'cancel' | 'sure') => {
-		if (type === 'cancel') onCancel?.();
-		else submitAction();
+		if (type === 'cancel') {
+			onCancel?.();
+			root.unmount();
+		}
+		if (type === 'sure') {
+			onSure?.();
+			root.unmount();
+		}
 	};
 
 	return (
@@ -61,26 +61,27 @@ const Alert = memo(({ config }: AlertProps) => {
 						</section>
 					)}
 					<section className={clsx(['__btn sure', { 'no-cancel-btn': !showCancel }])} onClick={() => onButtonTap('sure')}>
-						{isPending ? '处理中...' : sureButtonText}
+						{sureButtonText}
 					</section>
 				</div>
 			</div>
 		</div>
 	);
-});
+}
 
 function info(options: IOptions | string) {
+	// 1.判断数据类型
 	if (typeof options === 'string') options = { title: options };
-
+	// 2.构造容器
 	let wrap = document.querySelector('.lg-alert');
 	if (!wrap) {
 		wrap = document.createElement('div');
 		wrap.className = 'lg-alert';
 		document.body.appendChild(wrap);
 	}
-
+	// 3.卸载组件
 	const root = createRoot(wrap);
-	root.render(<Alert dom={wrap} config={options} />);
+	root.render(<Alert dom={wrap} config={options} root={root} />);
 	return () => root.unmount();
 }
 

@@ -1,3 +1,8 @@
+/**
+<DragView>
+	<Button color="primary">Drag</Button>
+</DragView>
+ */
 import React, { useEffect, useRef, useState, memo, useCallback } from 'react';
 
 type Point = { x: number; y: number };
@@ -30,9 +35,7 @@ export default memo(function DragView({
 	const initPosition = useRef(position);
 	const [offset, setOffset] = useState<Point>(() => ({ x: 0, y: 0 }));
 
-	const dragStart = (
-		event: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>
-	) => {
+	const dragStart = (event: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
 		// -- 阻止事件冒泡
 		event.stopPropagation();
 		// -- 长按激活拖拽状态
@@ -107,8 +110,7 @@ export default memo(function DragView({
 	const setInitialPosition = useCallback(() => {
 		if (container.current === null) return;
 		// -- 获取容器元素的尺寸信息
-		const { width: containerW, height: containerH } =
-			container.current.getBoundingClientRect();
+		const { width: containerW, height: containerH } = container.current.getBoundingClientRect();
 		// -- 获取用户设置的位置信息
 		const { top, right, bottom, left } = initPosition.current;
 

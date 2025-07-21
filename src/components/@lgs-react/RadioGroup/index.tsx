@@ -47,17 +47,9 @@ export default memo(function RadioGroup(props: IProps) {
 					}}
 				>
 					{item.checked ? (
-						<img
-							src={checkedIcon || icon_checked_src}
-							alt=""
-							className="lg-raido__check-icon"
-						/>
+						<img src={checkedIcon || icon_checked_src} alt="" className="lg-raido__check-icon" />
 					) : (
-						<img
-							src={icon || icon_uncheck_src}
-							alt=""
-							className="lg-raido__check-icon"
-						/>
+						<img src={icon || icon_uncheck_src} alt="" className="lg-raido__check-icon" />
 					)}
 					<span>{item.label}</span>
 				</section>

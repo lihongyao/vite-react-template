@@ -11,23 +11,10 @@ interface IConfigs {
 
 let TOAST_TIMER: NodeJS.Timeout;
 
-// eslint-disable-next-line react-refresh/only-export-components
-const ToastContent = ({
-	message,
-	loading
-}: {
-	message?: string;
-	loading: boolean;
-}) => (
+const ToastContent = ({ message, loading }: { message?: string; loading: boolean }) => (
 	<div className="lg-toast__wrapper">
 		<div className={clsx(['lg-toast__content', { loading }])}>
-			{loading && (
-				<img
-					src={new URL('./images/loading.png', import.meta.url).toString()}
-					alt=""
-					className="lg-toast__loading"
-				/>
-			)}
+			{loading && <img src={new URL('./images/loading.png', import.meta.url).toString()} alt="" className="lg-toast__loading" />}
 			{message && <div className="lg-toast__tips">{message}</div>}
 		</div>
 	</div>
@@ -60,12 +47,7 @@ const useToast = () => {
 	};
 
 	return {
-		toast: toastConfig && (
-			<ToastContent
-				message={toastConfig.message}
-				loading={toastConfig.type === 'loading'}
-			/>
-		),
+		toast: toastConfig && <ToastContent message={toastConfig.message} loading={toastConfig.type === 'loading'} />,
 		info,
 		loading,
 		hide

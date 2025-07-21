@@ -26,9 +26,7 @@ export default memo(function Popup({
 	onClose
 }: IProps) {
 	// events
-	const onClickOverlay = (
-		event: React.MouseEvent<HTMLDivElement, MouseEvent>
-	) => {
+	const onClickOverlay = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
 		event.persist();
 		const target = event.target as HTMLDivElement;
 		if (target.classList.contains('lg-popup')) {
@@ -41,22 +39,11 @@ export default memo(function Popup({
 		document.body.style.overflow = visible ? 'hidden' : 'scroll';
 	}, [visible]);
 	return (
-		<div
-			className={clsx(['lg-popup', customCls, { visible: !!visible }])}
-			onClick={onClickOverlay}
-		>
-			<div
-				className={clsx(['lg-popup__contents', { round: !!round }])}
-				style={customStyle}
-			>
+		<div className={clsx(['lg-popup', customCls, { visible: !!visible }])} onClick={onClickOverlay}>
+			<div className={clsx(['lg-popup__contents', { round: !!round }])} style={customStyle}>
 				{title && <div className="lg-popup__title">{title}</div>}
 				{closeable && (
-					<img
-						className="lg-popup__close"
-						src={new URL('./images/icon_close.png', import.meta.url).toString()}
-						alt="close-icon"
-						onClick={onClose}
-					/>
+					<img className="lg-popup__close" src={new URL('./images/icon_close.png', import.meta.url).toString()} alt="close-icon" onClick={onClose} />
 				)}
 				{children}
 			</div>

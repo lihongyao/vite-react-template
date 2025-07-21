@@ -40,11 +40,7 @@ export default memo(function Search({
 	return (
 		<div className="lg-search" style={{ backgroundColor }}>
 			<div className="lg-search__box">
-				<img
-					className="lg-search__icon"
-					src={icon_search_src}
-					alt="icon_search"
-				/>
+				<img className="lg-search__icon" src={icon_search_src} alt="icon_search" />
 				<Field
 					placeHolder={placeHolder}
 					placeHolderColor={placeHolderColor}
