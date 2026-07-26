@@ -8,6 +8,8 @@ import LocaleLayout from '@/i18n/LocaleLayout';
 import { LOCALE_CONFIG, SUPPORTED_LOCALES } from '@/i18n/config';
 import { createLocaleLoader } from '@/i18n/locale-loader';
 import RootLayout from '@/layout';
+import Goods from '@/pages/Goods';
+import GoodsDetail from '@/pages/GoodsDetail';
 import Home from '@/pages/Home';
 import Integral from '@/pages/Integral';
 import NotFound from '@/pages/NotFound';
@@ -19,6 +21,7 @@ const Apply = lazy(() => import('@/pages/Apply'));
 function createPageRoutes(): RouteObject[] {
   return [
     { index: true, element: <Home /> },
+    { path: 'goods', element: <Goods /> },
     { path: 'privilege-brand', element: <PrivilegeBrand /> },
     { path: 'integral', element: <Integral /> },
     { path: 'profile', element: <Profile /> },
@@ -41,6 +44,10 @@ const localeRoutes: RouteObject[] = SUPPORTED_LOCALES.map((locale) => {
       {
         path: 'apply',
         element: <Apply />,
+      },
+      {
+        path: 'goods/:id',
+        element: <GoodsDetail />,
       },
       {
         path: '*',

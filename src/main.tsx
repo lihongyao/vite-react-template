@@ -10,6 +10,7 @@ import VConsole from 'vconsole';
 import AppEnvGuard from './components/features/AppEnvGuard';
 import AppErrorBoundary from './components/features/AppErrorBoundary';
 import TelegramAuthBootstrap from './components/features/TelegramAuthBootstrap';
+import { DialogProvider } from './components/ui/Dialog';
 import { MessageProvider } from './components/ui/Message';
 import { NotificationProvider } from './components/ui/Notification';
 import i18n, { initializeI18n } from './i18n/instance';
@@ -41,11 +42,13 @@ createRoot(document.getElementById('root')!).render(
       <I18nextProvider i18n={i18n}>
         <NotificationProvider>
           <MessageProvider>
-            <AppEnvGuard>
-              <TelegramAuthBootstrap>
-                <AppRoutes router={router} />
-              </TelegramAuthBootstrap>
-            </AppEnvGuard>
+            <DialogProvider>
+              <AppEnvGuard>
+                <TelegramAuthBootstrap>
+                  <AppRoutes router={router} />
+                </TelegramAuthBootstrap>
+              </AppEnvGuard>
+            </DialogProvider>
           </MessageProvider>
         </NotificationProvider>
       </I18nextProvider>

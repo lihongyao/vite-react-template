@@ -1,5 +1,6 @@
 import { memo } from 'react';
 
+import GoodsIcon from '@/assets/icon/goods.svg?react';
 import CasinoIcon from '@/assets/icon/tabbar_casino.svg?react';
 import HomeIcon from '@/assets/icon/tabbar_home.svg?react';
 import ProfileIcon from '@/assets/icon/tabbar_profile.svg?react';
@@ -12,6 +13,11 @@ const paths = [
     path: '/',
     text: 'Home',
     icon: HomeIcon,
+  },
+  {
+    path: '/goods',
+    text: 'Goods',
+    icon: GoodsIcon,
   },
   {
     path: '/privilege-brand',

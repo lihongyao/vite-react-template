@@ -1,0 +1,182 @@
+@keyframes debounce {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-2px);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(2px);
+  }
+}
+
+@keyframes ani-breathing {
+  from {
+    transform: scale(0.97);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes ani-cursor {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes ani-routate-Z {
+  from {
+    transform: rotateZ(0);
+  }
+  to {
+    transform: rotateZ(360deg);
+  }
+}
+
+@keyframes ani-float {
+  from {
+    transform: translateY(-60rpx);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes ani-move-to-right {
+  0%,
+  80% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+.ani-breathing {
+  animation: ani-breathing 0.6s ease-out alternate infinite;
+}
+
+.ani-cursor {
+  animation: ani-cursor 0.5s linear alternate infinite;
+}
+
+.ani-float {
+  animation: ani-float 1s linear infinite alternate;
+}
+
+.ani-rotate-Z {
+  animation: ani-routate-Z 4s linear infinite;
+}
+
+.ani-move-to-right {
+  animation: ani-move-to-right 5s ease-in-out infinite;
+}
+
+@keyframes app-notification-enter-down {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -72px, 0);
+  }
+  60% {
+    opacity: 1;
+    transform: translate3d(0, 6px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes app-notification-leave-up {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(0, -8px, 0);
+  }
+}
+
+@keyframes app-notification-progress-shrink {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+.animate-notification-enter {
+  animation: app-notification-enter-down 0.46s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-notification-leave {
+  animation: app-notification-leave-up 0.22s ease-in both;
+}
+
+.animate-notification-stack {
+  transform: translate3d(0, 0, 0);
+  transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.animate-notification-progress {
+  animation: app-notification-progress-shrink linear forwards;
+}
+
+@keyframes app-message-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes app-message-leave {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(0, 6px, 0) scale(0.98);
+  }
+}
+
+.animate-message-enter {
+  animation: app-message-enter 0.18s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-message-leave {
+  animation: app-message-leave 0.14s ease-in both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-notification-enter,
+  .animate-notification-leave,
+  .animate-notification-progress,
+  .animate-message-enter,
+  .animate-message-leave {
+    animation-duration: 0.01ms;
+  }
+
+  .animate-notification-stack {
+    transition-duration: 0.01ms;
+  }
+}

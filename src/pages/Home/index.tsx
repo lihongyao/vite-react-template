@@ -4,11 +4,13 @@ import { Trans, useTranslation } from 'react-i18next';
 
 import { ApiError, productApi } from '@/api';
 import AppHeader from '@/components/features/AppHeader';
+import { useDialog } from '@/components/ui/Dialog';
 import { message } from '@/components/ui/Message';
 import { notification } from '@/components/ui/Notification';
 
 export default function Page() {
   const { t } = useTranslation();
+  const dialog = useDialog();
   const [messageApi] = message.useMessage();
   const [notificationApi] = notification.useNotification();
 
@@ -62,6 +64,20 @@ export default function Page() {
               }
             >
               Show notification
+            </button>
+            <button
+              type="button"
+              className="h-10 rounded-md bg-[#2563eb] px-4 text-sm font-medium text-white active:opacity-80"
+              onClick={() =>
+                dialog.open('X1Dialog', {
+                  props: { message: 'Dialog registry is working.', count: 1 },
+                  onAfterClose: ({ reason, stayDurationMs }) => {
+                    console.log('X1 closed >>>', { reason, stayDurationMs });
+                  },
+                })
+              }
+            >
+              Show dialog
             </button>
           </div>
         </div>
