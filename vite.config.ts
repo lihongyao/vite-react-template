@@ -42,6 +42,7 @@ export default defineConfig(({ mode, command }: ConfigEnv): UserConfig => {
                 params: {
                   overrides: {
                     convertColors: { currentColor: true },
+                    removeViewBox: false,
                   },
                 },
               },

@@ -4,10 +4,12 @@ import { Trans, useTranslation } from 'react-i18next';
 
 import { ApiError, productApi } from '@/api';
 import AppHeader from '@/components/features/AppHeader';
+import { message } from '@/components/ui/Message';
 import { notification } from '@/components/ui/Notification';
 
 export default function Page() {
   const { t } = useTranslation();
+  const [messageApi] = message.useMessage();
   const [notificationApi] = notification.useNotification();
 
   useEffect(() => {
@@ -42,17 +44,26 @@ export default function Page() {
               values={{ point: 320 }}
             />
           </p>
-          <button
-            type="button"
-            className="mt-4 h-10 rounded-md bg-[#222] px-4 text-sm font-medium text-white active:opacity-80"
-            onClick={() =>
-              notificationApi.success({
-                description: 'This is a test notification.',
-              })
-            }
-          >
-            Show notification
-          </button>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <button
+              type="button"
+              className="h-10 rounded-md bg-[#222] px-4 text-sm font-medium text-white active:opacity-80"
+              onClick={() => messageApi.success('This is a test message.')}
+            >
+              Show message
+            </button>
+            <button
+              type="button"
+              className="h-10 rounded-md bg-[#222] px-4 text-sm font-medium text-white active:opacity-80"
+              onClick={() =>
+                notificationApi.success({
+                  description: 'This is a test notification.',
+                })
+              }
+            >
+              Show notification
+            </button>
+          </div>
         </div>
       </div>
     </main>

@@ -24,7 +24,6 @@ import { ZIndex } from '@/constants/z-index';
 import { cn } from '@/libs/class-helpers';
 
 type NotificationType = 'success' | 'info' | 'warning' | 'error';
-type NotificationDuration = number | null;
 
 // 调用侧只需要关心这份配置。
 interface NotificationConfig {
@@ -37,7 +36,7 @@ interface NotificationConfig {
   pauseOnHover?: boolean;
   type?: NotificationType;
   /** 秒；0 或 null 表示不自动关闭 */
-  duration?: NotificationDuration;
+  duration?: number | null;
   maxCount?: number;
 }
 
@@ -47,7 +46,7 @@ interface NotificationItem {
   description?: ReactNode;
   showProgress: boolean;
   type: NotificationType;
-  duration: NotificationDuration;
+  duration: number | null;
   leaving: boolean;
 }
 
@@ -60,8 +59,6 @@ interface NotificationApi {
   close: (key: string) => void;
   destroy: (key?: string) => void;
 }
-
-type UseNotificationResult = [NotificationApi];
 
 interface NotificationCardProps {
   item: NotificationItem;
@@ -97,7 +94,7 @@ const TYPE_META: Record<
   },
 };
 
-const NotificationApiContext = createContext<UseNotificationResult | null>(null);
+const NotificationApiContext = createContext<[NotificationApi] | null>(null);
 
 function NotificationProvider({ children }: PropsWithChildren) {
   const [items, setItems] = useState<NotificationItem[]>([]);
@@ -159,7 +156,7 @@ function NotificationProvider({ children }: PropsWithChildren) {
     [close, closeAll, open],
   );
 
-  const apiValue = useMemo<UseNotificationResult>(() => [api], [api]);
+  const apiValue = useMemo<[NotificationApi]>(() => [api], [api]);
 
   return (
     <NotificationApiContext.Provider value={apiValue}>
@@ -342,7 +339,7 @@ function NotificationViewport({
 }
 
 // Provider 已经在根布局里，业务里直接拿 api 用。
-function useNotification(): UseNotificationResult {
+function useNotification(): [NotificationApi] {
   const context = useContext(NotificationApiContext);
   if (!context) {
     throw new Error('notification.useNotification 必须在 <NotificationProvider /> 内使用');
@@ -356,4 +353,4 @@ const notification = {
 
 // oxlint-disable-next-line react/only-export-components
 export { NotificationProvider, notification };
-export type { NotificationApi, NotificationConfig, NotificationDuration, NotificationType };
+export type { NotificationApi, NotificationConfig, NotificationType };
