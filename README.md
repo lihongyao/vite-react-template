@@ -1,0 +1,135 @@
+# Vite React H5 Template
+
+一个面向移动端 H5 的 React 项目模板，基于 Vite、TypeScript 和 Tailwind CSS。项目内置多环境构建、多语言路由、统一 API 请求层、全局状态、错误边界、通知组件，以及微信和 Telegram WebView 的基础适配能力。
+
+## 技术栈
+
+- React 19、React Router 8、TypeScript 6、Vite 8
+- Tailwind CSS 4、SVGR
+- i18next、react-i18next
+- Zustand、Immer、持久化中间件
+- Axios 统一请求层
+- Oxlint、类型感知规则、Prettier、Husky、lint-staged
+
+## 快速开始
+
+```bash
+pnpm install
+pnpm dev
+```
+
+开发服务器默认运行在 [http://localhost:8888](http://localhost:8888)。如果端口已被占用，Vite 会自动选择其他端口。
+
+常用命令：
+
+| 命令                | 用途                         |
+| ------------------- | ---------------------------- |
+| `pnpm dev`          | 启动开发环境                 |
+| `pnpm build:qa`     | 类型检查并构建 QA 版本       |
+| `pnpm build:prod`   | 类型检查并构建生产版本       |
+| `pnpm preview`      | 预览构建产物                 |
+| `pnpm lint`         | 运行 Oxlint                  |
+| `pnpm lint:ci`      | 将所有 lint warning 视为失败 |
+| `pnpm lint:fix`     | 自动修复可修复的 lint 问题   |
+| `pnpm format`       | 使用 Prettier 格式化项目     |
+| `pnpm format:check` | 检查代码格式                 |
+| `pnpm i18n`         | 从 Excel 生成多语言 JSON     |
+| `pnpm i18n:lark`    | 运行飞书多语言同步脚本       |
+
+## 目录结构
+
+```text
+src/
+├── api/                  # 请求客户端、鉴权会话、错误归一化和业务接口
+├── assets/               # 参与构建的图片与 SVG
+├── components/
+│   ├── features/         # 带业务或应用语义的组件
+│   └── ui/               # 通用 UI 组件
+├── constants/            # 全局常量
+├── i18n/                 # 语言资源、路由本地化和导航工具
+├── layout/               # 页面公共布局
+├── libs/                 # 设备判断、样式工具和可选平台适配代码
+├── pages/                # 路由页面
+├── routes/               # React Router 配置
+├── store/                # Zustand 全局状态
+├── types/                # 全局类型声明
+├── index.css             # Tailwind 入口和全局样式
+└── main.tsx              # 应用启动入口
+
+scripts/                  # Excel、飞书等工程脚本
+public/                   # 不参与构建处理的静态资源
+```
+
+项目使用 `@/*` 映射到 `src/*`。页面组件放在 `pages`，跨页面业务组件放在 `components/features`，可复用的纯 UI 放在 `components/ui`。
+
+## 应用启动流程
+
+`main.tsx` 负责初始化调试工具、App Scheme、i18next 和 Router，并按以下层级挂载应用：
+
+```text
+AppErrorBoundary
+└── I18nextProvider
+    └── NotificationProvider
+        └── AppEnvGuard
+            └── TelegramAuthBootstrap
+                └── AppRoutes
+```
+
+- `AppErrorBoundary` 提供应用级异常兜底。
+- `AppEnvGuard` 根据 `VITE_APP_SOURCE` 限制微信或 Telegram 运行环境。
+- `TelegramAuthBootstrap` 在 Telegram Mini App 中读取 `initData` 并完成登录初始化。
+- 非生产环境会启用 vConsole，方便移动端调试。
+
+## 路由与国际化
+
+路由由语言前缀驱动，目前支持：
+
+| 语言               | URL 前缀 |
+| ------------------ | -------- |
+| English (`en-US`)  | 无前缀   |
+| 简体中文 (`zh-CN`) | `/zh`    |
+| Español (`es`)     | `/es`    |
+| Português (`pt`)   | `/pt`    |
+
+语言配置位于 `src/i18n/config.ts`，翻译资源位于 `src/i18n/locales`。站内跳转应优先使用 `LocalizedLink`、`LocalizedNavLink` 和 `useLocalizedNavigate`，避免丢失当前语言前缀。
+
+## API 与状态管理
+
+`src/api/client.ts` 封装了 Axios，并统一处理：
+
+- API Base URL、超时和公共请求上下文
+- Token 注入与未授权会话失效
+- `{ code, data, msg }` 业务响应解包
+- 网络错误和业务错误归一化
+- Blob 文件下载与文件名解析
+
+业务接口按领域放在 `src/api/modules`，再由 `src/api/index.ts` 统一导出。全局客户端状态使用 Zustand，示例 Store 已集成 Immer 和本地持久化。
+
+## 环境变量
+
+项目分别使用 `.env.development`、`.env.qa` 和 `.env.production`：
+
+| 变量                    | 说明                                          |
+| ----------------------- | --------------------------------------------- |
+| `VITE_APP_ENV`          | 当前环境：`development`、`qa` 或 `production` |
+| `VITE_APP_HOST`         | 当前部署地址                                  |
+| `VITE_API_BASE_URL`     | API 基础地址                                  |
+| `VITE_APP_APPID_WEIXIN` | 微信 App ID                                   |
+| `VITE_APP_APPID_ALIPAY` | 支付宝 App ID                                 |
+| `VITE_APP_BASE`         | 二级目录部署前缀，可选                        |
+| `VITE_OUT_DIR`          | 构建输出目录，可选                            |
+| `VITE_APP_SOURCE`       | 运行来源：`universal`、`wechat` 或 `telegram` |
+
+环境变量类型统一维护在 `src/vite-env.d.ts`。新增变量时，应同时更新对应环境文件和类型声明。
+
+## 代码质量
+
+提交前 Husky 会运行 lint-staged，对代码执行 Oxlint 自动修复和 Prettier 格式化。CI 建议执行：
+
+```bash
+pnpm lint:ci
+pnpm format:check
+pnpm build:prod
+```
+
+`src/libs/LibForAli.ts`、`src/libs/LibForWeixin.ts` 和 `src/libs/rem.ts` 是预留的平台及 REM 适配入口，可在对应 H5 场景启用或继续扩展。

@@ -1,0 +1,210 @@
+@import 'tailwindcss';
+
+/* Animations */
+@keyframes debounce {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-2px);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(2px);
+  }
+}
+@keyframes ani-breathing {
+  from {
+    transform: scale(0.97);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+@keyframes ani-cursor {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes ani-routate-Z {
+  from {
+    transform: rotateZ(0);
+  }
+  to {
+    transform: rotateZ(360deg);
+  }
+}
+@keyframes ani-float {
+  from {
+    transform: translateY(-60rpx);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes ani-move-to-right {
+  0%,
+  80% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+.ani-breathing {
+  animation: ani-breathing 0.6s ease-out alternate infinite;
+}
+.ani-cursor {
+  animation: ani-cursor 0.5s linear alternate infinite;
+}
+.ani-float {
+  animation: ani-float 1s linear infinite alternate;
+}
+.ani-rotate-Z {
+  animation: ani-routate-Z 4s linear infinite;
+}
+.ani-move-to-right {
+  animation: ani-move-to-right 5s ease-in-out infinite;
+}
+
+@keyframes app-notification-enter-down {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -72px, 0);
+  }
+  60% {
+    opacity: 1;
+    transform: translate3d(0, 6px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes app-notification-leave-up {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(0, -8px, 0);
+  }
+}
+
+@keyframes app-notification-progress-shrink {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+.animate-notification-enter {
+  animation: app-notification-enter-down 0.46s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-notification-leave {
+  animation: app-notification-leave-up 0.22s ease-in both;
+}
+
+.animate-notification-stack {
+  transform: translate3d(0, 0, 0);
+  transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.animate-notification-progress {
+  animation: app-notification-progress-shrink linear forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-notification-enter,
+  .animate-notification-leave,
+  .animate-notification-progress {
+    animation-duration: 0.01ms;
+  }
+
+  .animate-notification-stack {
+    transition-duration: 0.01ms;
+  }
+}
+
+/* Fonts */
+@font-face {
+  font-family: 'DIN-Bold';
+  src: url('/fonts/DIN-Bold.otf');
+}
+@font-face {
+  font-family: 'DIN-Regular';
+  src: url('/fonts/DIN-Regular.otf');
+}
+
+.ff-DIN-Bold {
+  font-family: 'DIN-Bold';
+}
+.ff-DIN-Black {
+  font-family: 'DIN-Black';
+}
+
+.safe-area-bottom {
+  padding-bottom: constant(safe-area-inset-bottom);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.coming-soon {
+  font-size: 32px;
+  text-align: center;
+  padding-top: 30px;
+  color: #88888880;
+  letter-spacing: 2px;
+}
+
+/* 气泡框 */
+.bubble {
+  display: inline-block;
+  height: 14px;
+  background-color: #ff7e26;
+  border-radius: 2px;
+  padding: 0 4px;
+  color: #ffffff;
+
+  white-space: nowrap;
+  font-size: 9px;
+  text-align: center;
+  line-height: 14px;
+  position: relative;
+}
+.bubble::after {
+  content: '';
+  display: block;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-color: #ff7e26 transparent transparent transparent;
+  border-width: 5px 3px 0 3px;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* RichText */
+.rich-html * {
+  max-width: 100% !important;
+}
+.rich-html img {
+  height: auto !important;
+}

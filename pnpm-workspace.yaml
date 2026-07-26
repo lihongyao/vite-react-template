@@ -1,0 +1,13 @@
+allowBuilds:
+  '@code-inspector/core': true
+  core-js: true
+  esbuild: true
+  node-pty: true
+  protobufjs: true
+
+minimumReleaseAge: 0
+
+onlyBuiltDependencies:
+  - core-js
+  - esbuild
+  - protobufjs

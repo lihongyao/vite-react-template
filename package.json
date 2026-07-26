@@ -1,0 +1,70 @@
+{
+  "name": "vite-react-template",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --mode development",
+    "build:qa": "tsc -b && vite build --mode qa",
+    "build:prod": "tsc -b && vite build --mode production",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "lint:ci": "oxlint --deny-warnings",
+    "preview": "vite preview",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepare": "husky",
+    "------": "-----",
+    "i18n": "tsx scripts/xlsx2json/index.ts",
+    "i18n:lark": "tsx scripts/lark2json/index.ts"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,mjs,cjs,vue}": [
+      "oxlint --fix",
+      "prettier --write"
+    ],
+    "*.{json,jsonc,md,yml,yaml,css,scss,less,html}": "prettier --write"
+  },
+  "dependencies": {
+    "@likg/schemes": "^1.0.3",
+    "@tailwindcss/vite": "^4.3.3",
+    "ahooks": "^3.9.7",
+    "axios": "^1.18.1",
+    "class-variance-authority": "^0.7.1",
+    "i18next": "^26.3.6",
+    "immer": "^11.1.15",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "react-error-boundary": "^6.1.2",
+    "react-i18next": "^17.0.11",
+    "react-router": "^8.3.0",
+    "tailwind-merge": "^3.6.0",
+    "tailwindcss": "^4.3.3",
+    "zustand": "^5.0.14"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^21.2.1",
+    "@commitlint/config-conventional": "^21.2.0",
+    "@larksuiteoapi/node-sdk": "^1.71.1",
+    "@svgr/plugin-svgo": "^8.1.0",
+    "@trivago/prettier-plugin-sort-imports": "^6.0.2",
+    "@types/node": "^24.13.3",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.3",
+    "code-inspector-plugin": "^2.0.5",
+    "cross-env": "^10.1.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.2.0",
+    "oxlint": "^1.75.0",
+    "oxlint-tsgolint": "^7.0.2001",
+    "prettier": "^3.9.6",
+    "prettier-plugin-tailwindcss": "^0.8.1",
+    "tsx": "^4.23.1",
+    "typescript": "~6.0.2",
+    "vconsole": "^3.15.1",
+    "vite": "^8.1.1",
+    "vite-plugin-svgr": "^5.2.0",
+    "xlsx": "^0.18.5"
+  }
+}
