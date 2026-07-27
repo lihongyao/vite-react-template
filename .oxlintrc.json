@@ -12,7 +12,9 @@
   "rules": {
     "import/no-unassigned-import": [
       "warn",
-      { "allow": ["**/*.css", "**/*.scss", "**/*.sass", "**/*.less"] }
+      {
+        "allow": ["**/*.css", "**/*.scss", "**/*.sass", "**/*.less", "swiper/css", "swiper/css/**"]
+      }
     ],
     "react/react-in-jsx-scope": "off",
     "react/rules-of-hooks": "error",

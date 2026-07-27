@@ -44,7 +44,7 @@ export default memo(function TabBar() {
       {paths.map(({ icon: Icon, path, text }) => (
         <LocalizedNavLink
           className={({ isActive }) =>
-            `flex flex-1 flex-col items-center justify-center ${isActive ? 'text-[#222]' : 'text-[#aaa]'}`
+            `flex flex-1 flex-col items-center justify-center outline-none focus-visible:ring-2 focus-visible:ring-[#168653] focus-visible:ring-inset ${isActive ? 'text-[#222]' : 'text-[#aaa]'}`
           }
           end
           key={path}

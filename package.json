@@ -33,11 +33,13 @@
     "class-variance-authority": "^0.7.1",
     "i18next": "^26.3.6",
     "immer": "^11.1.15",
+    "motion": "^12.42.2",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-error-boundary": "^6.1.2",
     "react-i18next": "^17.0.11",
     "react-router": "^8.3.0",
+    "swiper": "^14.0.6",
     "tailwind-merge": "^3.6.0",
     "tailwindcss": "^4.3.3",
     "zustand": "^5.0.14"

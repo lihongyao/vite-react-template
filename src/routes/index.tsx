@@ -4,6 +4,7 @@ import type { RouteObject } from 'react-router';
 import { RouterProvider, createBrowserRouter } from 'react-router';
 
 import { AppErrorFallback } from '@/components/features/AppErrorBoundary';
+import type { RouteTransitionHandle } from '@/components/features/RouteTransition/types';
 import LocaleLayout from '@/i18n/LocaleLayout';
 import { LOCALE_CONFIG, SUPPORTED_LOCALES } from '@/i18n/config';
 import { createLocaleLoader } from '@/i18n/locale-loader';
@@ -18,13 +19,21 @@ import Profile from '@/pages/Profile';
 
 const Apply = lazy(() => import('@/pages/Apply'));
 
+const tabTransitionHandle = {
+  transitionSurface: 'tab',
+} satisfies RouteTransitionHandle;
+
+const stackTransitionHandle = {
+  transitionSurface: 'stack',
+} satisfies RouteTransitionHandle;
+
 function createPageRoutes(): RouteObject[] {
   return [
-    { index: true, element: <Home /> },
-    { path: 'goods', element: <Goods /> },
-    { path: 'privilege-brand', element: <PrivilegeBrand /> },
-    { path: 'integral', element: <Integral /> },
-    { path: 'profile', element: <Profile /> },
+    { index: true, element: <Home />, handle: tabTransitionHandle },
+    { path: 'goods', element: <Goods />, handle: tabTransitionHandle },
+    { path: 'privilege-brand', element: <PrivilegeBrand />, handle: tabTransitionHandle },
+    { path: 'integral', element: <Integral />, handle: tabTransitionHandle },
+    { path: 'profile', element: <Profile />, handle: tabTransitionHandle },
   ];
 }
 
@@ -44,14 +53,17 @@ const localeRoutes: RouteObject[] = SUPPORTED_LOCALES.map((locale) => {
       {
         path: 'apply',
         element: <Apply />,
+        handle: stackTransitionHandle,
       },
       {
         path: 'goods/:id',
         element: <GoodsDetail />,
+        handle: stackTransitionHandle,
       },
       {
         path: '*',
         element: <NotFound />,
+        handle: stackTransitionHandle,
       },
     ],
   };

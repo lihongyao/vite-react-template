@@ -1,6 +1,9 @@
 import { useEffect } from 'react';
 
-import { Outlet, ScrollRestoration } from 'react-router';
+import {
+  RouteTransitionProvider,
+  StackTransitionOutlet,
+} from '@/components/features/RouteTransition';
 
 import type { Locale } from './config';
 import { activateLocale } from './instance';
@@ -11,9 +14,8 @@ export default function LocaleLayout({ locale }: { locale: Locale }) {
   }, [locale]);
 
   return (
-    <>
-      <Outlet />
-      <ScrollRestoration getKey={(location) => location.pathname} />
-    </>
+    <RouteTransitionProvider>
+      <StackTransitionOutlet />
+    </RouteTransitionProvider>
   );
 }

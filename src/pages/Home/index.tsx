@@ -1,12 +1,19 @@
-import { useEffect } from 'react';
-
 import { Trans, useTranslation } from 'react-i18next';
 
-import { ApiError, productApi } from '@/api';
 import AppHeader from '@/components/features/AppHeader';
+import Carousel from '@/components/ui/Carousel';
 import { useDialog } from '@/components/ui/Dialog';
 import { message } from '@/components/ui/Message';
 import { notification } from '@/components/ui/Notification';
+
+const banners = [
+  { id: 1, src: '/images/banner/1.jpg', alt: 'Upgrade VIP points for money' },
+  { id: 2, src: '/images/banner/2.jpg', alt: 'Flip cards to win prizes' },
+  { id: 3, src: '/images/banner/3.jpg', alt: 'Crazy gachapon prizes' },
+  { id: 4, src: '/images/banner/4.jpg', alt: 'Daily loss rebate' },
+  { id: 5, src: '/images/banner/5.jpg', alt: 'Seven-day check-in reward' },
+  { id: 6, src: '/images/banner/6.jpg', alt: 'Three-day daily cashback' },
+] as const;
 
 export default function Page() {
   const { t } = useTranslation();
@@ -14,28 +21,32 @@ export default function Page() {
   const [messageApi] = message.useMessage();
   const [notificationApi] = notification.useNotification();
 
-  useEffect(() => {
-    const controller = new AbortController();
-
-    const loadProducts = async () => {
-      try {
-        const data = await productApi.list({ limit: 10 }, controller.signal);
-        console.log('DummyJSON products:', data);
-      } catch (error) {
-        if (error instanceof ApiError && error.kind === 'canceled') return;
-        console.error('Failed to load DummyJSON products:', error);
-      }
-    };
-
-    void loadProducts();
-
-    return () => controller.abort();
-  }, []);
-
   return (
     <main className="bg-white text-[#222]">
       <AppHeader title="Agent Center" description="Your monthly commission and referral data" />
-      <div className="bg-pink-100 px-4">
+
+      <div className="flex flex-col gap-4 px-4 py-3">
+        <Carousel
+          ariaLabel="Featured promotions"
+          autoPlay
+          autoPlayDelay={4500}
+          className="mx-auto aspect-[1053/585] max-w-[1053px] rounded-md bg-[#003a27]"
+          getItemKey={(banner) => banner.id}
+          items={banners}
+          renderItem={(banner, index) => (
+            <img
+              alt={banner.alt}
+              className="block size-full object-cover"
+              fetchPriority={index === 0 ? 'high' : 'auto'}
+              height={585}
+              loading={index === 0 ? 'eager' : 'lazy'}
+              src={banner.src}
+              width={1053}
+            />
+          )}
+          speed={500}
+        />
+
         <div className="text-[#555]">
           <p>{t('profile.tips')}</p>
           <p>{t('profile.reward1', { point: 120 })}</p>
