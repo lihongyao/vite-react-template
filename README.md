@@ -82,7 +82,7 @@ AppErrorBoundary
 
 ## 路由与国际化
 
-路由由语言前缀驱动，目前支持：
+路由统一定义在 `src/routes/index.tsx`，并由语言前缀驱动。目前支持：
 
 | 语言               | URL 前缀 |
 | ------------------ | -------- |
@@ -91,7 +91,66 @@ AppErrorBoundary
 | Español (`es`)     | `/es`    |
 | Português (`pt`)   | `/pt`    |
 
-语言配置位于 `src/i18n/config.ts`，翻译资源位于 `src/i18n/locales`。站内跳转应优先使用 `LocalizedLink`、`LocalizedNavLink` 和 `useLocalizedNavigate`，避免丢失当前语言前缀。
+语言配置位于 `src/i18n/config.ts`，翻译资源位于 `src/i18n/locales`。每种语言共享同一组页面路由，整体结构如下：
+
+```text
+LocaleLayout                    # 切换语言、提供页面转场容器
+├── RootLayout                  # Tab 页面公共布局
+│   ├── TabTransitionOutlet     # 渲染当前 Tab 页面
+│   └── AppTabBar               # 底部导航栏
+├── apply                       # 普通二级页，不显示 TabBar
+├── goods/:id                   # 带动态参数的普通二级页
+└── *                           # 404 页面
+```
+
+Tab 页面使用 `transitionSurface: 'tab'`，切换时不产生页面入栈效果；普通二级页使用 `transitionSurface: 'stack'`，按页面栈方式转场。
+
+### 添加普通页面
+
+1. 在 `src/pages/<PageName>/index.tsx` 创建并默认导出页面组件。
+2. 在 `src/routes/index.tsx` 引入页面，并将路由添加到对应的 `children` 中。
+3. 非首屏页面可以通过 `lazy` 按需加载；使用 `lazy` 时，页面会由现有转场出口内的 `Suspense` 处理加载状态。
+
+### 添加 Tab 页
+
+Tab 页会显示底部导航栏，需要同时修改路由和 TabBar：
+
+1. 将页面路由加入 `createPageRoutes()`，并设置 `handle: tabTransitionHandle`。
+2. 在 `src/components/features/AppTabBar/index.tsx` 的 `paths` 中添加对应的路径、标题和图标。
+3. TabBar 使用 `LocalizedNavLink`，路由路径和 `paths` 中的路径都写不带语言前缀的应用内绝对路径。
+
+```tsx
+// src/routes/index.tsx
+{ path: 'orders', element: <Orders />, handle: tabTransitionHandle }
+
+// src/components/features/AppTabBar/index.tsx
+{ path: '/orders', text: 'Orders', icon: OrdersIcon }
+```
+
+首页是 `createPageRoutes()` 中的 `index: true` 路由，对应 TabBar 的 `/`。
+
+### 添加普通二级页
+
+普通二级页不应放入 `RootLayout`，而应作为它的同级路由直接添加到 `LocaleLayout` 的 `children`，这样页面不会显示底部 TabBar：
+
+```tsx
+{
+  path: 'orders/:id',
+  element: <OrderDetail />,
+  handle: stackTransitionHandle,
+}
+```
+
+页面可以通过 `useParams()` 读取动态参数，并使用 `SecondaryHeader` 提供统一的返回栏。若页面需要从任意入口打开，使用 `LocalizedLink` 或 `useLocalizedNavigate`：
+
+```tsx
+<LocalizedLink to={`/orders/${order.id}`}>查看订单</LocalizedLink>;
+
+const navigate = useLocalizedNavigate();
+navigate(`/orders/${order.id}`);
+```
+
+站内跳转应优先使用 `LocalizedLink`、`LocalizedNavLink` 和 `useLocalizedNavigate`，避免丢失当前语言前缀。只有返回上一页这类历史记录操作需要直接使用 React Router 的 `navigate(-1)`。
 
 ## API 与状态管理
 
