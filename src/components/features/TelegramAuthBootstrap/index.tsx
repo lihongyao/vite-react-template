@@ -1,6 +1,6 @@
 import { type PropsWithChildren, useEffect, useState } from 'react';
 
-import { authSession, telegramAuthApi } from '@/api';
+// import { authSession, telegramAuthApi } from '@/api';
 import { getDeviceEnvironment } from '@/libs/device';
 
 type AuthStatus = 'error' | 'loading' | 'ready';
@@ -25,11 +25,14 @@ export default function TelegramAuthBootstrap({ children }: PropsWithChildren) {
     const authenticate = async () => {
       try {
         console.log('initData >>> ', initData);
-        const { token } = await telegramAuthApi.loginOnce({ initData });
-        if (isCurrent) {
-          authSession.setToken(token);
-          setStatus('ready');
-        }
+        // 休眠2s
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        setStatus('ready');
+        // const { token } = await telegramAuthApi.loginOnce({ initData });
+        // if (isCurrent) {
+        //   authSession.setToken(token);
+        //   setStatus('ready');
+        // }
       } catch {
         if (isCurrent) setStatus('error');
       }
@@ -44,12 +47,19 @@ export default function TelegramAuthBootstrap({ children }: PropsWithChildren) {
 
   if (status === 'loading') {
     return (
-      <main className="flex min-h-dvh flex-col items-center justify-center gap-3 bg-[#f9f9f9] px-6">
+      <main className="flex min-h-dvh flex-col items-center justify-center gap-10 bg-[#f9f9f9] px-6">
+        {/* logo */}
+        <header className="flex flex-col items-center gap-2">
+          <img className="size-12" src="/logo.png" alt="" />
+          <span className="text-lg font-semibold text-[#222] uppercase">Agent Center</span>
+        </header>
+        {/* loadig */}
         <span
           aria-hidden="true"
           className="size-8 animate-spin rounded-full border-2 border-[#ddd] border-t-[#222]"
         />
-        <output className="text-sm text-[#666]">Signing in...</output>
+        {/* tips */}
+        <output className="text-sm text-[#666]">正在通过 Telegram 登录</output>
       </main>
     );
   }
