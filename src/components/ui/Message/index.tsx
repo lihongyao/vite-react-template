@@ -195,7 +195,7 @@ function MessageViewport({
   return (
     <div
       data-name="Message"
-      className="pointer-events-none fixed inset-0 flex items-center justify-center px-4"
+      className="app-fixed-frame pointer-events-none fixed inset-y-0 flex items-center justify-center px-4"
       style={{ zIndex: ZIndex.Message }}
     >
       <MessageToast key={item.id} item={item} onClose={close} onExited={remove} />

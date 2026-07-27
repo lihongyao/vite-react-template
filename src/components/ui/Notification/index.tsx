@@ -320,7 +320,7 @@ function NotificationViewport({
   return (
     <div
       data-name="Notification"
-      className="pointer-events-none fixed inset-x-0 flex justify-center px-3"
+      className="app-fixed-frame pointer-events-none fixed flex justify-center px-3"
       style={{ top: topOffset, zIndex: ZIndex.Message }}
     >
       <div className="flex w-full max-w-[calc(100vw-24px)] flex-col items-center gap-3">

@@ -1,6 +1,47 @@
 @import 'tailwindcss';
 @import './assets/styles/global-animation.css';
 
+:root {
+  --app-max-width: 500px;
+  --app-surface: #f9f9f9;
+  --desktop-canvas: #e9edf1;
+}
+
+html {
+  min-height: 100%;
+  background: var(--desktop-canvas);
+}
+
+body {
+  min-height: 100dvh;
+  background: var(--desktop-canvas);
+}
+
+#root {
+  position: relative;
+  width: 100%;
+  max-width: var(--app-max-width);
+  min-height: 100dvh;
+  margin-inline: auto;
+  background: var(--app-surface);
+}
+
+/* Keep body-level overlays aligned with the centered H5 canvas on wide screens. */
+.app-fixed-frame {
+  right: auto;
+  left: 50%;
+  width: min(100vw, var(--app-max-width));
+  transform: translateX(-50%);
+}
+
+@media (min-width: 501px) {
+  #root {
+    box-shadow:
+      0 0 0 1px rgb(24 32 42 / 5%),
+      0 8px 32px rgb(24 32 42 / 12%);
+  }
+}
+
 /* Fonts */
 @font-face {
   font-family: 'DIN-Bold';

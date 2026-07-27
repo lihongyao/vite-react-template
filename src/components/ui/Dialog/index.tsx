@@ -290,7 +290,7 @@ const DialogComponent = forwardRef<DialogRef, DialogProps>((props, ref) => {
   const content = (
     <div
       data-name={resolvedDialogId}
-      className="dialog-root fixed inset-0 flex items-center justify-center"
+      className="dialog-root app-fixed-frame fixed inset-y-0 flex items-center justify-center"
       style={{ zIndex }}
     >
       <div
