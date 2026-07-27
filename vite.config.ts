@@ -58,7 +58,7 @@ export default defineConfig(({ mode, command }: ConfigEnv): UserConfig => {
       strictPort: false,
       open: true,
       cors: true,
-      allowedHosts: ['regard-urge-adjust-stored.trycloudflare.com'],
+      allowedHosts: ['heritage-grey-industries-selecting.trycloudflare.com'],
       // proxy: {
       //   // 代理规则：将所有以 /v1 开头的请求转发到目标服务器
       //   '/v1': {

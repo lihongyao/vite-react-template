@@ -84,6 +84,21 @@
   animation: ani-move-to-right 5s ease-in-out infinite;
 }
 
+@keyframes loading-dot {
+  0%,
+  16%,
+  32%,
+  100% {
+    transform: translateY(0);
+  }
+  8% {
+    transform: translateY(-6px);
+  }
+  24% {
+    transform: translateY(6px);
+  }
+}
+
 @keyframes app-notification-enter-down {
   from {
     opacity: 0;

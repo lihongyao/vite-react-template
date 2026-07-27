@@ -1,12 +1,19 @@
-import { LOCALE_CONFIG, SUPPORTED_LOCALES, isLocale } from '@/i18n/config';
+import DataPicker from '@/components/ui/DataPicker';
+import { LOCALE_CONFIG, SUPPORTED_LOCALES } from '@/i18n/config';
+import type { Locale } from '@/i18n/config';
 import { useCurrentLocale, useSwitchLocale } from '@/i18n/navigation';
+
+const localeOptions = SUPPORTED_LOCALES.map((value) => ({
+  label: LOCALE_CONFIG[value].label,
+  value,
+}));
 
 export default function AppHeader({ title, description }: { title: string; description: string }) {
   const locale = useCurrentLocale();
   const switchLocale = useSwitchLocale();
 
-  const handleLocaleChange = (value: string) => {
-    if (isLocale(value)) void switchLocale(value);
+  const handleLocaleChange = (value: Locale) => {
+    void switchLocale(value);
   };
 
   return (
@@ -20,18 +27,32 @@ export default function AppHeader({ title, description }: { title: string; descr
           </div>
         </div>
 
-        <select
-          aria-label="Language"
-          className="h-10 w-[116px] shrink-0 cursor-pointer rounded-md border border-[#d9d9d9] bg-[#f7f7f7] px-3 text-sm font-medium text-[#303030] transition-colors outline-none hover:border-[#b7b7b7] hover:bg-white focus-visible:border-emerald-600 focus-visible:ring-2 focus-visible:ring-emerald-600/20"
-          value={locale}
-          onChange={(event) => handleLocaleChange(event.target.value)}
+        <DataPicker
+          title="Language"
+          items={localeOptions}
+          closeAriaLabel="Close language picker"
+          triggerClassName="flex h-10 w-[116px] shrink-0 items-center rounded-md border border-[#d9d9d9] bg-[#f7f7f7] px-3 text-sm font-medium text-[#303030] transition-colors hover:border-[#b7b7b7] hover:bg-white"
+          renderItem={(item) => (
+            <span className="flex items-center justify-between gap-3">
+              <span className={item.value === locale ? 'font-semibold text-[#0f766e]' : ''}>
+                {item.label}
+              </span>
+              {item.value === locale && (
+                <span aria-hidden className="text-base leading-none font-semibold text-[#0f766e]">
+                  ✓
+                </span>
+              )}
+            </span>
+          )}
+          onClick={(item) => handleLocaleChange(item.value)}
         >
-          {SUPPORTED_LOCALES.map((item) => (
-            <option key={item} value={item}>
-              {LOCALE_CONFIG[item].label}
-            </option>
-          ))}
-        </select>
+          <span className="sr-only">Language: </span>
+          <span className="min-w-0 flex-1 truncate">{LOCALE_CONFIG[locale].label}</span>
+          <span
+            aria-hidden
+            className="ml-2 size-2 shrink-0 rotate-45 border-r border-b border-current"
+          />
+        </DataPicker>
       </div>
     </header>
   );

@@ -22,13 +22,25 @@ type MotionContext = {
   reducedMotion: boolean;
 };
 
+type RouteTransitionContextValue = {
+  direction: NavigationDirection;
+  fromSurface: RouteTransitionSurface;
+  toSurface: RouteTransitionSurface;
+};
+
 type CommittedLocation = {
   historyIndex: number | null;
   key: string;
+  surface: RouteTransitionSurface;
 };
 
-const RouteTransitionContext = createContext<NavigationDirection>(0);
-const routeScrollPositions = new Map<string, number>();
+const RouteTransitionContext = createContext<RouteTransitionContextValue>({
+  direction: 0,
+  fromSurface: 'stack',
+  toSurface: 'stack',
+});
+const stackScrollPositions = new Map<string, number>();
+const tabScrollPositions = new Map<string, number>();
 
 const loadMotionFeatures = () => import('./motion-features').then((module) => module.default);
 
@@ -90,29 +102,45 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
   const location = useLocation();
   const navigationType = useNavigationType();
   const currentHistoryIndex = readHistoryIndex();
+  const surface = useRouteTransitionSurface();
   const committedLocationRef = useRef<CommittedLocation>({
     historyIndex: currentHistoryIndex,
     key: location.key,
+    surface,
   });
-  const lastDirectionRef = useRef<NavigationDirection>(0);
+  const lastTransitionRef = useRef<RouteTransitionContextValue>({
+    direction: 0,
+    fromSurface: surface,
+    toSurface: surface,
+  });
   const committedLocation = committedLocationRef.current;
 
-  const direction =
+  const transition =
     committedLocation.key === location.key
-      ? lastDirectionRef.current
-      : getNavigationDirection(navigationType, committedLocation.historyIndex, currentHistoryIndex);
+      ? lastTransitionRef.current
+      : {
+          direction: getNavigationDirection(
+            navigationType,
+            committedLocation.historyIndex,
+            currentHistoryIndex,
+          ),
+          fromSurface: committedLocation.surface,
+          toSurface: surface,
+        };
+  const { direction, fromSurface, toSurface } = transition;
 
   useLayoutEffect(() => {
     committedLocationRef.current = {
       historyIndex: currentHistoryIndex,
       key: location.key,
+      surface,
     };
-    lastDirectionRef.current = direction;
-  }, [currentHistoryIndex, direction, location.key]);
+    lastTransitionRef.current = { direction, fromSurface, toSurface };
+  }, [currentHistoryIndex, direction, fromSurface, location.key, surface, toSurface]);
 
   return (
     <LazyMotion features={loadMotionFeatures} strict>
-      <RouteTransitionContext.Provider value={direction}>
+      <RouteTransitionContext.Provider value={transition}>
         {children}
       </RouteTransitionContext.Provider>
     </LazyMotion>
@@ -120,7 +148,7 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
 }
 
 export function StackTransitionOutlet() {
-  const direction = useContext(RouteTransitionContext);
+  const { direction } = useContext(RouteTransitionContext);
   const location = useLocation();
   const outlet = useOutlet();
   const reducedMotion = Boolean(useReducedMotion());
@@ -137,7 +165,7 @@ export function StackTransitionOutlet() {
         <StackScene
           key={sceneKey}
           motionContext={motionContext}
-          scrollKey={location.pathname}
+          scrollKey={sceneKey}
           surface={surface}
         >
           {outlet}
@@ -148,13 +176,19 @@ export function StackTransitionOutlet() {
 }
 
 export function TabTransitionOutlet() {
+  const transition = useContext(RouteTransitionContext);
   const location = useLocation();
   const outlet = useOutlet();
   const reducedMotion = Boolean(useReducedMotion());
   const surface = useRouteTransitionSurface();
   // Exiting tab shells still observe the new stack URL, so retain their last tab identity.
   const activeTabPathRef = useRef(location.pathname);
-  const sceneKey = surface === 'tab' ? location.pathname : activeTabPathRef.current;
+  const activeTabPath = surface === 'tab' ? location.pathname : activeTabPathRef.current;
+  const sceneKey = activeTabPath;
+  const restoreScroll =
+    transition.direction < 0 &&
+    transition.fromSurface === 'stack' &&
+    transition.toSurface === 'tab';
   const motionContext = {
     direction: 0,
     reducedMotion,
@@ -166,11 +200,16 @@ export function TabTransitionOutlet() {
 
   return (
     <div
-      className="grid min-h-0 min-w-0 flex-1 grid-cols-1 overflow-x-clip"
+      className="grid min-h-0 min-w-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)] overflow-hidden"
       data-route-transition="tab"
     >
       <AnimatePresence custom={motionContext} initial={false} mode="sync">
-        <TabScene key={sceneKey} motionContext={motionContext}>
+        <TabScene
+          key={sceneKey}
+          motionContext={motionContext}
+          restoreScroll={restoreScroll}
+          scrollKey={activeTabPath}
+        >
           {outlet}
         </TabScene>
       </AnimatePresence>
@@ -190,7 +229,7 @@ function StackScene({
   surface: RouteTransitionSurface;
 }) {
   const isPresent = useIsPresent();
-  const direction = useContext(RouteTransitionContext);
+  const { direction } = useContext(RouteTransitionContext);
   const sceneRef = useRef<HTMLDivElement>(null);
   const zIndex = isPresent ? (direction >= 0 ? 2 : 0) : direction < 0 ? 2 : 0;
 
@@ -199,10 +238,10 @@ function StackScene({
     if (!scene) return undefined;
 
     // Each stack scene needs its own viewport so a foreground page cannot move its background.
-    scene.scrollTop = routeScrollPositions.get(scrollKey) ?? 0;
+    scene.scrollTop = stackScrollPositions.get(scrollKey) ?? 0;
 
     return () => {
-      routeScrollPositions.set(scrollKey, scene.scrollTop);
+      stackScrollPositions.set(scrollKey, scene.scrollTop);
     };
   }, [scrollKey]);
 
@@ -236,18 +275,34 @@ function StackScene({
 function TabScene({
   children,
   motionContext,
+  restoreScroll,
+  scrollKey,
 }: {
   children: ReactNode;
   motionContext: MotionContext;
+  restoreScroll: boolean;
+  scrollKey: string;
 }) {
   const isPresent = useIsPresent();
+  const sceneRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const scene = sceneRef.current;
+    if (!scene) return undefined;
+
+    scene.scrollTop = restoreScroll ? (tabScrollPositions.get(scrollKey) ?? 0) : 0;
+
+    return () => {
+      tabScrollPositions.set(scrollKey, scene.scrollTop);
+    };
+  }, [restoreScroll, scrollKey]);
 
   return (
     <m.div
       animate="animate"
       aria-hidden={isPresent ? undefined : true}
       className={cn(
-        'col-start-1 row-start-1 flex min-h-0 min-w-0 flex-col [&>*]:flex-1',
+        'scrollbar-hidden col-start-1 row-start-1 flex min-h-0 min-w-0 flex-col overflow-y-auto overscroll-y-contain [&>*]:flex-1',
         !isPresent && 'pointer-events-none',
       )}
       custom={motionContext}
@@ -255,6 +310,7 @@ function TabScene({
       exit="exit"
       inert={isPresent ? undefined : true}
       initial="initial"
+      ref={sceneRef}
       style={{ transformOrigin: '50% 50%', zIndex: isPresent ? 1 : 0 }}
       variants={tabVariants}
     >
