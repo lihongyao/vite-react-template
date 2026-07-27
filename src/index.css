@@ -10,11 +10,24 @@
 html {
   min-height: 100%;
   background: var(--desktop-canvas);
+  scrollbar-width: none;
 }
 
 body {
   min-height: 100dvh;
   background: var(--desktop-canvas);
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hidden {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 #root {

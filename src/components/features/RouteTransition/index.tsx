@@ -211,7 +211,7 @@ function StackScene({
       animate="animate"
       aria-hidden={isPresent ? undefined : true}
       className={cn(
-        'relative col-start-1 row-start-1 h-dvh min-w-0 overflow-y-auto overscroll-y-contain bg-[#f9f9f9]',
+        'scrollbar-hidden relative col-start-1 row-start-1 h-dvh min-w-0 overflow-y-auto overscroll-y-contain bg-[#f9f9f9]',
         !isPresent && 'pointer-events-none',
       )}
       custom={motionContext}
