@@ -5,7 +5,7 @@
 ## 技术栈
 
 - React 19、React Router 8、TypeScript 6、Vite 8
-- Tailwind CSS 4、Fontsource Variable Fonts、SVGR
+- Tailwind CSS 4、Fontsource Variable Fonts、SVG Sprite 与 SVGR
 - i18next、react-i18next
 - Zustand、Immer、持久化中间件
 - Axios 统一请求层
@@ -33,6 +33,7 @@ pnpm dev
 | `pnpm lint:fix`     | 自动修复可修复的 lint 问题   |
 | `pnpm format`       | 使用 Prettier 格式化项目     |
 | `pnpm format:check` | 检查代码格式                 |
+| `pnpm gen-svg`      | 生成 Sprite、SVGR 和图标类型 |
 | `pnpm i18n`         | 从 Excel 生成多语言 JSON     |
 | `pnpm i18n:lark`    | 运行飞书多语言同步脚本       |
 
@@ -41,10 +42,11 @@ pnpm dev
 ```text
 src/
 ├── api/                  # 请求客户端、鉴权会话、错误归一化和业务接口
-├── assets/               # 参与构建的图片与 SVG
+├── assets/
+│   └── svg/              # SVG source、生成组件、Sprite 和图标类型
 ├── components/
 │   ├── features/         # 带业务或应用语义的组件
-│   └── ui/               # 通用 UI 组件
+│   └── ui/               # 通用 UI 组件，包括统一 Icon 入口
 ├── constants/            # 全局常量
 ├── i18n/                 # 语言资源、路由本地化和导航工具
 ├── layout/               # 页面公共布局
@@ -56,8 +58,8 @@ src/
 ├── index.css             # Tailwind 入口和全局样式
 └── main.tsx              # 应用启动入口
 
-scripts/                  # Excel、飞书等工程脚本
-public/                   # 不参与构建处理的静态资源
+scripts/                  # SVG、Excel、飞书等工程脚本
+public/                   # 原样发布的静态资源、生成的 Sprite 和预览页
 ```
 
 项目使用 `@/*` 映射到 `src/*`。页面组件放在 `pages`，跨页面业务组件放在 `components/features`，可复用的纯 UI 放在 `components/ui`。
@@ -80,22 +82,74 @@ public/                   # 不参与构建处理的静态资源
 
 后续如果新增开源英文字体，优先使用 `@fontsource-variable/<font-name>`，在 `src/main.tsx` 引入对应 `wght.css`，再在 `src/index.css` 的 `@theme` 中补充 `--font-*` token。只有私有字体或商用字体才建议放到 `public/fonts` 并手写 `@font-face`，且优先使用 `woff2`。
 
+## SVG 与 Icon
+
+业务代码统一使用 `@/components/ui/Icon`，本地 Sprite、本地 SVGR、HTTP(S) SVG 和普通远程图片都通过 `name` 传入，不再直接导入 SVG 文件。
+
+```tsx
+import Icon from '@/components/ui/Icon';
+
+export function IconExamples() {
+  return (
+    <div className="flex items-center gap-3">
+      <Icon name="tabbar_home" className="size-6" color="#dc2626" />
+      <Icon name="adult" className="size-9" />
+      <Icon
+        name="https://video.qg5k.com/10210/188c4c688264452c8439c99b56b6ce14.svg"
+        className="size-6"
+      />
+    </div>
+  );
+}
+```
+
+图标源文件和生成结果按用途分开维护：
+
+```text
+src/assets/svg/
+├── source/
+│   ├── sprites/              # 单色小图标，使用 currentColor 着色
+│   ├── svgrs/                # 多色、渐变或需要手动维护主题变量的图标
+│   └── configurable-icons/   # 提供给后台配置端的图标，不参与生成
+└── generated/                # 自动生成的 TSX、Sprite、类型和注册表
+```
+
+新增、删除图标后执行 `pnpm gen-svg`。`pnpm dev`、`pnpm build:qa` 和 `pnpm build:prod` 也会在启动或构建前自动生成。应用启动时由 `src/main.tsx` 注入 inline Sprite，生成文件不要手动修改，但 SVGR TSX 除外。
+
+SVGR 使用增量维护规则：source 存在且 TSX 不存在时才生成；已经生成的 TSX 不会被脚本覆盖，可以手动接入 CSS 变量和主题逻辑。需要根据新 source 重建时，先删除对应的 generated TSX；删除 source 后，脚本也会删除对应的孤立 TSX。
+
+远程 `.svg` 未传 `color` 时使用 `img`，传入 `color` 时使用 CSS mask 着色；其他远程图片使用 `img`。后台返回普通字符串时，先使用 `isIconName` 做运行时校验：
+
+```tsx
+import Icon from '@/components/ui/Icon';
+import { isIconName } from '@/components/ui/Icon/icon-name';
+
+const configuredIcon: string = response.icon;
+
+return isIconName(configuredIcon) ? <Icon name={configuredIcon} className="size-6" /> : null;
+```
+
+Sprite 图标预览页会生成到 `public/sprite-preview.html`，首页的 Internationalization 下方也提供了 Sprite、SVGR 和远程图标的混合渲染示例。完整维护规则见 [`src/assets/svg/README.md`](src/assets/svg/README.md)。
+
 ## 应用启动流程
 
 `main.tsx` 负责初始化调试工具、App Scheme、i18next 和 Router，并按以下层级挂载应用：
 
 ```text
-AppErrorBoundary
-└── I18nextProvider
-    └── NotificationProvider
-        └── MessageProvider
-            └── DialogProvider
-                ├── ApiErrorReporter
-                └── AppEnvGuard
-                    └── TelegramAuthBootstrap
-                        └── AppRoutes
+StrictMode
+├── SpriteSvgSource
+└── AppErrorBoundary
+    └── I18nextProvider
+        └── NotificationProvider
+            └── MessageProvider
+                └── DialogProvider
+                    ├── ApiErrorReporter
+                    └── AppEnvGuard
+                        └── TelegramAuthBootstrap
+                            └── AppRoutes
 ```
 
+- `SpriteSvgSource` 将生成的本地 Sprite 注入页面，供 `Icon` 通过 `<use>` 使用。
 - `AppErrorBoundary` 提供应用级异常兜底。
 - `NotificationProvider`、`MessageProvider` 和 `DialogProvider` 提供全局反馈能力。
 - `ApiErrorReporter` 将 API 层抛出的非 401 错误接入 notification 或 Dialog Tips。

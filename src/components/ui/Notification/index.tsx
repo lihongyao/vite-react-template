@@ -1,8 +1,6 @@
 import {
-  type ComponentType,
   type PropsWithChildren,
   type ReactNode,
-  type SVGProps,
   createContext,
   useCallback,
   useContext,
@@ -15,11 +13,7 @@ import {
 
 import { useTranslation } from 'react-i18next';
 
-import CloseIcon from '@/assets/icon/close.svg?react';
-import TipsCorrectIcon from '@/assets/icon/tips_correct.svg?react';
-import TipsErrorIcon from '@/assets/icon/tips_error.svg?react';
-import TipsSystemIcon from '@/assets/icon/tips_system.svg?react';
-import TipsWarningIcon from '@/assets/icon/tips_warning.svg?react';
+import Icon, { type IconName } from '@/components/ui/Icon';
 import { ZIndex } from '@/constants/z-index';
 import { cn } from '@/libs/class-helpers';
 
@@ -72,24 +66,24 @@ const DEFAULT_MAX_COUNT = 10;
 const TYPE_META: Record<
   NotificationType,
   {
-    icon: ComponentType<SVGProps<SVGSVGElement>>;
+    icon: IconName;
     accent: string;
   }
 > = {
   success: {
-    icon: TipsCorrectIcon,
+    icon: 'tips_correct',
     accent: '#31ED87',
   },
   info: {
-    icon: TipsSystemIcon,
+    icon: 'tips_system',
     accent: '#31ED87',
   },
   warning: {
-    icon: TipsWarningIcon,
+    icon: 'tips_warning',
     accent: '#FFB24B',
   },
   error: {
-    icon: TipsErrorIcon,
+    icon: 'tips_error',
     accent: '#FC0048',
   },
 };
@@ -168,7 +162,7 @@ function NotificationProvider({ children }: PropsWithChildren) {
 
 function NotificationCard({ item, onClose, onExited }: NotificationCardProps) {
   const { t } = useTranslation();
-  const { icon: StatusIcon, accent } = TYPE_META[item.type];
+  const { icon, accent } = TYPE_META[item.type];
 
   const title = item.title ?? t(`notification.${item.type}`);
   const description = item.description;
@@ -196,12 +190,7 @@ function NotificationCard({ item, onClose, onExited }: NotificationCardProps) {
       aria-live="polite"
     >
       <div className="relative flex min-h-[88px] items-start gap-3 px-4 py-4 pr-12">
-        <StatusIcon
-          aria-hidden
-          className="mt-[2px] size-[22px] shrink-0"
-          focusable={false}
-          style={{ color: accent }}
-        />
+        <Icon name={icon} className="mt-[2px] size-[22px] shrink-0" color={accent} />
         <div className="min-w-0 flex-1 space-y-1">
           {title ? <div className="text-sm font-semibold text-white">{title}</div> : null}
           {description ? (
@@ -216,7 +205,7 @@ function NotificationCard({ item, onClose, onExited }: NotificationCardProps) {
           className="absolute top-4 right-4 flex size-6 cursor-pointer items-center justify-center rounded-full text-[#D9D9D9] transition-opacity hover:opacity-80"
           onClick={() => onClose(item.key)}
         >
-          <CloseIcon aria-hidden className="size-[18px]" focusable={false} />
+          <Icon name="close" className="size-[18px]" />
         </button>
       </div>
 

@@ -10,6 +10,7 @@ import { I18nextProvider } from 'react-i18next';
 import VConsole from 'vconsole';
 
 import { setApiRequestContextProvider } from './api';
+import SpriteSvgSource from './assets/svg/generated/sprite-svg';
 import ApiErrorReporter from './components/features/ApiErrorReporter';
 import AppEnvGuard from './components/features/AppEnvGuard';
 import AppErrorBoundary from './components/features/AppErrorBoundary';
@@ -54,6 +55,7 @@ const router = createAppRouter();
 // 5. 渲染
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
+    <SpriteSvgSource />
     <AppErrorBoundary>
       <I18nextProvider i18n={i18n}>
         <NotificationProvider>

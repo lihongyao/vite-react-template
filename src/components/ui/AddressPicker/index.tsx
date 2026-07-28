@@ -14,7 +14,7 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 
-import CloseIcon from '@/assets/icon/close.svg?react';
+import Icon from '@/components/ui/Icon';
 import Popup from '@/components/ui/Popup';
 import { cn } from '@/libs/class-helpers';
 
@@ -317,7 +317,7 @@ export default memo(function AddressPicker({
           aria-label="关闭地址选择器"
           onClick={() => onCancel(false)}
         >
-          <CloseIcon aria-hidden className="size-6" focusable={false} />
+          <Icon name="close" className="size-6" />
         </button>
       </div>
     </Popup>

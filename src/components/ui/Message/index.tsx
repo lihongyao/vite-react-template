@@ -1,10 +1,8 @@
 'use client';
 
 import {
-  type ComponentType,
   type PropsWithChildren,
   type ReactNode,
-  type SVGProps,
   createContext,
   useCallback,
   useContext,
@@ -14,10 +12,7 @@ import {
   useState,
 } from 'react';
 
-import TipsCorrectIcon from '@/assets/icon/tips_correct.svg?react';
-import TipsErrorIcon from '@/assets/icon/tips_error.svg?react';
-import TipsSystemIcon from '@/assets/icon/tips_system.svg?react';
-import TipsWarningIcon from '@/assets/icon/tips_warning.svg?react';
+import Icon, { type IconName } from '@/components/ui/Icon';
 import { ZIndex } from '@/constants/z-index';
 import { cn } from '@/libs/class-helpers';
 
@@ -51,24 +46,24 @@ const DEFAULT_DURATION = 1.5;
 const TYPE_META: Record<
   MessageType,
   {
-    icon: ComponentType<SVGProps<SVGSVGElement>>;
+    icon: IconName;
     color: string;
   }
 > = {
   success: {
-    icon: TipsCorrectIcon,
+    icon: 'tips_correct',
     color: '#31ED87',
   },
   info: {
-    icon: TipsSystemIcon,
+    icon: 'tips_system',
     color: '#31ED87',
   },
   warning: {
-    icon: TipsWarningIcon,
+    icon: 'tips_warning',
     color: '#FFB24B',
   },
   error: {
-    icon: TipsErrorIcon,
+    icon: 'tips_error',
     color: '#FC0048',
   },
 };
@@ -129,7 +124,7 @@ function MessageToast({
   onClose: () => void;
   onExited: (id: number) => void;
 }) {
-  const { icon: StatusIcon, color } = TYPE_META[item.type];
+  const { icon, color } = TYPE_META[item.type];
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const clearTimer = () => {
@@ -170,12 +165,7 @@ function MessageToast({
       }}
       aria-live="polite"
     >
-      <StatusIcon
-        aria-hidden
-        className="block size-[20px] shrink-0"
-        focusable={false}
-        style={{ color }}
-      />
+      <Icon name={icon} className="block size-[20px] shrink-0" color={color} />
       <span className="min-w-0 break-words">{item.content}</span>
     </output>
   );

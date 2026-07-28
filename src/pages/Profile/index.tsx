@@ -1,6 +1,5 @@
-import CopyIcon from '@/assets/icon/copy.svg?react';
-import EditIcon from '@/assets/icon/edit.svg?react';
 import AppHeader from '@/components/features/AppHeader';
+import Icon from '@/components/ui/Icon';
 import { message } from '@/components/ui/Message';
 
 const statistics = [
@@ -40,7 +39,7 @@ export default function Page() {
                 className="flex size-7 shrink-0 items-center justify-center text-[#9297A1]"
                 title="Edit profile"
               >
-                <EditIcon aria-hidden className="size-[15px]" focusable={false} />
+                <Icon name="edit" className="size-[15px]" />
               </span>
             </div>
 
@@ -53,7 +52,7 @@ export default function Page() {
                 className="flex size-7 cursor-pointer items-center justify-center text-[#737780] transition-colors hover:text-[#168653] active:opacity-60"
                 onClick={() => messageApi.success('复制成功')}
               >
-                <CopyIcon aria-hidden className="size-[17px]" focusable={false} />
+                <Icon name="copy" className="size-[17px]" />
               </button>
             </div>
           </div>

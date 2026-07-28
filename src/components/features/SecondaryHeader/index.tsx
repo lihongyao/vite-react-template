@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router';
 
-import ArrowLeftIcon from '@/assets/icon/arrow_left.svg?react';
+import Icon from '@/components/ui/Icon';
 
 export default function SecondaryHeader({ title }: { title: string }) {
   const navigate = useNavigate();
@@ -14,7 +14,7 @@ export default function SecondaryHeader({ title }: { title: string }) {
           className="absolute left-2 flex size-10 cursor-pointer items-center justify-center text-[#30343B] active:opacity-60"
           onClick={() => navigate(-1)}
         >
-          <ArrowLeftIcon aria-hidden className="size-5" focusable={false} />
+          <Icon name="arrow_left" className="size-5" />
         </button>
         <h1 className="w-full truncate text-center text-base leading-6 font-bold text-[#202124]">
           {title}

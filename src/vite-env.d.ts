@@ -1,5 +1,3 @@
-/// <reference types="vite-plugin-svgr/client" />
-
 interface ViteTypeOptions {
   strictImportMetaEnv: unknown;
 }

@@ -16,6 +16,7 @@ import { useDialog } from '@/components/ui/Dialog';
 import DragView from '@/components/ui/DragView';
 import Input from '@/components/ui/Forms/Input';
 import PhoneInput from '@/components/ui/Forms/PhoneInput';
+import Icon from '@/components/ui/Icon';
 import Loading from '@/components/ui/Loading';
 import LoadingWithLogo from '@/components/ui/LoadingWithLogo';
 import { message } from '@/components/ui/Message';
@@ -119,6 +120,7 @@ const dataPickerItems = Array.from({ length: 24 }, (_, index) => {
 });
 
 const youtubeUrl = 'https://www.youtube.com/';
+const remoteIconUrl = 'https://video.qg5k.com/10210/188c4c688264452c8439c99b56b6ce14.svg';
 
 const validateChinesePhone = (value: string) => {
   if (!value) return 'Please enter a mobile phone number.';
@@ -191,6 +193,59 @@ export default function Page() {
                 values={{ point: 320 }}
               />
             </p>
+          </div>
+        </section>
+
+        {/* Icon */}
+        <section
+          aria-labelledby="icon-demo-title"
+          className="-mx-4 border-y border-[#e5e7eb] bg-[#f7f8fa] px-4 py-5"
+        >
+          <h2 id="icon-demo-title" className="mb-3 text-base font-semibold text-[#1f2937]">
+            Icon
+          </h2>
+          <div className="flex flex-wrap items-center gap-3">
+            <Icon
+              name="tabbar_home"
+              className="size-6"
+              color="#dc2626"
+              wrapperClass="size-10 rounded-md border border-[#e1e5e3] bg-white"
+            />
+            <Icon
+              name="tabbar_casino"
+              className="size-6"
+              color="#ea580c"
+              wrapperClass="size-10 rounded-md border border-[#e1e5e3] bg-white"
+            />
+            <Icon
+              name="tips_correct"
+              className="size-6"
+              color="#16a34a"
+              wrapperClass="size-10 rounded-md border border-[#e1e5e3] bg-white"
+            />
+            <Icon
+              name="tabbar_profile"
+              className="size-6"
+              color="#db2777"
+              wrapperClass="size-10 rounded-md border border-[#e1e5e3] bg-white"
+            />
+            <Icon
+              name="tabbar_sport"
+              className="size-6"
+              color="#2563eb"
+              wrapperClass="size-10 rounded-md border border-[#e1e5e3] bg-white"
+            />
+            <Icon
+              name={remoteIconUrl}
+              className="size-6"
+              wrapperClass="size-10 rounded-md border border-[#e1e5e3] bg-white"
+            />
+            <Icon
+              name="adult"
+              className="size-9"
+              wrapperClass="size-10 rounded-md border border-[#e1e5e3] bg-white"
+            />
+            <Icon name="first_visit_frame" className="h-[52px] w-[142px] max-w-[42vw]" />
           </div>
         </section>
 

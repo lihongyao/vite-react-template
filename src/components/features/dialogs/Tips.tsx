@@ -1,11 +1,8 @@
-import { type ComponentType, type ReactNode, type SVGProps, useId, useState } from 'react';
+import { type ReactNode, useId, useState } from 'react';
 
-import TipsCorrectIcon from '@/assets/icon/tips_correct.svg?react';
-import TipsErrorIcon from '@/assets/icon/tips_error.svg?react';
-import TipsSystemIcon from '@/assets/icon/tips_system.svg?react';
-import TipsWarningIcon from '@/assets/icon/tips_warning.svg?react';
 import Button from '@/components/ui/Button';
 import { useDialog } from '@/components/ui/Dialog';
+import Icon, { type IconName } from '@/components/ui/Icon';
 
 export type TipsType = 'success' | 'info' | 'warning' | 'error';
 
@@ -22,25 +19,30 @@ export interface TipsProps {
 const TYPE_META: Record<
   TipsType,
   {
-    icon: ComponentType<SVGProps<SVGSVGElement>>;
+    icon: IconName;
     iconClassName: string;
+    iconColor: string;
   }
 > = {
   success: {
-    icon: TipsCorrectIcon,
+    icon: 'tips_correct',
     iconClassName: 'bg-[#e9fff3]',
+    iconColor: '#31ED87',
   },
   info: {
-    icon: TipsSystemIcon,
+    icon: 'tips_system',
     iconClassName: 'bg-[#e9fff3]',
+    iconColor: '#31ED87',
   },
   warning: {
-    icon: TipsWarningIcon,
+    icon: 'tips_warning',
     iconClassName: 'bg-[#fffbe5]',
+    iconColor: '#F3DF00',
   },
   error: {
-    icon: TipsErrorIcon,
+    icon: 'tips_error',
     iconClassName: 'bg-[#fff0f4]',
+    iconColor: '#FC0048',
   },
 };
 
@@ -57,7 +59,7 @@ export default function Tips({
   const titleId = useId();
   const descriptionId = useId();
   const [pendingAction, setPendingAction] = useState<'confirm' | 'cancel' | null>(null);
-  const { icon: StatusIcon, iconClassName } = TYPE_META[type];
+  const { icon, iconClassName, iconColor } = TYPE_META[type];
 
   const close = (reason: 'confirmed' | 'cancelled') => dialog.close('Tips', { reason });
 
@@ -99,7 +101,7 @@ export default function Tips({
         <span
           className={`mx-auto flex size-12 items-center justify-center rounded-full ${iconClassName}`}
         >
-          <StatusIcon aria-hidden className="size-7" focusable={false} />
+          <Icon name={icon} className="size-7" color={iconColor} />
         </span>
 
         <h2 id={titleId} className="mt-4 text-lg leading-6 font-semibold break-words">
