@@ -1,4 +1,15 @@
 {
+  "editor.formatOnSave": true,
+  "editor.insertSpaces": true,
+  "editor.tabSize": 2,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "prettier.requireConfig": true,
   "tailwindCSS.lint.suggestCanonicalClasses": "ignore",
-  "i18n-ally.localesPaths": ["src/i18n", "src/i18n/locales"]
+  // i18n-ally 配置
+  "i18n-ally.localesPaths": ["src/i18n", "src/i18n/locales"],
+  "i18n-ally.sourceLanguage": "en-US",
+  "i18n-ally.displayLanguage": "zh-CN",
+  "i18n-ally.pathMatcher": "{locale}.json",
+  "i18n-ally.enabledFrameworks": ["next-intl", "general"],
+  "i18n-ally.keystyle": "nested"
 }
