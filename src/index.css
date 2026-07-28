@@ -1,6 +1,15 @@
 @import 'tailwindcss';
 @import './assets/styles/global-animation.css';
 
+@theme {
+  --font-sans:
+    'Inter Variable', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    sans-serif;
+  --font-albert-sans:
+    'Albert Sans Variable', 'Inter Variable', ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
 :root {
   --app-max-width: 500px;
   --app-surface: #f9f9f9;
@@ -17,6 +26,7 @@ body {
   min-height: 100dvh;
   background: var(--desktop-canvas);
   scrollbar-width: none;
+  font-family: var(--font-sans);
 }
 
 html::-webkit-scrollbar,
@@ -53,23 +63,6 @@ body::-webkit-scrollbar,
       0 0 0 1px rgb(24 32 42 / 5%),
       0 8px 32px rgb(24 32 42 / 12%);
   }
-}
-
-/* Fonts */
-@font-face {
-  font-family: 'DIN-Bold';
-  src: url('/fonts/DIN-Bold.otf');
-}
-@font-face {
-  font-family: 'DIN-Regular';
-  src: url('/fonts/DIN-Regular.otf');
-}
-
-.ff-DIN-Bold {
-  font-family: 'DIN-Bold';
-}
-.ff-DIN-Black {
-  font-family: 'DIN-Black';
 }
 
 /* 气泡框 */

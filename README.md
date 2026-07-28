@@ -5,7 +5,7 @@
 ## 技术栈
 
 - React 19、React Router 8、TypeScript 6、Vite 8
-- Tailwind CSS 4、SVGR
+- Tailwind CSS 4、Fontsource Variable Fonts、SVGR
 - i18next、react-i18next
 - Zustand、Immer、持久化中间件
 - Axios 统一请求层
@@ -61,6 +61,24 @@ public/                   # 不参与构建处理的静态资源
 ```
 
 项目使用 `@/*` 映射到 `src/*`。页面组件放在 `pages`，跨页面业务组件放在 `components/features`，可复用的纯 UI 放在 `components/ui`。
+
+## 字体约定
+
+项目字体使用 Fontsource variable font 接入，由 Vite 在构建时处理字体资源，不需要手动下载 Google Fonts 文件到本地。
+
+- `src/main.tsx` 统一引入字体 CSS：`@fontsource-variable/inter/wght.css` 和 `@fontsource-variable/albert-sans/wght.css`。
+- `src/index.css` 通过 Tailwind CSS 4 的 `@theme` 定义字体 token。
+- 全项目默认字体是 Inter：`body` 使用 `font-family: var(--font-sans)`。
+- Albert Sans 作为局部字体使用，Tailwind 类名为 `font-albert-sans`。
+- 字重继续使用 Tailwind 原子类，例如 `font-normal`、`font-medium`、`font-semibold`、`font-bold`。
+
+示例：
+
+```tsx
+<h1 className="font-albert-sans font-semibold">Title</h1>
+```
+
+后续如果新增开源英文字体，优先使用 `@fontsource-variable/<font-name>`，在 `src/main.tsx` 引入对应 `wght.css`，再在 `src/index.css` 的 `@theme` 中补充 `--font-*` token。只有私有字体或商用字体才建议放到 `public/fonts` 并手写 `@font-face`，且优先使用 `woff2`。
 
 ## 应用启动流程
 

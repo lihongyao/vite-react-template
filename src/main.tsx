@@ -1,5 +1,7 @@
 import { StrictMode } from 'react';
 
+import '@fontsource-variable/albert-sans/wght.css';
+import '@fontsource-variable/inter/wght.css';
 import './index.css';
 
 import Schemes from '@likg/schemes';
