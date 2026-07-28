@@ -139,7 +139,7 @@ export default function DataPicker<T>({
 
           <div
             className={cn(
-              'scrollbar-hidden safe-area-bottom min-h-0 flex-1 overflow-y-auto overscroll-contain',
+              'scrollbar-hidden min-h-0 flex-1 overflow-y-auto overscroll-contain pb-[env(safe-area-inset-bottom)]',
               listClassName,
             )}
           >

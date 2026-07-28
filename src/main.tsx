@@ -15,6 +15,7 @@ import TelegramAuthBootstrap from './components/features/TelegramAuthBootstrap';
 import { DialogProvider } from './components/ui/Dialog';
 import { MessageProvider } from './components/ui/Message';
 import { NotificationProvider } from './components/ui/Notification';
+import { DEFAULT_LOCALE, LOCALE_CONFIG, isLocale } from './i18n/config';
 import i18n, { initializeI18n } from './i18n/instance';
 import AppRoutes, { createAppRouter } from './routes';
 
@@ -35,11 +36,17 @@ Schemes.config('xxx://www.xxx.com');
 
 // 4. 国际化
 await initializeI18n();
-setApiRequestContextProvider(() => ({
-  params: {
-    ch: 1001,
-  },
-}));
+setApiRequestContextProvider(() => {
+  const resolvedLanguage = i18n.resolvedLanguage;
+  const locale = resolvedLanguage && isLocale(resolvedLanguage) ? resolvedLanguage : DEFAULT_LOCALE;
+
+  return {
+    params: {
+      ch: 1001,
+      lang: LOCALE_CONFIG[locale].apiLang,
+    },
+  };
+});
 const router = createAppRouter();
 
 // 5. 渲染
