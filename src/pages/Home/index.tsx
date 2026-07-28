@@ -287,6 +287,26 @@ export default function Page() {
             </Button>
             <Button
               block
+              className="col-span-2"
+              variant="outline"
+              onClick={() =>
+                dialog.open('Tips', {
+                  maskClosable: false,
+                  props: {
+                    type: 'warning',
+                    title: 'Discard your changes?',
+                    description: 'The information you entered on this page has not been saved yet.',
+                    confirmText: 'Discard changes',
+                    cancelText: 'Keep editing',
+                    onConfirm: () => messageApi.success('Changes discarded.'),
+                  },
+                })
+              }
+            >
+              Show tips
+            </Button>
+            <Button
+              block
               className="col-span-2 justify-start text-left"
               variant="outline"
               onClick={() => setAddressPickerOpen(true)}

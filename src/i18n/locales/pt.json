@@ -11,5 +11,11 @@
     "warning": "Aviso",
     "error": "Erro",
     "close": "Fechar notificação"
+  },
+  "message": {
+    "error_1200": "Nome de usuário ou senha incorretos.",
+    "error_1201": "Falha ao fazer login. Tente novamente mais tarde.",
+    "error_1202": "O nome de usuário não existe.",
+    "error_1203": "Seu último saque foi rejeitado. Aguarde {{time}} minutos antes de tentar novamente."
   }
 }

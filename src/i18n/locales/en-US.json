@@ -11,5 +11,11 @@
     "warning": "Warning",
     "error": "Error",
     "close": "Close notification"
+  },
+  "message": {
+    "error_1200": "Incorrect username or password.",
+    "error_1201": "Login failed. Please try again later.",
+    "error_1202": "Username does not exist.",
+    "error_1203": "Your last withdrawal was decllined. Please wait {{time}} minutes before trying again."
   }
 }
