@@ -13,6 +13,9 @@
     "close": "Cerrar notificación"
   },
   "message": {
+    "error_network": "Error de conexión. Comprueba tu conexión e inténtalo de nuevo.",
+    "error_timeout": "La solicitud agotó el tiempo de espera. Inténtalo de nuevo más tarde.",
+    "error_unknown": "La solicitud falló. Inténtalo de nuevo más tarde.",
     "error_1200": "Nombre de usuario o contraseña incorrectos.",
     "error_1201": "Error al iniciar sesión. Inténtalo de nuevo más tarde.",
     "error_1202": "El nombre de usuario no existe.",

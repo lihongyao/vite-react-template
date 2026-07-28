@@ -13,6 +13,9 @@
     "close": "Fechar notificação"
   },
   "message": {
+    "error_network": "Falha na conexão. Verifique sua internet e tente novamente.",
+    "error_timeout": "A solicitação expirou. Tente novamente mais tarde.",
+    "error_unknown": "A solicitação falhou. Tente novamente mais tarde.",
     "error_1200": "Nome de usuário ou senha incorretos.",
     "error_1201": "Falha ao fazer login. Tente novamente mais tarde.",
     "error_1202": "O nome de usuário não existe.",

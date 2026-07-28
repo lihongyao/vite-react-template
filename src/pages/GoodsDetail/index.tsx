@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 
 import { ApiError, productApi } from '@/api';
-import type { Product } from '@/api/modules/product';
+import type { Product } from '@/api/modules/product/types';
 import SecondaryHeader from '@/components/features/SecondaryHeader';
 import Skeleton from '@/components/ui/Skeleton';
 

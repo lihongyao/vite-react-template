@@ -70,12 +70,17 @@ public/                   # 不参与构建处理的静态资源
 AppErrorBoundary
 └── I18nextProvider
     └── NotificationProvider
-        └── AppEnvGuard
-            └── TelegramAuthBootstrap
-                └── AppRoutes
+        └── MessageProvider
+            └── DialogProvider
+                ├── ApiErrorReporter
+                └── AppEnvGuard
+                    └── TelegramAuthBootstrap
+                        └── AppRoutes
 ```
 
 - `AppErrorBoundary` 提供应用级异常兜底。
+- `NotificationProvider`、`MessageProvider` 和 `DialogProvider` 提供全局反馈能力。
+- `ApiErrorReporter` 将 API 层抛出的非 401 错误接入 notification 或 Dialog Tips。
 - `AppEnvGuard` 根据 `VITE_APP_SOURCE` 限制微信或 Telegram 运行环境。
 - `TelegramAuthBootstrap` 在 Telegram Mini App 中读取 `initData` 并完成登录初始化。
 - 非生产环境会启用 vConsole，方便移动端调试。
@@ -158,11 +163,130 @@ navigate(`/orders/${order.id}`);
 
 - API Base URL、超时和公共请求上下文
 - Token 注入与未授权会话失效
-- `{ code, data, msg }` 业务响应解包
+- `{ code, data, message }` 业务响应解包
 - 网络错误和业务错误归一化
+- 非 401 API 错误的全局展示分发
 - Blob 文件下载与文件名解析
 
 业务接口按领域放在 `src/api/modules`，再由 `src/api/index.ts` 统一导出。全局客户端状态使用 Zustand，示例 Store 已集成 Immer 和本地持久化。
+
+### 业务接口类型组织
+
+业务接口类型按模块维护，不集中堆到 `src/api/types.ts`。`src/api/types.ts` 只放请求层通用类型，例如 `ApiResponse`、`ApiRequestConfig`、分页结构等。
+
+推荐每个业务模块使用目录结构：
+
+```text
+src/api/modules/product/
+├── index.ts      # 接口函数
+└── types.ts      # Product 模型、ProductListReq、ProductListRes 等业务类型
+```
+
+命名建议：
+
+- 实体模型使用业务名：`Product`、`User`、`Order`。
+- 请求/响应类型带接口动作：`ProductListReq`、`ProductListRes`、`ProductDetailReq`、`ProductDetailRes`。
+- `Res` 表示 `request()` 解包后的真实业务数据，不包含 `{ code, data, message }` 外壳。
+
+示例：
+
+```ts
+// src/api/modules/product/types.ts
+export interface ProductListReq {
+  limit?: number;
+  select?: string;
+  skip?: number;
+}
+
+export interface ProductListRes {
+  limit: number;
+  products: Product[];
+  skip: number;
+  total: number;
+}
+```
+
+```ts
+// src/api/modules/product/index.ts
+export function list(params?: ProductListReq, signal?: AbortSignal) {
+  return request<ProductListRes>({
+    params,
+    url: PRODUCT_API_URL,
+  });
+}
+```
+
+### API 错误展示约定
+
+普通业务接口默认返回 `{ code, data, message }`。当 `code !== 200` 时，请求层会抛出 `ApiError`，并在继续向调用方 `throw` 之前触发全局错误展示。401 仍由 `authSession.expire()` 处理，不走普通 notification。
+
+默认展示规则：
+
+- 有业务错误码时，优先查找 `message.error_${code}`。
+- 展示内容保留错误码，格式为 `[code] - translated message`。
+- 如果没有业务错误码，则使用 HTTP 状态码或 `UNKNOWN` 作为展示码。
+- 网络失败、超时和未知错误使用 `message.error_network`、`message.error_timeout`、`message.error_unknown` 兜底。
+
+例如后端返回：
+
+```json
+{
+  "code": 1201,
+  "data": null,
+  "message": "Login failed"
+}
+```
+
+如果语言文件中存在：
+
+```json
+{
+  "message": {
+    "error_1201": "Login failed. Please try again later."
+  }
+}
+```
+
+则 notification 内容为：
+
+```text
+[1201] - Login failed. Please try again later.
+```
+
+带变量的错误码优先要求后端 `data` 字段和翻译变量名保持一致：
+
+```json
+{
+  "code": 1203,
+  "data": {
+    "time": 10
+  },
+  "message": "Please wait"
+}
+```
+
+```json
+{
+  "message": {
+    "error_1203": "Please wait {{time}} minutes before trying again."
+  }
+}
+```
+
+如果历史接口字段名无法对齐，或需要把秒转换成分钟等格式化逻辑，在 `src/components/features/ApiErrorReporter/error-rules.ts` 的 `ERROR_MESSAGE_VALUE_RESOLVERS` 中为对应错误码补 resolver。
+
+少数错误码需要用户确认、跳转或执行后续动作时，在 `ERROR_TIPS_RULES` 中配置为 Dialog Tips；其他错误码保持默认 notification 即可。
+
+调用方需要完全自己处理错误时，在请求配置中传 `errorHandling: 'manual'`。此时请求仍会抛出 `ApiError`，但不会触发全局 notification/Tips：
+
+```ts
+await request<LoginResult, LoginParams>({
+  data,
+  errorHandling: 'manual',
+  method: 'POST',
+  url: '/api/login',
+});
+```
 
 ## 环境变量
 

@@ -8,41 +8,46 @@ const AUTH_TOKEN_KEY = 'AUTHORIZATION_TOKEN';
 type UnauthorizedHandler = (error: ApiError) => void;
 
 let unauthorizedHandler: UnauthorizedHandler | undefined;
-// 多个并发请求同时返回 401 时，只触发一次退出或跳转流程。
-let unauthorizedNotified = false;
-
-function getStorage(): Storage | undefined {
-  return typeof window === 'undefined' ? undefined : window.localStorage;
-}
-
-function removeStoredToken() {
-  getStorage()?.removeItem(AUTH_TOKEN_KEY);
-}
+let unauthorizedNotified = false; // 多个并发请求同时返回 401 时，只触发一次退出或跳转流程。
 
 export const authSession = {
+  /**
+   * 清除本地 Token，并重置 401 通知状态。
+   */
   clearToken() {
-    removeStoredToken();
+    localStorage.removeItem(AUTH_TOKEN_KEY);
     unauthorizedNotified = false;
   },
 
+  /**
+   * 清除失效的 Token，并确保并发 401 只触发一次未授权回调。
+   */
   expire(error: ApiError) {
-    removeStoredToken();
+    localStorage.removeItem(AUTH_TOKEN_KEY);
     if (unauthorizedNotified) return;
 
     unauthorizedNotified = true;
     unauthorizedHandler?.(error);
   },
 
+  /**
+   * 获取当前存储的 Token，不存在时返回 null。
+   */
   getToken() {
-    return getStorage()?.getItem(AUTH_TOKEN_KEY) ?? null;
+    return localStorage.getItem(AUTH_TOKEN_KEY);
   },
 
+  /**
+   * 保存新 Token，并允许后续鉴权失效再次触发未授权回调。
+   */
   setToken(token: string) {
-    getStorage()?.setItem(AUTH_TOKEN_KEY, token);
-    // 新会话建立后允许下一次鉴权失效重新通知。
-    unauthorizedNotified = false;
+    localStorage.setItem(AUTH_TOKEN_KEY, token);
+    unauthorizedNotified = false; // 新会话建立后允许下一次鉴权失效重新通知。
   },
 
+  /**
+   * 注册未授权回调，并返回仅清理本次注册的函数。
+   */
   setUnauthorizedHandler(handler: UnauthorizedHandler) {
     unauthorizedHandler = handler;
 

@@ -1,7 +1,3 @@
-import { request } from '../client';
-
-const PRODUCT_API_URL = 'https://dummyjson.com/products';
-
 export interface ProductDimensions {
   depth: number;
   height: number;
@@ -48,34 +44,21 @@ export interface Product {
   weight: number;
 }
 
-export interface ProductListParams {
+export interface ProductListReq {
   limit?: number;
   select?: string;
   skip?: number;
 }
 
-export interface ProductListResponse {
+export interface ProductListRes {
   limit: number;
   products: Product[];
   skip: number;
   total: number;
 }
 
-export function list(params?: ProductListParams, signal?: AbortSignal) {
-  return request<ProductListResponse>({
-    params,
-    responseMode: 'json',
-    signal,
-    skipAuth: true,
-    url: PRODUCT_API_URL,
-  });
+export interface ProductDetailReq {
+  id: Product['id'];
 }
 
-export function details(id: number, signal?: AbortSignal) {
-  return request<Product>({
-    responseMode: 'json',
-    signal,
-    skipAuth: true,
-    url: `${PRODUCT_API_URL}/${id}`,
-  });
-}
+export type ProductDetailRes = Product;

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { ApiError, productApi } from '@/api';
-import type { Product } from '@/api/modules/product';
+import type { Product } from '@/api/modules/product/types';
 import Skeleton from '@/components/ui/Skeleton';
 import { LocalizedLink } from '@/i18n/links';
 
@@ -18,17 +18,12 @@ const PRODUCT_SELECT = [
   'thumbnail',
 ].join(',');
 
-const PRODUCT_CACHE_KEY = 'goods:list';
-let productsCache = readProductsCache();
-
 export default function Page() {
-  const [products, setProducts] = useState<Product[]>(() => productsCache ?? []);
-  const [loading, setLoading] = useState(productsCache === null);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    if (productsCache) return undefined;
-
     const controller = new AbortController();
     let active = true;
 
@@ -39,8 +34,6 @@ export default function Page() {
           controller.signal,
         );
         if (active) {
-          productsCache = data.products;
-          writeProductsCache(data.products);
           setProducts(data.products);
         }
       } catch (requestError) {
@@ -100,45 +93,6 @@ export default function Page() {
       </section>
     </main>
   );
-}
-
-function readProductsCache(): Product[] | null {
-  try {
-    const cached = sessionStorage.getItem(PRODUCT_CACHE_KEY);
-    if (!cached) return null;
-
-    const products: unknown = JSON.parse(cached);
-    return isProductsCache(products) ? products : null;
-  } catch {
-    return null;
-  }
-}
-
-function isProductsCache(value: unknown): value is Product[] {
-  return (
-    Array.isArray(value) &&
-    value.every(
-      (item) =>
-        typeof item === 'object' &&
-        item !== null &&
-        'id' in item &&
-        typeof item.id === 'number' &&
-        'title' in item &&
-        typeof item.title === 'string' &&
-        'price' in item &&
-        typeof item.price === 'number' &&
-        'thumbnail' in item &&
-        typeof item.thumbnail === 'string',
-    )
-  );
-}
-
-function writeProductsCache(products: Product[]) {
-  try {
-    sessionStorage.setItem(PRODUCT_CACHE_KEY, JSON.stringify(products));
-  } catch {
-    // The in-memory cache still supports restoration when storage is unavailable.
-  }
 }
 
 function GoodsCard({ product }: { product: Product }) {

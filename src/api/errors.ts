@@ -8,10 +8,25 @@ import type { ApiResponse } from './types';
 export type ApiErrorKind = 'business' | 'canceled' | 'http' | 'network' | 'timeout' | 'unknown';
 
 type ApiErrorOptions = {
+  /**
+   * 原始错误或异常值。
+   */
   cause?: unknown;
+  /**
+   * 接口返回的业务错误码。
+   */
   code?: number;
+  /**
+   * 错误响应携带的原始数据。
+   */
   details?: unknown;
+  /**
+   * 错误所属的分类。
+   */
   kind: ApiErrorKind;
+  /**
+   * HTTP 响应状态码。
+   */
   status?: number;
 };
 
@@ -39,18 +54,13 @@ function readErrorPayload(payload: unknown) {
   if (!isRecord(payload)) return {};
 
   const code = typeof payload.code === 'number' ? payload.code : undefined;
-  const message =
-    typeof payload.msg === 'string'
-      ? payload.msg
-      : typeof payload.message === 'string'
-        ? payload.message
-        : undefined;
+  const message = typeof payload.message === 'string' ? payload.message : undefined;
 
   return { code, message };
 }
 
 export function createBusinessError(response: ApiResponse<unknown>, status: number): ApiError {
-  return new ApiError(response.msg || 'Request failed', {
+  return new ApiError(response.message || 'Request failed', {
     code: response.code,
     details: response.data,
     kind: 'business',

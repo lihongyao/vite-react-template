@@ -7,6 +7,8 @@ import { createRoot } from 'react-dom/client';
 import { I18nextProvider } from 'react-i18next';
 import VConsole from 'vconsole';
 
+import { setApiRequestContextProvider } from './api';
+import ApiErrorReporter from './components/features/ApiErrorReporter';
 import AppEnvGuard from './components/features/AppEnvGuard';
 import AppErrorBoundary from './components/features/AppErrorBoundary';
 import TelegramAuthBootstrap from './components/features/TelegramAuthBootstrap';
@@ -33,6 +35,11 @@ Schemes.config('xxx://www.xxx.com');
 
 // 4. 国际化
 await initializeI18n();
+setApiRequestContextProvider(() => ({
+  params: {
+    ch: 1001,
+  },
+}));
 const router = createAppRouter();
 
 // 5. 渲染
@@ -43,6 +50,7 @@ createRoot(document.getElementById('root')!).render(
         <NotificationProvider>
           <MessageProvider>
             <DialogProvider>
+              <ApiErrorReporter />
               <AppEnvGuard>
                 <TelegramAuthBootstrap>
                   <AppRoutes router={router} />
