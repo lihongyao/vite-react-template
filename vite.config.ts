@@ -5,7 +5,8 @@ import react from '@vitejs/plugin-react';
 import { codeInspectorPlugin } from 'code-inspector-plugin';
 import type { ConfigEnv, UserConfig } from 'vite';
 import { defineConfig, loadEnv } from 'vite';
-import svgr from 'vite-plugin-svgr';
+
+// import svgr from 'vite-plugin-svgr';
 
 // https://cn.vitejs.dev/config/
 export default defineConfig(({ mode, command }: ConfigEnv): UserConfig => {
@@ -31,26 +32,26 @@ export default defineConfig(({ mode, command }: ConfigEnv): UserConfig => {
           bundler: 'vite',
         }),
       // svgr
-      svgr({
-        svgrOptions: {
-          dimensions: false,
-          plugins: ['@svgr/plugin-svgo', '@svgr/plugin-jsx'],
-          svgoConfig: {
-            plugins: [
-              {
-                name: 'preset-default',
-                params: {
-                  overrides: {
-                    convertColors: { currentColor: true },
-                    removeViewBox: false,
-                  },
-                },
-              },
-              'prefixIds',
-            ],
-          },
-        },
-      }),
+      // svgr({
+      //   svgrOptions: {
+      //     dimensions: false,
+      //     plugins: ['@svgr/plugin-svgo', '@svgr/plugin-jsx'],
+      //     svgoConfig: {
+      //       plugins: [
+      //         {
+      //           name: 'preset-default',
+      //           params: {
+      //             overrides: {
+      //               convertColors: { currentColor: true },
+      //               removeViewBox: false,
+      //             },
+      //           },
+      //         },
+      //         'prefixIds',
+      //       ],
+      //     },
+      //   },
+      // }),
     ],
     server: {
       host: '0.0.0.0',
