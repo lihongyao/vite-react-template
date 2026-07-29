@@ -9,6 +9,8 @@ import type {
   AddressPickerModelProps,
 } from '@/components/ui/AddressPicker';
 import Button from '@/components/ui/Button';
+import CalendarSelect from '@/components/ui/CalendarSelect';
+import type { CalendarSelectRange } from '@/components/ui/CalendarSelect';
 import Carousel from '@/components/ui/Carousel';
 import CityPicker from '@/components/ui/CityPicker';
 import DataPicker from '@/components/ui/DataPicker';
@@ -173,6 +175,13 @@ const validateChinesePhone = (value: string) => {
     : 'Please enter a valid Chinese mobile phone number.';
 };
 
+const formatCalendarDate = (date?: Date) =>
+  date
+    ? new Intl.DateTimeFormat('en-US', { day: '2-digit', month: 'short', year: 'numeric' }).format(
+        date,
+      )
+    : 'Choose a date';
+
 export default function Page() {
   const dateLeasePickerRef = useRef<DateLeasePickerRef>(null);
   const { t } = useTranslation();
@@ -189,6 +198,11 @@ export default function Page() {
   const [selectedDataItem, setSelectedDataItem] = useState<(typeof dataPickerItems)[number]>();
   const [selectedDateLabel, setSelectedDateLabel] = useState('');
   const [selectedLease, setSelectedLease] = useState<DateLeasePickerResult>();
+  const [calendarRange, setCalendarRange] = useState<CalendarSelectRange>(() => {
+    const today = new Date();
+    const from = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 3);
+    return { from, to: today };
+  });
   const [galleryIndex, setGalleryIndex] = useState(-1);
   const selectedAddressLabel = selectedAddress
     ? [selectedAddress.province.name, selectedAddress.city.name, selectedAddress.area.name].join(
@@ -622,6 +636,45 @@ export default function Page() {
               />
             </span>
           </DatePicker>
+        </section>
+
+        {/* CalendarSelect */}
+        <section
+          aria-labelledby="calendar-select-example-title"
+          className="-mx-4 border-y border-[#e5e7eb] bg-[#f7f8fa] px-4 py-5"
+        >
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <h2
+              id="calendar-select-example-title"
+              className="text-base font-semibold text-[#1f2937]"
+            >
+              CalendarSelect example
+            </h2>
+          </div>
+          <CalendarSelect
+            allowFutureDates={false}
+            maxRangeDays={10}
+            mode="range"
+            value={calendarRange}
+            onChange={(nextRange) => {
+              if (nextRange) setCalendarRange(nextRange);
+            }}
+          />
+          <div className="mt-3 grid grid-cols-[1fr_auto_1fr] items-center gap-3 rounded-lg border border-[#d6e2da] bg-white px-3 py-2.5">
+            <div className="min-w-0">
+              <span className="block text-[11px] font-medium text-[#7b8b82] uppercase">Start</span>
+              <span className="mt-0.5 block truncate text-sm font-semibold text-[#1f2937]">
+                {formatCalendarDate(calendarRange.from)}
+              </span>
+            </div>
+            <span aria-hidden className="h-px w-5 bg-[#a7b8ad]" />
+            <div className="min-w-0 text-right">
+              <span className="block text-[11px] font-medium text-[#7b8b82] uppercase">End</span>
+              <span className="mt-0.5 block truncate text-sm font-semibold text-[#1f2937]">
+                {formatCalendarDate(calendarRange.to)}
+              </span>
+            </div>
+          </div>
         </section>
 
         {/* DateLeasePicker */}
