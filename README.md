@@ -25,6 +25,7 @@ pnpm dev
 | 命令                | 用途                         |
 | ------------------- | ---------------------------- |
 | `pnpm dev`          | 启动开发环境                 |
+| `pnpm dev:brand`    | 选择品牌并启动本地开发环境   |
 | `pnpm build:qa`     | 类型检查并构建 QA 版本       |
 | `pnpm build:prod`   | 类型检查并构建生产版本       |
 | `pnpm preview`      | 预览构建产物                 |
@@ -37,9 +38,56 @@ pnpm dev
 | `pnpm i18n`         | 从 Excel 生成多语言 JSON     |
 | `pnpm i18n:lark`    | 运行飞书多语言同步脚本       |
 
+### 多品牌本地开发
+
+本地开发使用 `dev:brand` 选择品牌。脚本会从 `config/brands.ts` 读取品牌配置，并将选中的值注入 Vite：
+
+- `VITE_BRAND`：品牌配置的 key。
+- `VITE_APP_ID`：当前品牌的 App ID。
+- `VITE_API_BASE_URL`：当前品牌的 API 基础地址。
+
+交互式选择品牌：
+
+```bash
+pnpm dev:brand
+```
+
+也可以直接传入品牌 key，跳过选择：
+
+```bash
+pnpm dev:brand afun
+pnpm dev:brand bfun
+```
+
+品牌配置示例：
+
+```ts
+// config/brands.ts
+export type BrandConfig = {
+  label: string;
+  appId: string;
+  apiBaseUrl: string;
+};
+
+export const brands: Record<string, BrandConfig> = {
+  afun: {
+    label: 'Afun',
+    appId: '12001',
+    apiBaseUrl: 'https://api-afun.example.com',
+  },
+};
+```
+
+新增品牌时，在 `brands` 对象中增加一个唯一的 key，并填写 `label`、`appId` 和 `apiBaseUrl`。建议 key 使用简短、稳定、只包含小写字母、数字和连字符的名称，便于命令行输入。
+
+`config/brands.ts` 只用于本地开发品牌选择。测试服、体验服和正式服构建时，应由 CI/CD 注入对应的 `VITE_APP_ID` 和 `VITE_API_BASE_URL`，不要把正式环境配置写进本地启动脚本。
+
 ## 目录结构
 
 ```text
+config/
+└── brands.ts            # 本地开发品牌配置和类型
+
 src/
 ├── api/                  # 请求客户端、鉴权会话、错误归一化和业务接口
 ├── assets/
@@ -362,12 +410,13 @@ await request<LoginResult, LoginParams>({
 
 ## 环境变量
 
-项目分别使用 `.env.development`、`.env.qa` 和 `.env.production`：
+Vite mode 表示部署环境，品牌通过 `VITE_BRAND`、`VITE_APP_ID` 和 `VITE_API_BASE_URL` 表示。项目分别使用 `.env.development`、`.env.qa` 和 `.env.production`：
 
 | 变量                    | 说明                                          |
 | ----------------------- | --------------------------------------------- |
 | `VITE_APP_ENV`          | 当前环境：`development`、`qa` 或 `production` |
-| `VITE_APP_HOST`         | 当前部署地址                                  |
+| `VITE_BRAND`            | 当前品牌 key，可选                            |
+| `VITE_APP_ID`           | 当前品牌 App ID                               |
 | `VITE_API_BASE_URL`     | API 基础地址                                  |
 | `VITE_APP_APPID_WEIXIN` | 微信 App ID                                   |
 | `VITE_APP_APPID_ALIPAY` | 支付宝 App ID                                 |
@@ -375,7 +424,63 @@ await request<LoginResult, LoginParams>({
 | `VITE_OUT_DIR`          | 构建输出目录，可选                            |
 | `VITE_APP_SOURCE`       | 运行来源：`universal`、`wechat` 或 `telegram` |
 
-环境变量类型统一维护在 `src/vite-env.d.ts`。新增变量时，应同时更新对应环境文件和类型声明。
+本地执行 `pnpm dev:brand` 时，脚本会覆盖当前进程中的 `VITE_BRAND`、`VITE_APP_ID` 和 `VITE_API_BASE_URL`。直接执行 `pnpm dev` 时，变量来自 `.env.development` 或 `.env.development.local`。
+
+测试和生产构建时，可以由 CI/CD 注入品牌配置：
+
+```bash
+VITE_BRAND=afun \
+VITE_APP_ID=12001 \
+VITE_API_BASE_URL=https://api-afun.example.com \
+pnpm build:prod
+```
+
+### 部署时注入环境变量
+
+这是一个 SPA，`VITE_*` 环境变量会在 `vite build` 时写入前端静态资源。部署流程应先注入变量并完成构建，再将生成的 `dist` 部署到 Nginx、对象存储或 Docker 镜像中：
+
+```bash
+# 测试环境
+VITE_APP_ENV=qa \
+VITE_BRAND=afun \
+VITE_APP_ID="$AFUN_QA_APP_ID" \
+VITE_API_BASE_URL="$AFUN_QA_API_BASE_URL" \
+pnpm build:qa
+
+# 正式环境
+VITE_APP_ENV=production \
+VITE_BRAND=afun \
+VITE_APP_ID="$AFUN_PROD_APP_ID" \
+VITE_API_BASE_URL="$AFUN_PROD_API_BASE_URL" \
+pnpm build:prod
+```
+
+推荐在 CI/CD 中按“品牌 + 部署环境”维护变量组，例如 `afun/qa`、`afun/production`。构建任务从对应变量组读取 `APP_ID` 和 `API_BASE_URL`，再映射为前端需要的 `VITE_APP_ID` 和 `VITE_API_BASE_URL`。正式环境不要依赖开发机上的 `.env` 文件，也不要把正式配置写入 `config/brands.ts`。
+
+如果 Dockerfile 负责执行前端构建，需要在 `docker build` 阶段传入参数：
+
+```bash
+docker build \
+  --build-arg VITE_APP_ID="$AFUN_PROD_APP_ID" \
+  --build-arg VITE_API_BASE_URL="$AFUN_PROD_API_BASE_URL" \
+  -t web-afun:production .
+```
+
+Dockerfile 需要在构建阶段声明并转成环境变量：
+
+```dockerfile
+ARG VITE_APP_ID
+ARG VITE_API_BASE_URL
+ENV VITE_APP_ID=$VITE_APP_ID
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+RUN pnpm build:prod
+```
+
+如果 Docker 镜像只负责发布已经构建好的 `dist`，则应在 `docker build` 之前完成上述构建。此时执行 `docker run -e VITE_APP_ID=...` 不会修改已经打包好的前端代码；若需要容器启动后动态切换品牌，应另行实现运行时配置文件方案。
+
+`VITE_*` 变量会暴露给浏览器，只能存放品牌标识、API 地址等公开配置，不能存放 API 密钥、数据库密码或其他敏感信息。
+
+环境变量类型统一维护在 `src/vite-env.d.ts`。新增变量时，应同时更新对应环境文件、类型声明和本 README。
 
 ## 代码质量
 

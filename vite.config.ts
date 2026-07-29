@@ -59,7 +59,7 @@ export default defineConfig(({ mode, command }: ConfigEnv): UserConfig => {
       strictPort: false,
       open: true,
       cors: true,
-      allowedHosts: ['heritage-grey-industries-selecting.trycloudflare.com'],
+      allowedHosts: ['emperor-advert-fotos-comprehensive.trycloudflare.com'],
       // proxy: {
       //   // 代理规则：将所有以 /v1 开头的请求转发到目标服务器
       //   '/v1': {

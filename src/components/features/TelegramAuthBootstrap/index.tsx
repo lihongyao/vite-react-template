@@ -1,3 +1,7 @@
+/**
+ * Telegram auth
+ * @See https://core.telegram.org/bots/webapps
+ */
 import { type PropsWithChildren, useEffect, useState } from 'react';
 
 // import { authSession, telegramAuthApi } from '@/api';
@@ -27,7 +31,7 @@ export default function TelegramAuthBootstrap({ children }: PropsWithChildren) {
         console.log('initData >>> ', initData);
         // 休眠2s
         await new Promise((resolve) => setTimeout(resolve, 2000));
-        setStatus('ready');
+        setStatus('error');
         // const { token } = await telegramAuthApi.loginOnce({ initData });
         // if (isCurrent) {
         //   authSession.setToken(token);
@@ -72,16 +76,25 @@ export default function TelegramAuthBootstrap({ children }: PropsWithChildren) {
           <p role="alert" className="mt-2 text-sm leading-6 text-[#666]">
             Telegram authorization failed. Please try again.
           </p>
-          <button
-            className="mt-6 h-10 rounded-md bg-[#222] px-5 text-sm font-medium text-white active:bg-black"
-            type="button"
-            onClick={() => {
-              setStatus('loading');
-              setAttempt((value) => value + 1);
-            }}
-          >
-            Try again
-          </button>
+          <div className="mt-6 flex gap-3">
+            <button
+              className="h-10 min-w-0 flex-1 rounded-md bg-[#222] px-4 text-sm font-medium text-white active:bg-black"
+              type="button"
+              onClick={() => {
+                setStatus('loading');
+                setAttempt((value) => value + 1);
+              }}
+            >
+              Try again
+            </button>
+            <button
+              className="h-10 min-w-0 flex-1 rounded-md border border-[#d1d5db] bg-white px-4 text-sm font-medium text-[#374151] active:bg-[#f3f4f6]"
+              type="button"
+              onClick={() => window.Telegram?.WebApp?.close?.()}
+            >
+              Close and Reopen
+            </button>
+          </div>
         </section>
       </main>
     );

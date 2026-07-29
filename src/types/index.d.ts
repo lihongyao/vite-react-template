@@ -12,10 +12,12 @@ interface Window {
   AlipayJSBridge: any;
   /** Telegram Mini App */
   Telegram?: {
+    // https://core.telegram.org/bots/webapps
     WebApp?: {
       initData?: string;
       platform?: string;
       ready?: () => void;
+      close?: () => void;
     };
   };
   /** iOS回调地址 */
