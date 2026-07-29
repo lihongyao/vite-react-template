@@ -177,7 +177,7 @@ const validateChinesePhone = (value: string) => {
 
 const formatCalendarDate = (date?: Date) =>
   date
-    ? new Intl.DateTimeFormat('en-US', { day: '2-digit', month: 'short', year: 'numeric' }).format(
+    ? new Intl.DateTimeFormat('en-US', { day: 'numeric', month: 'short', year: 'numeric' }).format(
         date,
       )
     : 'Choose a date';
@@ -653,28 +653,32 @@ export default function Page() {
           </div>
           <CalendarSelect
             allowFutureDates={false}
+            labels={{ cancel: 'Cancel', close: 'Close calendar', confirm: 'Confirm' }}
             maxRangeDays={10}
             mode="range"
+            title="Select date"
+            triggerClassName="rounded-lg border border-[#d6e2da] bg-white px-4 py-4 transition-colors hover:bg-[#fbfcfb]"
             value={calendarRange}
             onChange={(nextRange) => {
-              if (nextRange) setCalendarRange(nextRange);
+              if (nextRange?.from && nextRange.to) setCalendarRange(nextRange);
             }}
-          />
-          <div className="mt-3 grid grid-cols-[1fr_auto_1fr] items-center gap-3 rounded-lg border border-[#d6e2da] bg-white px-3 py-2.5">
-            <div className="min-w-0">
-              <span className="block text-[11px] font-medium text-[#7b8b82] uppercase">Start</span>
-              <span className="mt-0.5 block truncate text-sm font-semibold text-[#1f2937]">
-                {formatCalendarDate(calendarRange.from)}
+          >
+            <span className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3">
+              <span className="min-w-0">
+                <span className="block text-sm font-semibold text-[#7b8b82] uppercase">Start</span>
+                <span className="mt-1 block truncate text-xl font-bold text-[#1f2937]">
+                  {formatCalendarDate(calendarRange.from)}
+                </span>
               </span>
-            </div>
-            <span aria-hidden className="h-px w-5 bg-[#a7b8ad]" />
-            <div className="min-w-0 text-right">
-              <span className="block text-[11px] font-medium text-[#7b8b82] uppercase">End</span>
-              <span className="mt-0.5 block truncate text-sm font-semibold text-[#1f2937]">
-                {formatCalendarDate(calendarRange.to)}
+              <span aria-hidden className="h-px w-10 bg-[#a7b8ad]" />
+              <span className="min-w-0 text-right">
+                <span className="block text-sm font-semibold text-[#7b8b82] uppercase">End</span>
+                <span className="mt-1 block truncate text-xl font-bold text-[#1f2937]">
+                  {formatCalendarDate(calendarRange.to)}
+                </span>
               </span>
-            </div>
-          </div>
+            </span>
+          </CalendarSelect>
         </section>
 
         {/* DateLeasePicker */}

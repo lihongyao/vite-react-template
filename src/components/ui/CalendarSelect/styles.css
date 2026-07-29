@@ -1,4 +1,5 @@
-.calendar-select {
+.calendar-select,
+.calendar-select-dialog {
   /*
    * 日历颜色集中在这里改：
    * - selected：选中日期、范围起点/终点
@@ -23,7 +24,9 @@
   --calendar-select-disabled-bg: #f3f5f4;
   --calendar-select-disabled-border: #edf1ee;
   --calendar-select-disabled-text: #a7b0aa;
+}
 
+.calendar-select {
   --rdp-accent-color: var(--calendar-select-selected-bg);
   --rdp-accent-background-color: var(--calendar-select-range-bg);
   --rdp-day-height: auto;
@@ -234,5 +237,17 @@
   .calendar-select .rdp-day_button {
     border-radius: 10px;
     font-size: 0.9rem;
+  }
+}
+
+.calendar-select.calendar-select--popup {
+  border: 0;
+  border-radius: 0;
+  padding: 8px 0 4px;
+}
+
+@media (max-width: 360px) {
+  .calendar-select.calendar-select--popup {
+    padding-inline: 0;
   }
 }
