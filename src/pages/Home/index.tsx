@@ -29,6 +29,8 @@ import LoadingWithLogo from '@/components/ui/LoadingWithLogo';
 import { message } from '@/components/ui/Message';
 import { notification } from '@/components/ui/Notification';
 import { QRCodeImg } from '@/components/ui/QRCode';
+import Steps from '@/components/ui/Steps';
+import type { StepsItem } from '@/components/ui/Steps';
 import Tabs from '@/components/ui/Tabs';
 import type { TabsItemProps } from '@/components/ui/Tabs';
 import { cn } from '@/libs/class-helpers';
@@ -158,6 +160,51 @@ const demoTabContents = [
   'History content is active.',
   'This disabled tab cannot be selected.',
   'Settings content is active.',
+];
+
+const defaultSteps: StepsItem[] = [
+  {
+    key: 'submitted',
+    status: 'success',
+    title: 'Submitted',
+    description: '2026/07/29 10:12:36',
+    icons: {
+      default: <Icon name="tips_warning" className="size-5" />,
+      success: <Icon name="tips_correct" className="size-5" />,
+      error: <Icon name="tips_error" className="size-5" />,
+    },
+  },
+  {
+    key: 'reviewed',
+    status: 'success',
+    title: 'Reviewed',
+    description: '2026/07/29 10:18:02',
+  },
+  {
+    key: 'credited',
+    title: 'Credited',
+    description: 'Your commission is ready to be credited to your game account.',
+  },
+];
+
+const customIconSteps: StepsItem[] = [
+  {
+    key: 'submitted',
+    status: 'success',
+    title: 'Submitted',
+    description: '2026/07/29 10:12:36',
+  },
+  {
+    key: 'reviewed',
+    status: 'error',
+    title: 'Reviewed',
+    description: 'The withdrawal request did not pass review.',
+  },
+  {
+    key: 'credited',
+    title: 'Credited',
+    description: 'This step has not started yet.',
+  },
 ];
 
 const dataPickerItems = Array.from({ length: 24 }, (_, index) => {
@@ -357,6 +404,34 @@ export default function Page() {
               wrapperClass="size-10 rounded-md border border-[#e1e5e3] bg-white"
             />
             <Icon name="first_visit_frame" className="h-[52px] w-[142px] max-w-[42vw]" />
+          </div>
+        </section>
+
+        {/* Steps */}
+        <section
+          aria-labelledby="steps-demo-title"
+          className="-mx-4 border-y border-[#e5e7eb] bg-white px-4 py-5"
+        >
+          <h2 id="steps-demo-title" className="mb-4 text-base font-semibold text-[#1f2937]">
+            Steps
+          </h2>
+          <div className="grid gap-5">
+            <div>
+              <h3 className="mb-3 text-xs font-semibold text-[#6b7280] uppercase">Default icons</h3>
+              <Steps ariaLabel="Default withdrawal progress" items={defaultSteps} />
+            </div>
+            <div className="border-t border-[#e5e7eb] pt-5">
+              <h3 className="mb-3 text-xs font-semibold text-[#6b7280] uppercase">Custom icons</h3>
+              <Steps
+                ariaLabel="Failed withdrawal progress"
+                icons={{
+                  default: <Icon name="tips_warning" className="size-5" />,
+                  success: <Icon name="tips_correct" className="size-5" />,
+                  error: <Icon name="tips_error" className="size-5" />,
+                }}
+                items={customIconSteps}
+              />
+            </div>
           </div>
         </section>
 
