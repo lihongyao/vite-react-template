@@ -31,7 +31,6 @@ export default function ApiErrorReporter() {
 
   useEffect(() => {
     // 把 React 层能力注入 API 错误处理器：API 模块保持纯净，展示逻辑留在组件树内。
-    // oxlint-disable-next-line typescript/no-unsafe-type-assertion -- 后端错误码翻译 key 是运行时拼接，不能枚举进 i18next 静态 key 类型。
     const translate = t as unknown as Translate;
     const hasTranslation: HasTranslation = (key) => i18n.exists(key);
 

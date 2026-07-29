@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { Trans, useTranslation } from 'react-i18next';
 
@@ -12,6 +12,9 @@ import Button from '@/components/ui/Button';
 import Carousel from '@/components/ui/Carousel';
 import CityPicker from '@/components/ui/CityPicker';
 import DataPicker from '@/components/ui/DataPicker';
+import DateLeasePicker from '@/components/ui/DateLeasePicker';
+import type { DateLeasePickerRef, DateLeasePickerResult } from '@/components/ui/DateLeasePicker';
+import DatePicker from '@/components/ui/DatePicker';
 import { useDialog } from '@/components/ui/Dialog';
 import DragView from '@/components/ui/DragView';
 import Input from '@/components/ui/Forms/Input';
@@ -26,6 +29,7 @@ import { notification } from '@/components/ui/Notification';
 import { QRCodeImg } from '@/components/ui/QRCode';
 import Tabs from '@/components/ui/Tabs';
 import type { TabsItemProps } from '@/components/ui/Tabs';
+import { cn } from '@/libs/class-helpers';
 
 const banners = [
   { id: 1, src: '/images/banner/1.jpg', alt: 'Upgrade VIP points for money' },
@@ -170,6 +174,7 @@ const validateChinesePhone = (value: string) => {
 };
 
 export default function Page() {
+  const dateLeasePickerRef = useRef<DateLeasePickerRef>(null);
   const { t } = useTranslation();
   const dialog = useDialog();
   const [messageApi] = message.useMessage();
@@ -182,6 +187,8 @@ export default function Page() {
   const [telegramUsername, setTelegramUsername] = useState('vite_react');
   const [phoneNumber, setPhoneNumber] = useState('13800138000');
   const [selectedDataItem, setSelectedDataItem] = useState<(typeof dataPickerItems)[number]>();
+  const [selectedDateLabel, setSelectedDateLabel] = useState('');
+  const [selectedLease, setSelectedLease] = useState<DateLeasePickerResult>();
   const [galleryIndex, setGalleryIndex] = useState(-1);
   const selectedAddressLabel = selectedAddress
     ? [selectedAddress.province.name, selectedAddress.city.name, selectedAddress.area.name].join(
@@ -576,6 +583,97 @@ export default function Page() {
               />
             </span>
           </DataPicker>
+        </section>
+
+        {/* DatePicker */}
+        <section
+          aria-labelledby="date-picker-example-title"
+          className="-mx-4 border-y border-[#e5e7eb] bg-white px-4 py-5"
+        >
+          <h2
+            id="date-picker-example-title"
+            className="mb-3 text-base font-semibold text-[#1f2937]"
+          >
+            DatePicker example
+          </h2>
+          <DatePicker
+            min={new Date(2000, 0, 1)}
+            max={new Date()}
+            fields="DAY"
+            showNow
+            triggerClassName="rounded-lg"
+            onChange={(formattedValue, date) => {
+              console.log('DatePicker selected:', date);
+              setSelectedDateLabel(formattedValue);
+            }}
+          >
+            <span className="flex h-11 w-full items-center gap-3 rounded-lg border border-[#d1d5db] bg-white px-3 text-base">
+              <span
+                className={cn(
+                  'min-w-0 flex-1 truncate',
+                  selectedDateLabel ? 'text-[#1f2937]' : 'text-[#9ca3af]',
+                )}
+              >
+                {selectedDateLabel || '请选择日期'}
+              </span>
+              <span
+                aria-hidden
+                className="size-2.5 shrink-0 rotate-45 border-r-2 border-b-2 border-[#9ca3af]"
+              />
+            </span>
+          </DatePicker>
+        </section>
+
+        {/* DateLeasePicker */}
+        <section
+          aria-labelledby="date-lease-picker-example-title"
+          className="-mx-4 border-y border-[#e5e7eb] bg-[#f7f8fa] px-4 py-5"
+        >
+          <h2
+            id="date-lease-picker-example-title"
+            className="mb-3 text-base font-semibold text-[#1f2937]"
+          >
+            DateLeasePicker example
+          </h2>
+          <DateLeasePicker
+            ref={dateLeasePickerRef}
+            businessHours="09:00 - 18:00"
+            minDays={1}
+            onNotice={(content) => messageApi.warning(content)}
+            onSure={(value) => {
+              console.log(JSON.stringify(value));
+              setSelectedLease(value);
+            }}
+          >
+            <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 rounded-lg border border-[#d1d5db] bg-white p-3">
+              <button
+                type="button"
+                className="min-w-0 text-left outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb]"
+                onClick={() => dateLeasePickerRef.current?.open({ type: 'start' })}
+              >
+                <span className="block text-xs text-[#6b7280]">取车时间</span>
+                <span className="mt-1 block truncate text-sm font-medium text-[#1f2937]">
+                  {selectedLease?.start.v ?? '请选择'}
+                </span>
+              </button>
+              <span aria-hidden className="h-px w-6 bg-[#9ca3af]" />
+              <button
+                type="button"
+                className="min-w-0 text-right outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb]"
+                onClick={() => dateLeasePickerRef.current?.open({ type: 'end' })}
+              >
+                <span className="block text-xs text-[#6b7280]">还车时间</span>
+                <span className="mt-1 block truncate text-sm font-medium text-[#1f2937]">
+                  {selectedLease?.end.v ?? '请选择'}
+                </span>
+              </button>
+            </div>
+          </DateLeasePicker>
+          {selectedLease && (
+            <p className="mt-2 text-right text-xs text-[#6b7280]">
+              租赁时长：{selectedLease.durations.description}
+            </p>
+          )}
         </section>
 
         {/* QRCode */}

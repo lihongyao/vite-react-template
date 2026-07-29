@@ -18,7 +18,9 @@
 
 ```
 Dialog/
-├── index.tsx      # 主组件、静态方法、Provider、useDialog
+├── Dialog.tsx     # 主组件、静态方法、Provider
+├── context.ts     # DialogContext、useDialog、全局实例
+├── index.ts       # 统一导出
 ├── animate.css    # 动画样式（fade/zoom/slide）
 └── README.md
 ```
