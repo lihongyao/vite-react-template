@@ -31,7 +31,7 @@ export default function TelegramAuthBootstrap({ children }: PropsWithChildren) {
         console.log('initData >>> ', initData);
         // 休眠2s
         await new Promise((resolve) => setTimeout(resolve, 2000));
-        setStatus('error');
+        setStatus('ready');
         // const { token } = await telegramAuthApi.loginOnce({ initData });
         // if (isCurrent) {
         //   authSession.setToken(token);

@@ -16,6 +16,8 @@ import { useDialog } from '@/components/ui/Dialog';
 import DragView from '@/components/ui/DragView';
 import Input from '@/components/ui/Forms/Input';
 import PhoneInput from '@/components/ui/Forms/PhoneInput';
+import Gallery from '@/components/ui/Gallery';
+import type { GalleryDownloadHandler, GalleryImageSlide } from '@/components/ui/Gallery';
 import Icon from '@/components/ui/Icon';
 import Loading from '@/components/ui/Loading';
 import LoadingWithLogo from '@/components/ui/LoadingWithLogo';
@@ -33,6 +35,44 @@ const banners = [
   { id: 5, src: '/images/banner/5.jpg', alt: 'Seven-day check-in reward' },
   { id: 6, src: '/images/banner/6.jpg', alt: 'Three-day daily cashback' },
 ] as const;
+
+const gallerySlides = [
+  {
+    src: 'https://img123.engames.com/cdn-cgi/image/format=auto,q=80,dpr=2,w=388,h=auto,blur=0/602/128a9a9651634ee09ed7dc6682604f2d.jpg',
+    alt: 'Gallery image 1',
+    download: {
+      url: 'https://img123.engames.com/cdn-cgi/image/format=auto,q=100,dpr=2,w=1200,h=auto,blur=0/602/128a9a9651634ee09ed7dc6682604f2d.jpg',
+      filename: 'gallery-image-1.jpg',
+    },
+  },
+  {
+    src: 'https://img123.engames.com/cdn-cgi/image/format=auto,q=80,dpr=2,w=388,h=auto,blur=0/602/e5f7527280c84382899765e6dec540dc.png',
+    alt: 'Gallery image 2',
+    download: {
+      url: 'https://img123.engames.com/cdn-cgi/image/format=auto,q=100,dpr=2,w=1200,h=auto,blur=0/602/e5f7527280c84382899765e6dec540dc.png',
+      filename: 'gallery-image-2.png',
+    },
+  },
+  {
+    src: 'https://img123.engames.com/cdn-cgi/image/format=auto,q=80,dpr=2,w=388,h=auto,blur=0/602/05a8ac5978f54947908027c43c9f1495.jpg',
+    alt: 'Gallery image 3',
+    download: {
+      url: 'https://img123.engames.com/cdn-cgi/image/format=auto,q=100,dpr=2,w=1200,h=auto,blur=0/602/05a8ac5978f54947908027c43c9f1495.jpg',
+      filename: 'gallery-image-3.jpg',
+    },
+  },
+] satisfies readonly GalleryImageSlide[];
+
+const downloadGalleryImage: GalleryDownloadHandler = ({ slide, saveAs: _saveAs }) => {
+  console.log('自定义下载 >> ', slide);
+  const download = typeof slide.download === 'object' ? slide.download : undefined;
+
+  window.Telegram?.WebApp?.downloadFile?.({
+    url: download?.url ?? slide.src,
+    file_name: download?.filename ?? 'image',
+  });
+  // saveAs(download?.url ?? slide.src, download?.filename);
+};
 
 const addressOptions: Record<string, AddressPickerModelProps[]> = {
   '': [
@@ -142,6 +182,7 @@ export default function Page() {
   const [telegramUsername, setTelegramUsername] = useState('vite_react');
   const [phoneNumber, setPhoneNumber] = useState('13800138000');
   const [selectedDataItem, setSelectedDataItem] = useState<(typeof dataPickerItems)[number]>();
+  const [galleryIndex, setGalleryIndex] = useState(-1);
   const selectedAddressLabel = selectedAddress
     ? [selectedAddress.province.name, selectedAddress.city.name, selectedAddress.area.name].join(
         ' / ',
@@ -173,6 +214,55 @@ export default function Page() {
             />
           )}
           speed={500}
+        />
+
+        {/* Gallery */}
+        <section
+          aria-labelledby="gallery-demo-title"
+          className="-mx-4 border-y border-[#e5e7eb] bg-white px-4 py-5"
+        >
+          <div className="mb-3 flex items-center justify-between gap-4">
+            <h2 id="gallery-demo-title" className="text-base font-semibold text-[#1f2937]">
+              Gallery
+            </h2>
+            <span className="text-xs text-[#6b7280]">{gallerySlides.length} photos</span>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {gallerySlides.map((slide, index) => (
+              <button
+                key={slide.src}
+                type="button"
+                aria-label={`Open image ${index + 1}`}
+                className="overflow-hidden rounded-md bg-[#f3f4f6] outline-none focus-visible:ring-2 focus-visible:ring-[#0f766e] focus-visible:ring-offset-2"
+                onClick={() => setGalleryIndex(index)}
+              >
+                <img
+                  alt={slide.alt}
+                  className="size-full object-contain transition-transform duration-200 hover:scale-105"
+                  loading="lazy"
+                  src={slide.src}
+                />
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <Gallery
+          close={() => setGalleryIndex(-1)}
+          download={{ download: downloadGalleryImage }}
+          index={Math.max(0, galleryIndex)}
+          labels={{
+            Close: '关闭',
+            Download: '下载',
+            Next: '下一张',
+            Previous: '上一张',
+            'Zoom in': '放大',
+            'Zoom out': '缩小',
+          }}
+          on={{ download: () => messageApi.success('Image download started.') }}
+          open={galleryIndex >= 0}
+          slides={gallerySlides}
+          zoom={{ maxZoomPixelRatio: 2 }}
         />
 
         {/* 国际化 */}

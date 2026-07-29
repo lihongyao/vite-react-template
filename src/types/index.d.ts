@@ -18,6 +18,7 @@ interface Window {
       platform?: string;
       ready?: () => void;
       close?: () => void;
+      downloadFile?: (params: { url: string; file_name: string }) => void;
     };
   };
   /** iOS回调地址 */
