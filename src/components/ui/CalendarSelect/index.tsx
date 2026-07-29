@@ -2,8 +2,11 @@ import { useEffect, useId, useRef, useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
 
 import { type DateRange, DayPicker, type DayPickerProps, type Matcher } from '@daypicker/react';
+import { enUS, es, pt, zhCN } from '@daypicker/react/locale';
 
 import Popup from '@/components/ui/Popup';
+import type { Locale } from '@/i18n/config';
+import { useCurrentLocale } from '@/i18n/navigation';
 import { cn } from '@/libs/class-helpers';
 
 import '@daypicker/react/style.css';
@@ -41,9 +44,9 @@ interface CalendarSelectPanelCommonProps {
   fixedWeeks?: boolean;
   /** 是否显示上个月或下个月的日期，默认 false。 */
   showOutsideDays?: boolean;
-  /** 每周从哪一天开始，0 为周日，1 为周一。 */
+  /** 每周从哪一天开始，0 为周日，1 为周一。默认跟随当前项目 locale。 */
   weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
-  /** DayPicker 使用的本地化配置。 */
+  /** DayPicker 使用的本地化配置，默认跟随当前项目 locale。 */
   locale?: DayPickerProps['locale'];
   /** 是否自动聚焦日历，默认 false。 */
   autoFocus?: boolean;
@@ -134,6 +137,19 @@ const defaultLabels: CalendarSelectLabels = {
   confirm: '确定',
   close: '关闭',
 };
+
+const dayPickerLocaleMap = {
+  'en-US': { locale: enUS, weekStartsOn: 0 },
+  'zh-CN': { locale: zhCN, weekStartsOn: 1 },
+  es: { locale: es, weekStartsOn: 1 },
+  pt: { locale: pt, weekStartsOn: 1 },
+} as const satisfies Record<
+  Locale,
+  {
+    locale: DayPickerProps['locale'];
+    weekStartsOn: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  }
+>;
 
 const normalizeDate = (date?: Date) => {
   if (!date || Number.isNaN(date.getTime())) return undefined;
@@ -246,11 +262,15 @@ export function CalendarSelectPanel(props: CalendarSelectPanelProps) {
 
 export default function CalendarSelect(props: CalendarSelectProps) {
   const generatedId = useId();
+  const currentLocale = useCurrentLocale();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const cancelRef = useRef<HTMLButtonElement>(null);
   const isValueControlled = Object.prototype.hasOwnProperty.call(props, 'value');
   const isOpenControlled = props.open !== undefined;
   const onOpenChange = props.onOpenChange;
+  const localeConfig = dayPickerLocaleMap[currentLocale];
+  const dayPickerLocale = props.locale ?? localeConfig.locale;
+  const dayPickerWeekStartsOn = props.weekStartsOn ?? localeConfig.weekStartsOn;
   const labels = {
     ...defaultLabels,
     ...props.labels,
@@ -414,7 +434,7 @@ export default function CalendarSelect(props: CalendarSelectProps) {
                 defaultMonth={panelDefaultMonth}
                 disabledDates={props.disabledDates}
                 fixedWeeks={props.fixedWeeks}
-                locale={props.locale}
+                locale={dayPickerLocale}
                 maxDate={props.maxDate}
                 minDate={props.minDate}
                 mode="single"
@@ -424,7 +444,7 @@ export default function CalendarSelect(props: CalendarSelectProps) {
                 style={props.panelStyle}
                 today={props.today}
                 value={draftSingle}
-                weekStartsOn={props.weekStartsOn}
+                weekStartsOn={dayPickerWeekStartsOn}
                 onChange={(nextValue) => setDraftSingle(normalizeDate(nextValue))}
                 onMonthChange={props.onMonthChange}
               />
@@ -437,7 +457,7 @@ export default function CalendarSelect(props: CalendarSelectProps) {
                 defaultMonth={panelDefaultMonth}
                 disabledDates={props.disabledDates}
                 fixedWeeks={props.fixedWeeks}
-                locale={props.locale}
+                locale={dayPickerLocale}
                 maxDate={props.maxDate}
                 maxRangeDays={props.maxRangeDays}
                 minDate={props.minDate}
@@ -448,7 +468,7 @@ export default function CalendarSelect(props: CalendarSelectProps) {
                 style={props.panelStyle}
                 today={props.today}
                 value={draftRange}
-                weekStartsOn={props.weekStartsOn}
+                weekStartsOn={dayPickerWeekStartsOn}
                 onChange={(nextValue) => setDraftRange(cloneRange(nextValue))}
                 onMonthChange={props.onMonthChange}
               />
