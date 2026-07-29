@@ -10,17 +10,6 @@ interface Window {
   qq: any;
   /** 支付宝 */
   AlipayJSBridge: any;
-  /** Telegram Mini App */
-  Telegram?: {
-    // https://core.telegram.org/bots/webapps
-    WebApp?: {
-      initData?: string;
-      platform?: string;
-      ready?: () => void;
-      close?: () => void;
-      downloadFile?: (params: { url: string; file_name: string }) => void;
-    };
-  };
   /** iOS回调地址 */
   CONFIG_URL_FOR_IOS: string;
 }
