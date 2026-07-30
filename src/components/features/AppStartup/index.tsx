@@ -1,7 +1,7 @@
 import { type PropsWithChildren, useEffect, useState } from 'react';
 
 import { useAppEnvironment } from '@/components/features/AppEnvGuard/environment-context';
-import { getLocaleFromPathname, localizePathname } from '@/i18n/routing';
+import { getLocaleFromPathname, localizePathname, stripLocalePrefix } from '@/i18n/routing';
 import type { DeviceEnvironment } from '@/libs/device';
 import type { createAppRouter } from '@/routes';
 import { ROUTE_PATHS } from '@/routes/paths';
@@ -53,9 +53,12 @@ export default function AppStartup({ children, router }: Props) {
         const result = await initializeApp({ environment, signal: abortController.signal });
         if (abortController.signal.aborted || !result) return;
 
-        const locale = getLocaleFromPathname(router.state.location.pathname);
-        const targetPath = result.isAgent ? ROUTE_PATHS.Home : ROUTE_PATHS.Apply;
-        await router.navigate(localizePathname(targetPath, locale), { replace: true });
+        const currentPathname = router.state.location.pathname;
+        if (stripLocalePrefix(currentPathname) === ROUTE_PATHS.Home) {
+          const locale = getLocaleFromPathname(currentPathname);
+          const targetPath = result.isAgent ? ROUTE_PATHS.Home : ROUTE_PATHS.Apply;
+          await router.navigate(localizePathname(targetPath, locale), { replace: true });
+        }
 
         if (!abortController.signal.aborted) setState({ status: 'ready' });
       } catch {
