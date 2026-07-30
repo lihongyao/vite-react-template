@@ -74,7 +74,7 @@ async function main() {
 
   switch (command) {
     case 'create': {
-      logCommand('create', '创建中文 source');
+      logCommand('create', 'source');
       if (args.length > 1) throw new Error('create 最多只能指定一个名称');
       const filePath = getCreateSourcePath(args[0]);
       if (existsSync(filePath)) throw new Error(`source 文件已存在: ${filePath}`);

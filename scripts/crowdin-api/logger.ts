@@ -11,7 +11,7 @@ const prefix = {
 
 /** 统一 CLI 输出格式，保证本地终端和 CI 日志都容易检索。 */
 export function logCommand(command: string, description: string) {
-  console.log(`\n${prefix.command}${command} - ${description}\n`);
+  console.log(`\n${prefix.command} ${command} - ${description}\n`);
 }
 
 export function logInfo(message: string) {
