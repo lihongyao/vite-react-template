@@ -20,7 +20,6 @@
     "========== some scripts ==========": "",
     "gen-svg": "tsx scripts/gen-svg/index.ts",
     "i18n": "tsx scripts/xlsx2json/index.ts",
-    "i18n:lark": "tsx scripts/lark2json/index.ts",
     "========== crowdin / i18n ==========": "",
     "crowdin:create": "tsx scripts/crowdin-api/index.ts create",
     "crowdin:check": "tsx scripts/crowdin-api/index.ts check",

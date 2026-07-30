@@ -1,24 +1,25 @@
 {
-  "title": "Guia de Estudo de i18n",
+  "title": "",
   "profile": {
-    "tips": "A associação expirou, por favor renove.",
-    "reward1": "Parabéns! Você ganhou {{point}} pontos.",
-    "reward2": "Parabéns! Você ganhou <tag>{{point}}</tag> pontos."
+    "tips": "",
+    "reward1": "",
+    "reward2": ""
   },
   "notification": {
-    "success": "Sucesso",
-    "info": "Informação",
-    "warning": "Aviso",
-    "error": "Erro",
-    "close": "Fechar notificação"
+    "success": "",
+    "info": "",
+    "warning": "",
+    "error": "",
+    "close": ""
   },
   "message": {
-    "error_network": "Falha na conexão. Verifique sua internet e tente novamente.",
-    "error_timeout": "A solicitação expirou. Tente novamente mais tarde.",
-    "error_unknown": "A solicitação falhou. Tente novamente mais tarde.",
-    "error_1200": "Nome de usuário ou senha incorretos.",
-    "error_1201": "Falha ao fazer login. Tente novamente mais tarde.",
-    "error_1202": "O nome de usuário não existe.",
-    "error_1203": "Seu último saque foi rejeitado. Aguarde {{time}} minutos antes de tentar novamente."
+    "error_network": "",
+    "error_timeout": "",
+    "error_unknown": "",
+    "error_1200": "",
+    "error_1201": "",
+    "error_1202": "",
+    "error_1203": "",
+    "error_1111": ""
   }
 }

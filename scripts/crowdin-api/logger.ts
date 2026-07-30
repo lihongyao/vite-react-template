@@ -2,7 +2,7 @@ const prefix = {
   command: '[Crowdin]',
   info: '📒：',
   detail: '  - ',
-  progress: '进度：',
+  progress: '🧭：',
   done: '🎉：',
   warn: '🔔：',
   error: '❌：',

@@ -39,7 +39,7 @@ export async function initializeApp(
   console.log('初始化完成');
 
   // 模拟接口返回的代理商身份，接入真实接口后替换这里。
-  const isAgent = false;
+  const isAgent = true;
 
   return { isAgent };
 }

@@ -13,13 +13,9 @@
     "close": "Close notification"
   },
   "message": {
-    "error_network": "Network connection failed. Please check your connection.",
-    "error_timeout": "Request timed out. Please try again later.",
-    "error_unknown": "Request failed. Please try again later.",
     "error_1200": "Incorrect username or password.",
     "error_1201": "Login failed. Please try again later.",
     "error_1202": "Username does not exist.",
-    "error_1203": "Your last withdrawal was decllined. Please wait {{time}} minutes before trying again.",
-    "error_1111": "哈哈哈哈"
+    "error_1203": "Your last withdrawal was decllined. Please wait {{time}} minutes before trying again."
   }
 }

@@ -1,24 +1,25 @@
 {
-  "title": "Guía de Estudio de i18n",
+  "title": "",
   "profile": {
-    "tips": "La membresía ha expirado, por favor renueve.",
-    "reward1": "¡Felicidades! Has ganado {{point}} puntos.",
-    "reward2": "¡Felicidades! Has ganado <tag>{{point}}</tag> puntos."
+    "tips": "",
+    "reward1": "",
+    "reward2": ""
   },
   "notification": {
-    "success": "Éxito",
-    "info": "Información",
-    "warning": "Advertencia",
-    "error": "Error",
-    "close": "Cerrar notificación"
+    "success": "",
+    "info": "",
+    "warning": "",
+    "error": "",
+    "close": ""
   },
   "message": {
-    "error_network": "Error de conexión. Comprueba tu conexión e inténtalo de nuevo.",
-    "error_timeout": "La solicitud agotó el tiempo de espera. Inténtalo de nuevo más tarde.",
-    "error_unknown": "La solicitud falló. Inténtalo de nuevo más tarde.",
-    "error_1200": "Nombre de usuario o contraseña incorrectos.",
-    "error_1201": "Error al iniciar sesión. Inténtalo de nuevo más tarde.",
-    "error_1202": "El nombre de usuario no existe.",
-    "error_1203": "Tu último retiro fue rechazado. Por favor espera {{time}} minutos antes de intentarlo de nuevo."
+    "error_network": "",
+    "error_timeout": "",
+    "error_unknown": "",
+    "error_1200": "",
+    "error_1201": "",
+    "error_1202": "",
+    "error_1203": "",
+    "error_1111": ""
   }
 }

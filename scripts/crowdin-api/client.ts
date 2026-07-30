@@ -139,7 +139,7 @@ export class CrowdinService {
     // 多人分支并行时，本地列表不完整，因此这里只创建或更新，不删除远端文件。
     for (const [index, sourceFilePath] of sourceFilePaths.entries()) {
       const fileName = basename(sourceFilePath);
-      if (sourceFilePaths.length > 1) logProgress(index + 1, sourceFilePaths.length, fileName);
+      logProgress(index + 1, sourceFilePaths.length, `上传 ${fileName}`);
       const storage = await this.client.uploadStorageApi.addStorage(
         fileName,
         readFileSync(sourceFilePath),
@@ -220,13 +220,11 @@ export class CrowdinService {
 
       for (const target of this.config.targets) {
         current += 1;
-        if (sourceFilePaths.length > 1) {
-          logProgress(
-            current,
-            total,
-            `${fileName} (${target.crowdinLocale} -> ${target.localLocale})`,
-          );
-        }
+        logProgress(
+          current,
+          total,
+          `下载 ${fileName} (${target.crowdinLocale} -> ${target.localLocale})`,
+        );
         pending.push(
           await this.downloadTarget(remoteFile, sourceFilePath, target, options.approvedOnly),
         );

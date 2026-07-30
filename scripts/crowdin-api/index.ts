@@ -108,6 +108,7 @@ async function main() {
       printFiles('source', files);
       buildLocales({ write: true, logSummary: false });
 
+      logInfo('上传中，请稍后...');
       const result = await new CrowdinService().uploadSourceFiles(files);
       logDone(`上传完成: ${result.created} 新建 / ${result.updated} 更新`);
       logNext('翻译完成后执行: pnpm crowdin:pull');
@@ -123,6 +124,7 @@ async function main() {
       logInfo(options.approvedOnly ? '范围: 已批准翻译' : '范围: 最新翻译');
       buildLocales({ write: false, logSummary: false });
 
+      logInfo('下载中，请稍后...');
       const result = await new CrowdinService().downloadTranslations(files, {
         approvedOnly: options.approvedOnly,
       });

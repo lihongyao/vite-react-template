@@ -1,24 +1,25 @@
 {
-  "title": "i18n Study Guide",
+  "title": "",
   "profile": {
-    "tips": "Membership has expired, please renew.",
-    "reward1": "Congratulations! You’ve earned {{point}} points.",
-    "reward2": "Congratulations! You’ve earned <tag>{{point}}</tag> points."
+    "tips": "",
+    "reward1": "",
+    "reward2": ""
   },
   "notification": {
-    "success": "Success",
-    "info": "Info",
-    "warning": "Warning",
-    "error": "Error",
-    "close": "Close notification"
+    "success": "",
+    "info": "",
+    "warning": "",
+    "error": "",
+    "close": ""
   },
   "message": {
-    "error_network": "Network connection failed. Please check your connection.",
-    "error_timeout": "Request timed out. Please try again later.",
-    "error_unknown": "Request failed. Please try again later.",
-    "error_1200": "Incorrect username or password.",
-    "error_1201": "Login failed. Please try again later.",
-    "error_1202": "Username does not exist.",
-    "error_1203": "Your last withdrawal was decllined. Please wait {{time}} minutes before trying again."
+    "error_network": "",
+    "error_timeout": "",
+    "error_unknown": "",
+    "error_1200": "",
+    "error_1201": "",
+    "error_1202": "",
+    "error_1203": "",
+    "error_1111": ""
   }
 }
