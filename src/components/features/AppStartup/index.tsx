@@ -1,7 +1,10 @@
 import { type PropsWithChildren, useEffect, useState } from 'react';
 
 import { useAppEnvironment } from '@/components/features/AppEnvGuard/environment-context';
+import { getLocaleFromPathname, localizePathname } from '@/i18n/routing';
 import type { DeviceEnvironment } from '@/libs/device';
+import type { createAppRouter } from '@/routes';
+import { ROUTE_PATHS } from '@/routes/paths';
 
 import StartupLoadingScreen from './StartupLoadingScreen';
 import { initializeApp } from './initialize';
@@ -20,10 +23,13 @@ interface StartupRun {
   startStage: StartupStage;
 }
 
+type AppRouter = ReturnType<typeof createAppRouter>;
+type Props = PropsWithChildren<{ router: AppRouter }>;
+
 /**
  * 应用启动总入口：按运行平台完成授权，再执行公共初始化，全部成功后才渲染业务路由。
  */
-export default function AppStartup({ children }: PropsWithChildren) {
+export default function AppStartup({ children, router }: Props) {
   const environment = useAppEnvironment();
   const initialStage = getInitialStage(environment);
   const [run, setRun] = useState<StartupRun>({ id: 0, startStage: initialStage });
@@ -44,7 +50,13 @@ export default function AppStartup({ children }: PropsWithChildren) {
           setState({ status: 'loading', stage: currentStage });
         }
 
-        await initializeApp({ environment, signal: abortController.signal });
+        const result = await initializeApp({ environment, signal: abortController.signal });
+        if (abortController.signal.aborted || !result) return;
+
+        const locale = getLocaleFromPathname(router.state.location.pathname);
+        const targetPath = result.isAgent ? ROUTE_PATHS.Home : ROUTE_PATHS.Apply;
+        await router.navigate(localizePathname(targetPath, locale), { replace: true });
+
         if (!abortController.signal.aborted) setState({ status: 'ready' });
       } catch {
         if (!abortController.signal.aborted) {
@@ -56,7 +68,7 @@ export default function AppStartup({ children }: PropsWithChildren) {
     void start();
 
     return () => abortController.abort();
-  }, [environment, run]);
+  }, [environment, router, run]);
 
   if (state.status === 'loading') {
     return <StartupLoadingScreen message={getLoadingMessage(environment, state.stage)} />;

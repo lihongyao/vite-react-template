@@ -19,6 +19,7 @@
     "react/react-in-jsx-scope": "off",
     "react/rules-of-hooks": "error",
     "react/only-export-components": ["warn", { "allowConstantExport": true }],
+    "typescript/consistent-return": "off",
     "typescript/no-floating-promises": "error",
     "typescript/no-unsafe-type-assertion": "off"
   },

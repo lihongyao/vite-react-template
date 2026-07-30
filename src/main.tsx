@@ -63,7 +63,7 @@ createRoot(document.getElementById('root')!).render(
             <DialogProvider>
               <ApiErrorReporter />
               <AppEnvGuard>
-                <AppStartup>
+                <AppStartup router={router}>
                   <AppRoutes router={router} />
                 </AppStartup>
               </AppEnvGuard>
