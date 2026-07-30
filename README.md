@@ -100,7 +100,7 @@ src/
 ├── layout/               # 页面公共布局
 ├── libs/                 # 设备判断、样式工具和可选平台适配代码
 ├── pages/                # 路由页面
-├── routes/               # React Router 配置
+├── routes/               # 业务路径常量与 React Router 配置
 ├── store/                # Zustand 全局状态
 ├── types/                # 全局类型声明
 ├── index.css             # Tailwind 入口和全局样式
@@ -303,7 +303,7 @@ const appInitializers: AppInitializer[] = [initializeGlobalConfig];
 
 ## 路由与国际化
 
-路由统一定义在 `src/routes/index.tsx`，并由语言前缀驱动。目前支持：
+业务路径统一定义在 `src/routes/paths.ts`，React Router 路由树定义在 `src/routes/index.tsx`，并由语言前缀驱动。目前支持：
 
 | 语言               | URL 前缀 |
 | ------------------ | -------- |
@@ -326,26 +326,34 @@ LocaleLayout                    # 切换语言、提供页面转场容器
 
 Tab 页面使用 `transitionSurface: 'tab'`，切换时不产生页面入栈效果；普通二级页使用 `transitionSurface: 'stack'`，按页面栈方式转场。
 
+`ROUTE_PATHS` 保存不带语言前缀的应用内绝对路径和动态路径模式，是 Router、TabBar 和站内链接的唯一业务路径来源。`TAB_ROUTE_PATHS` 和 `PAGE_ROUTE_PATHS` 只用于按页面类型组织路径；业务代码通常直接使用合并后的 `ROUTE_PATHS`。语言前缀继续由 `LocalizedLink`、`LocalizedNavLink` 和 `useLocalizedNavigate` 自动处理，不应写入路径常量。
+
+`*` 这类兜底匹配规则和按语言配置生成的父路由不是业务跳转目标，分别保留在 `src/routes/index.tsx` 和 `src/i18n/config.ts`，不放入 `ROUTE_PATHS`。
+
+React Router 的嵌套子路由需要相对 `path`，使用 `toChildPath(ROUTE_PATHS.Xxx)` 从 canonical 绝对路径转换。首页 `/` 始终使用 `index: true`，类型上也不允许将它传给 `toChildPath`。
+
 ### 添加普通页面
 
 1. 在 `src/pages/<PageName>/index.tsx` 创建并默认导出页面组件。
-2. 在 `src/routes/index.tsx` 引入页面，并将路由添加到对应的 `children` 中。
-3. 非首屏页面可以通过 `lazy` 按需加载；使用 `lazy` 时，页面会由现有转场出口内的 `Suspense` 处理加载状态。
+2. 在 `src/routes/paths.ts` 的 `PAGE_ROUTE_PATHS` 中添加 canonical 绝对路径。
+3. 在 `src/routes/index.tsx` 引入页面，并用 `toChildPath(ROUTE_PATHS.Xxx)` 将路由添加到对应的 `children` 中。
+4. 非首屏页面可以通过 `lazy` 按需加载；使用 `lazy` 时，页面会由现有转场出口内的 `Suspense` 处理加载状态。
 
 ### 添加 Tab 页
 
 Tab 页会显示底部导航栏，需要同时修改路由和 TabBar：
 
-1. 将页面路由加入 `createPageRoutes()`，并设置 `handle: tabTransitionHandle`。
-2. 在 `src/components/features/AppTabBar/index.tsx` 的 `paths` 中添加对应的路径、标题和图标。
-3. TabBar 使用 `LocalizedNavLink`，路由路径和 `paths` 中的路径都写不带语言前缀的应用内绝对路径。
+1. 将 canonical 绝对路径加入 `src/routes/paths.ts` 的 `TAB_ROUTE_PATHS`。
+2. 将页面路由加入 `createPageRoutes()`，并设置 `handle: tabTransitionHandle`。
+3. 在 `src/components/features/AppTabBar/index.tsx` 的 `tabs` 中引用对应的 `ROUTE_PATHS` 成员，并添加标题和图标。
+4. TabBar 继续使用 `LocalizedNavLink`，不要手动拼接语言前缀。
 
 ```tsx
 // src/routes/index.tsx
-{ path: 'orders', element: <Orders />, handle: tabTransitionHandle }
+{ path: toChildPath(ROUTE_PATHS.Orders), element: <Orders />, handle: tabTransitionHandle }
 
 // src/components/features/AppTabBar/index.tsx
-{ path: '/orders', text: 'Orders', icon: OrdersIcon }
+{ path: ROUTE_PATHS.Orders, text: 'Orders', icon: 'orders' }
 ```
 
 首页是 `createPageRoutes()` 中的 `index: true` 路由，对应 TabBar 的 `/`。
@@ -356,7 +364,7 @@ Tab 页会显示底部导航栏，需要同时修改路由和 TabBar：
 
 ```tsx
 {
-  path: 'orders/:id',
+  path: toChildPath(ROUTE_PATHS.OrderDetail),
   element: <OrderDetail />,
   handle: stackTransitionHandle,
 }
@@ -365,10 +373,12 @@ Tab 页会显示底部导航栏，需要同时修改路由和 TabBar：
 页面可以通过 `useParams()` 读取动态参数，并使用 `SecondaryHeader` 提供统一的返回栏。若页面需要从任意入口打开，使用 `LocalizedLink` 或 `useLocalizedNavigate`：
 
 ```tsx
-<LocalizedLink to={`/orders/${order.id}`}>查看订单</LocalizedLink>;
+<LocalizedLink to={generatePath(ROUTE_PATHS.OrderDetail, { id: String(order.id) })}>
+  查看订单
+</LocalizedLink>;
 
 const navigate = useLocalizedNavigate();
-navigate(`/orders/${order.id}`);
+navigate(generatePath(ROUTE_PATHS.OrderDetail, { id: String(order.id) }));
 ```
 
 站内跳转应优先使用 `LocalizedLink`、`LocalizedNavLink` 和 `useLocalizedNavigate`，避免丢失当前语言前缀。只有返回上一页这类历史记录操作需要直接使用 React Router 的 `navigate(-1)`。

@@ -17,6 +17,8 @@ import NotFound from '@/pages/NotFound';
 import PrivilegeBrand from '@/pages/PrivilegeBrand';
 import Profile from '@/pages/Profile';
 
+import { ROUTE_PATHS, toChildPath } from './paths';
+
 const Apply = lazy(() => import('@/pages/Apply'));
 
 const tabTransitionHandle = {
@@ -30,10 +32,26 @@ const stackTransitionHandle = {
 function createPageRoutes(): RouteObject[] {
   return [
     { index: true, element: <Home />, handle: tabTransitionHandle },
-    { path: 'goods', element: <Goods />, handle: tabTransitionHandle },
-    { path: 'privilege-brand', element: <PrivilegeBrand />, handle: tabTransitionHandle },
-    { path: 'integral', element: <Integral />, handle: tabTransitionHandle },
-    { path: 'profile', element: <Profile />, handle: tabTransitionHandle },
+    {
+      path: toChildPath(ROUTE_PATHS.Goods),
+      element: <Goods />,
+      handle: tabTransitionHandle,
+    },
+    {
+      path: toChildPath(ROUTE_PATHS.PrivilegeBrand),
+      element: <PrivilegeBrand />,
+      handle: tabTransitionHandle,
+    },
+    {
+      path: toChildPath(ROUTE_PATHS.Integral),
+      element: <Integral />,
+      handle: tabTransitionHandle,
+    },
+    {
+      path: toChildPath(ROUTE_PATHS.Profile),
+      element: <Profile />,
+      handle: tabTransitionHandle,
+    },
   ];
 }
 
@@ -51,12 +69,12 @@ const localeRoutes: RouteObject[] = SUPPORTED_LOCALES.map((locale) => {
         children: createPageRoutes(),
       },
       {
-        path: 'apply',
+        path: toChildPath(ROUTE_PATHS.Apply),
         element: <Apply />,
         handle: stackTransitionHandle,
       },
       {
-        path: 'goods/:id',
+        path: toChildPath(ROUTE_PATHS.GoodsDetail),
         element: <GoodsDetail />,
         handle: stackTransitionHandle,
       },
