@@ -55,11 +55,11 @@ export default defineConfig(({ mode, command }: ConfigEnv): UserConfig => {
     ],
     server: {
       host: '0.0.0.0',
-      port: 8888,
+      port: 8090,
       strictPort: false,
       open: true,
       cors: true,
-      allowedHosts: ['emperor-advert-fotos-comprehensive.trycloudflare.com'],
+      allowedHosts: ['chem-robertson-begins-trigger.trycloudflare.com'],
       // proxy: {
       //   // 代理规则：将所有以 /v1 开头的请求转发到目标服务器
       //   '/v1': {

@@ -14,7 +14,7 @@ import SpriteSvgSource from './assets/svg/generated/sprite-svg';
 import ApiErrorReporter from './components/features/ApiErrorReporter';
 import AppEnvGuard from './components/features/AppEnvGuard';
 import AppErrorBoundary from './components/features/AppErrorBoundary';
-import TelegramAuthBootstrap from './components/features/TelegramAuthBootstrap';
+import AppStartup from './components/features/AppStartup';
 import { DialogProvider } from './components/ui/Dialog';
 import { MessageProvider } from './components/ui/Message';
 import { NotificationProvider } from './components/ui/Notification';
@@ -63,9 +63,9 @@ createRoot(document.getElementById('root')!).render(
             <DialogProvider>
               <ApiErrorReporter />
               <AppEnvGuard>
-                <TelegramAuthBootstrap>
+                <AppStartup>
                   <AppRoutes router={router} />
-                </TelegramAuthBootstrap>
+                </AppStartup>
               </AppEnvGuard>
             </DialogProvider>
           </MessageProvider>

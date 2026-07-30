@@ -1,6 +1,8 @@
-import { type PropsWithChildren, useEffect } from 'react';
+import { type PropsWithChildren, useState } from 'react';
 
 import { type DeviceEnvironment, getDeviceEnvironment } from '@/libs/device';
+
+import { AppEnvironmentContext } from './environment-context';
 
 type EnvironmentRequirement = {
   environment: DeviceEnvironment;
@@ -22,15 +24,12 @@ const SOURCE_REQUIREMENTS = {
   },
 } satisfies Record<ImportMetaEnv['VITE_APP_SOURCE'], EnvironmentRequirement | null>;
 
+/**
+ * 校验当前运行环境是否满足构建来源限制，并向后续启动流程提供统一的环境结果。
+ */
 export default function AppEnvGuard({ children }: PropsWithChildren) {
-  const environment = getDeviceEnvironment();
+  const [environment] = useState(getDeviceEnvironment);
   const requirement = SOURCE_REQUIREMENTS[import.meta.env.VITE_APP_SOURCE];
-
-  useEffect(() => {
-    if (environment === 'telegram') {
-      window.Telegram?.WebApp?.ready?.();
-    }
-  }, [environment]);
 
   if (requirement === undefined) {
     throw new Error(`Unsupported VITE_APP_SOURCE: ${import.meta.env.VITE_APP_SOURCE}`);
@@ -47,5 +46,7 @@ export default function AppEnvGuard({ children }: PropsWithChildren) {
     );
   }
 
-  return children;
+  return (
+    <AppEnvironmentContext.Provider value={environment}>{children}</AppEnvironmentContext.Provider>
+  );
 }

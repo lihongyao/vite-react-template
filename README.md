@@ -181,7 +181,7 @@ Sprite 图标预览页会生成到 `public/sprite-preview.html`，首页的 Inte
 
 ## 应用启动流程
 
-`main.tsx` 负责初始化调试工具、App Scheme、i18next 和 Router，并按以下层级挂载应用：
+`main.tsx` 先初始化调试工具、App Scheme、i18next 和 Router，再按以下层级挂载应用：
 
 ```text
 StrictMode
@@ -193,7 +193,7 @@ StrictMode
                 └── DialogProvider
                     ├── ApiErrorReporter
                     └── AppEnvGuard
-                        └── TelegramAuthBootstrap
+                        └── AppStartup
                             └── AppRoutes
 ```
 
@@ -201,9 +201,105 @@ StrictMode
 - `AppErrorBoundary` 提供应用级异常兜底。
 - `NotificationProvider`、`MessageProvider` 和 `DialogProvider` 提供全局反馈能力。
 - `ApiErrorReporter` 将 API 层抛出的非 401 错误接入 notification 或 Dialog Tips。
-- `AppEnvGuard` 根据 `VITE_APP_SOURCE` 限制微信或 Telegram 运行环境。
-- `TelegramAuthBootstrap` 在 Telegram Mini App 中读取 `initData` 并完成登录初始化。
+- `AppEnvGuard` 根据 `VITE_APP_SOURCE` 校验运行来源，并通过 Context 向启动流程提供只检测一次的运行环境。
+- `AppStartup` 统一协调平台授权、公共初始化、启动错误重试和业务路由挂载。
 - 非生产环境会启用 vConsole，方便移动端调试。
+
+### 构建来源与运行环境
+
+`VITE_APP_SOURCE` 是构建时限制，`getDeviceEnvironment()` 返回的是实际运行环境，两者不能混为一谈：
+
+- `VITE_APP_SOURCE=telegram`：只允许在 Telegram 中运行，其他环境由 `AppEnvGuard` 阻止。
+- `VITE_APP_SOURCE=wechat`：只允许在微信中运行。
+- `VITE_APP_SOURCE=universal`：允许多种环境，但仍会根据实际环境选择 Telegram、微信或通用启动流程。
+
+例如，通用构建在 Telegram 中打开时仍然执行 Telegram 登录，而不是直接跳过平台授权。
+
+### 启动状态与执行顺序
+
+`AppStartup` 维护 `platform-auth`、`initialization`、`ready` 和 `error` 状态，正常流程如下：
+
+```mermaid
+flowchart TD
+  A["AppEnvGuard 校验运行环境"] -->|不匹配| B["环境错误页"]
+  A -->|匹配| C{"实际运行环境"}
+  C -->|Telegram| D["读取 initData 并登录"]
+  C -->|微信| E["微信静默授权（当前预留）"]
+  C -->|浏览器或其他通用环境| F["跳过平台授权"]
+  D --> G["执行公共初始化任务"]
+  E --> G
+  F --> G
+  G -->|成功| H["挂载 AppRoutes"]
+  D -->|失败| I["授权错误页"]
+  E -->|失败| I
+  G -->|失败| J["初始化错误页"]
+```
+
+Telegram 环境首先显示“正在通过 Telegram 登录”，登录完成后只把文案更新为“正在初始化应用”。两个阶段始终由同一个 `StartupLoadingScreen` 实例渲染，Logo、Spinner 和布局不会因为阶段变化而卸载重建；全部完成后才将启动页替换为 `AppRoutes`。
+
+重试遵循失败阶段：
+
+- 平台授权失败时，从对应平台授权重新开始。
+- 公共初始化失败时，只重新执行公共初始化，不重复 Telegram 登录。
+- 每次启动运行都会创建 `AbortController`；组件卸载或开始新一轮运行时会向旧流程发出取消信号，并阻止过期任务更新界面。具体接口应继续接收该 `signal`，以便真正中止网络请求。
+
+启动模块集中维护在：
+
+```text
+src/components/features/AppStartup/
+├── platforms/
+│   ├── telegram.ts            # Telegram ready、initData 和登录逻辑
+│   └── wechat.ts              # 微信静默授权预留入口
+├── index.tsx                  # 启动状态机、文案、错误和重试
+├── initialize.ts             # 授权后的跨平台公共初始化
+└── StartupLoadingScreen.tsx  # 启动阶段共用且保持挂载的画面
+```
+
+### 维护平台授权
+
+平台模块只负责异步授权和写入登录态，不负责渲染启动页面：
+
+- `platforms/telegram.ts` 调用 `Telegram.WebApp.ready()` 并读取 `initData`。当前保留了模拟登录耗时；接入真实接口后应删除模拟等待，调用 `telegramAuthApi.loginOnce()` 并保存后端返回的 Token。
+- `platforms/wechat.ts` 当前立即完成，仅作为静默授权入口。后续应在返回的 Promise 完成前取得授权结果并写入登录态。
+
+平台函数抛出错误时，`AppStartup` 会进入授权错误状态；正常返回后才会继续执行公共初始化。客户端环境判断只用于选择流程，Telegram `initData` 和微信授权参数仍必须由后端验证。
+
+### 维护公共初始化
+
+依赖登录态的全局接口统一加入 `AppStartup/initialize.ts` 中的 `appInitializers`。所有 initializer 接收当前运行环境和 `AbortSignal`，默认通过 `Promise.all()` 并行执行；存在先后依赖的步骤应封装在同一个 initializer 内串行完成。
+
+典型任务包括：
+
+- 获取当前用户和权限；
+- 加载全局配置、功能开关或基础字典；
+- 将接口结果写入 Zustand Store 或其他全局缓存。
+
+普通接口默认返回 `{ code, data, message }` 时，统一请求层会完成校验和解包，initializer 直接拿到 `data`。例如：
+
+```ts
+import { request } from '@/api';
+import { useGlobalStore } from '@/store/useGlobalStore';
+
+interface GlobalConfig {
+  featureEnabled: boolean;
+  serviceName: string;
+}
+
+async function initializeGlobalConfig({ signal }: AppInitializationContext) {
+  const config = await request<GlobalConfig>({
+    method: 'GET',
+    signal,
+    url: '/api/global-config',
+  });
+
+  if (signal.aborted) return;
+  useGlobalStore.getState().setGlobalConfig(config);
+}
+
+const appInitializers: AppInitializer[] = [initializeGlobalConfig];
+```
+
+上例假设 Store 已提供 `setGlobalConfig()`。初始化结果应写入全局状态，不要只保存在启动组件的局部 state 中，否则业务页面挂载后无法复用。若某个任务不是进入应用的必要条件，应在任务内部自行降级处理；initializer 向外抛错会阻止 `AppRoutes` 挂载并显示初始化重试页。
 
 ## 路由与国际化
 
