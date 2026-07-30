@@ -80,6 +80,9 @@ importers:
       '@commitlint/config-conventional':
         specifier: ^21.2.0
         version: 21.2.0
+      '@crowdin/crowdin-api-client':
+        specifier: ^1.56.1
+        version: 1.56.1
       '@larksuiteoapi/node-sdk':
         specifier: ^1.71.1
         version: 1.71.1
@@ -149,6 +152,9 @@ importers:
       xlsx:
         specifier: ^0.18.5
         version: 0.18.5
+      yaml:
+        specifier: ^2.9.0
+        version: 2.9.0
 
 packages:
   '@babel/code-frame@7.29.7':
@@ -461,6 +467,13 @@ packages:
         integrity: sha512-TzlTVpKPjaqW6qOYjQcYUDuGsLCNsvFHVBXkYGTAnf5V37jCWrE5haKNXzz0WZUtVHjrpV76L1buANjwXMfT8w==,
       }
     engines: { node: '>=22' }
+
+  '@crowdin/crowdin-api-client@1.56.1':
+    resolution:
+      {
+        integrity: sha512-+t2ydW4r2gnttf2Ex3hC4L5lIMm5zAdXpH7osOYwm9oOGeqvOWWS77A5VdRWZskft6nVofv4nP2n3Hm+ywZl6A==,
+      }
+    engines: { node: '>=12.9.0' }
 
   '@date-fns/tz@1.5.0':
     resolution:
@@ -4318,6 +4331,13 @@ snapshots:
 
   '@conventional-changelog/template@1.2.1': {}
 
+  '@crowdin/crowdin-api-client@1.56.1':
+    dependencies:
+      axios: 1.18.1
+    transitivePeerDependencies:
+      - debug
+      - supports-color
+
   '@date-fns/tz@1.5.0': {}
 
   '@daypicker/react@10.0.1(@types/react@19.2.17)(react@19.2.8)':
@@ -6101,8 +6121,7 @@ snapshots:
 
   yallist@4.0.0: {}
 
-  yaml@2.9.0:
-    optional: true
+  yaml@2.9.0: {}
 
   yargs-parser@22.0.0: {}
 

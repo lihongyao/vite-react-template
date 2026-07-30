@@ -1,0 +1,17 @@
+# Crowdin 项目配置。该仓库约定固定使用 Crowdin main 分支。
+project_id: 917095
+api_token: 8dda54268841076586d3d38b6618592eeb546a3261d3f80385510ea88573f6a44cacadd359500e9f
+
+base_path: .
+preserve_hierarchy: true
+
+files:
+  - source: /src/i18n/source/*.json
+    translation: /src/i18n/downloads/%locale%/%original_file_name%
+    languages_mapping:
+      locale:
+        en: en-US
+        pt-BR: pt
+        es-MX: es
+
+branch: main

@@ -20,7 +20,15 @@
     "========== some scripts ==========": "",
     "gen-svg": "tsx scripts/gen-svg/index.ts",
     "i18n": "tsx scripts/xlsx2json/index.ts",
-    "i18n:lark": "tsx scripts/lark2json/index.ts"
+    "i18n:lark": "tsx scripts/lark2json/index.ts",
+    "========== crowdin / i18n ==========": "",
+    "crowdin:create": "tsx scripts/crowdin-api/index.ts create",
+    "crowdin:check": "tsx scripts/crowdin-api/index.ts check",
+    "crowdin:merge": "tsx scripts/crowdin-api/index.ts merge",
+    "crowdin:push": "tsx scripts/crowdin-api/index.ts push",
+    "crowdin:push:all": "tsx scripts/crowdin-api/index.ts push --all",
+    "crowdin:pull": "tsx scripts/crowdin-api/index.ts pull",
+    "crowdin:pull:all": "tsx scripts/crowdin-api/index.ts pull --all"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,mjs,cjs,vue}": [
@@ -56,6 +64,7 @@
   "devDependencies": {
     "@commitlint/cli": "^21.2.1",
     "@commitlint/config-conventional": "^21.2.0",
+    "@crowdin/crowdin-api-client": "^1.56.1",
     "@larksuiteoapi/node-sdk": "^1.71.1",
     "@neodx/svg": "^0.8.0",
     "@svgr/core": "^8.1.0",
@@ -78,6 +87,7 @@
     "typescript": "~6.0.2",
     "vconsole": "^3.15.1",
     "vite": "^8.1.1",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+    "yaml": "^2.9.0"
   }
 }
