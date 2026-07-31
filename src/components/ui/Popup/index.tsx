@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 
 import { createPortal } from 'react-dom';
 
+import Icon from '@/components/ui/Icon';
 import { cn } from '@/libs/class-helpers';
 
 interface IProps {
@@ -70,12 +71,12 @@ export default memo(function Popup({
         {closeable && (
           <button
             type="button"
-            className="absolute top-4 right-4 w-[26px]"
+            className="absolute top-4 right-4 flex size-[26px] items-center justify-center text-[#B3B8C1]"
             aria-label="Close popup"
             disabled={!visible}
             onClick={onClose}
           >
-            <img src={new URL('./images/icon_close.png', import.meta.url).toString()} alt="" />
+            <Icon name="close" className="size-[26px]" />
           </button>
         )}
         {children}
