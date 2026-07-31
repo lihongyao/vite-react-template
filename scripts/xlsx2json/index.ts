@@ -22,6 +22,9 @@ const SHEET_NAME = 'Sheet1';
 const ROOT = path.resolve(scriptDirectory, '../../');
 const INPUT_DIR = path.join(ROOT, 'scripts/xlsx2json');
 const OUTPUT_DIR = path.join(ROOT, 'src/i18n/locales');
+const SOURCE_LOCALE = 'zh-CN';
+const TARGET_LOCALES = ['en-US', 'pt', 'es'] as const;
+const CONFIGURED_LOCALES = [SOURCE_LOCALE, ...TARGET_LOCALES] as const;
 
 // === 2. 类型定义 ===
 interface ExcelRow {
@@ -56,11 +59,33 @@ console.log(`📄 使用 Sheet: ${SHEET_NAME || workbook.SheetNames[0]}`);
 const rawData: ExcelRow[] = utils.sheet_to_json(sheet);
 console.log(`🔑 Excel 共读取 ${rawData.length} 条记录`);
 
-// === 4. 获取语言列 ===
-const header: string[] = Object.keys(rawData[0] || {}).filter(
-  (key) => key !== 'key' && key !== 'remark',
+// === 4. 校验语言配置和 Excel 表头 ===
+const configuredLocaleSet = new Set<string>(CONFIGURED_LOCALES);
+if (configuredLocaleSet.size !== CONFIGURED_LOCALES.length) {
+  throw new Error('❌ 源语言和目标语言不能重复');
+}
+
+const rowsWithHeader: unknown[][] = utils.sheet_to_json(sheet, {
+  blankrows: false,
+  defval: '',
+  header: 1,
+});
+const excelHeaders = (rowsWithHeader[0] || []).map(normalizeCellValue);
+const duplicateHeaders = excelHeaders.filter(
+  (header, index) => header && excelHeaders.indexOf(header) !== index,
 );
-console.log(`🌐 发现语言列: ${header.join(', ')}`);
+if (duplicateHeaders.length > 0) {
+  throw new Error(`❌ Excel 存在重复列: ${[...new Set(duplicateHeaders)].join(', ')}`);
+}
+
+const requiredHeaders = ['key', ...CONFIGURED_LOCALES];
+const missingHeaders = requiredHeaders.filter((header) => !excelHeaders.includes(header));
+if (missingHeaders.length > 0) {
+  throw new Error(`❌ Excel 缺少必需列: ${missingHeaders.join(', ')}`);
+}
+
+console.log(`🌐 源语言: ${SOURCE_LOCALE}`);
+console.log(`🎯 目标语言: ${TARGET_LOCALES.join(', ')}`);
 
 // === 5. 递归写入对象属性 ===
 function setNested(obj: NestedObject, keyPath: string, value: string) {
@@ -84,25 +109,50 @@ function setNested(obj: NestedObject, keyPath: string, value: string) {
 
 // === 6. 初始化结果对象和计数器 ===
 const result: Record<string, NestedObject> = {};
-const langCounts: Record<string, number> = {};
-header.forEach((lang) => {
+const translatedCounts: Record<string, number> = {};
+const fallbackCounts: Record<string, number> = {};
+let sourceCount = 0;
+
+CONFIGURED_LOCALES.forEach((lang) => {
   result[lang] = {};
-  langCounts[lang] = 0;
+});
+TARGET_LOCALES.forEach((lang) => {
+  translatedCounts[lang] = 0;
+  fallbackCounts[lang] = 0;
 });
 
 // === 7. 处理每一行数据 ===
+const missingSourceKeys: string[] = [];
+
 rawData.forEach((row) => {
   const key = normalizeCellValue(row.key);
   if (!key) return; // 没有 key 整行跳过
 
-  header.forEach((lang) => {
-    const cellValue = row[lang];
-    const value = normalizeCellValue(cellValue);
-    if (!value) return;
+  const sourceValue = normalizeCellValue(row[SOURCE_LOCALE]);
+  if (!sourceValue) {
+    missingSourceKeys.push(key);
+    return;
+  }
+
+  setNested(result[SOURCE_LOCALE], key, sourceValue);
+  sourceCount += 1;
+
+  TARGET_LOCALES.forEach((lang) => {
+    const translatedValue = normalizeCellValue(row[lang]);
+    const value = translatedValue || sourceValue;
     setNested(result[lang], key, value);
-    langCounts[lang] += 1; // 只统计有值的翻译
+
+    if (translatedValue) {
+      translatedCounts[lang] += 1;
+    } else {
+      fallbackCounts[lang] += 1;
+    }
   });
 });
+
+if (missingSourceKeys.length > 0) {
+  throw new Error(`❌ 以下 key 缺少源语言 ${SOURCE_LOCALE} 文案: ${missingSourceKeys.join(', ')}`);
+}
 
 // === 8. 输出 JSON 文件并显示提示 ===
 if (!fs.existsSync(OUTPUT_DIR)) {
@@ -119,11 +169,18 @@ if (!fs.existsSync(OUTPUT_DIR)) {
   });
 }
 
-header.forEach((lang) => {
+CONFIGURED_LOCALES.forEach((lang) => {
   const filePath = path.join(OUTPUT_DIR, `${lang}.json`);
   fs.writeFileSync(filePath, `${JSON.stringify(result[lang], null, 2)}\n`, 'utf8');
-  console.log(`✅ [${lang}] 文件生成: ${filePath}，共 ${langCounts[lang]} 条有效翻译`);
+
+  if (lang === SOURCE_LOCALE) {
+    console.log(`✅ [${lang}] 文件生成: ${filePath}，共 ${sourceCount} 条源文案`);
+  } else {
+    console.log(
+      `✅ [${lang}] 文件生成: ${filePath}，${translatedCounts[lang]} 条已翻译，${fallbackCounts[lang]} 条回退到 ${SOURCE_LOCALE}`,
+    );
+  }
 });
 
-console.log(`🎉 转换完成，共生成 ${header.length} 个语言文件`);
+console.log(`🎉 转换完成，共生成 ${CONFIGURED_LOCALES.length} 个语言文件`);
 console.log(`📂 输出目录: ${OUTPUT_DIR}`);

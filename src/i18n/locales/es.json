@@ -16,6 +16,7 @@
     "error_1200": "Nombre de usuario o contraseña incorrectos.",
     "error_1201": "Error al iniciar sesión. Inténtalo de nuevo más tarde.",
     "error_1202": "El nombre de usuario no existe.",
-    "error_1203": "Tu último retiro fue rechazado. Por favor espera {{time}} minutos antes de intentarlo de nuevo."
+    "error_1203": "Tu último retiro fue rechazado. Por favor espera {{time}} minutos antes de intentarlo de nuevo.",
+    "error_1204": "余额不足，请充值。"
   }
 }
