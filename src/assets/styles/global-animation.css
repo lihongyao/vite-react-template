@@ -195,3 +195,15 @@
     transition-duration: 0.01ms;
   }
 }
+
+.animate-pressable {
+  cursor: pointer;
+  user-select: none;
+  transform: translateZ(0) scale(1);
+  transition: transform 140ms ease-out;
+}
+
+.animate-pressable:active {
+  transform: translateZ(0) scale(0.95);
+  transition: transform 80ms linear;
+}
