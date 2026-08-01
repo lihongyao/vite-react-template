@@ -1,26 +1,55 @@
 .calendar-select,
 .calendar-select-dialog {
+  /* 以下变量控制日历及弹窗标题栏；底部“取消”和“确定”按钮使用固定色值，不受这些变量影响。 */
+
   /*
-   * 日历颜色集中在这里改：
-   * - selected：选中日期、范围起点/终点
-   * - range：范围中间日期
-   * - day：普通日期方块
-   * - hover：PC 鼠标悬停态
-   * - disabled：不可选日期
+   * 选中日期与日期范围：
+   * - selected-bg：单选日期、范围起点/终点的背景色，也用于今天的边框及日历、关闭按钮的焦点轮廓。
+   * - selected-text：单选日期、范围起点/终点的文字颜色。
+   * - range-bg：日期范围中间日期的背景色。
+   * - range-text：日期范围中间日期的文字颜色，也用于未选中“今天”的文字颜色。
    */
   --calendar-select-selected-bg: #22c55e;
   --calendar-select-selected-text: #ffffff;
   --calendar-select-range-bg: #dcfce7;
   --calendar-select-range-text: #166534;
+
+  /*
+   * 日历容器与基础文字：
+   * - surface：日历面板背景色。
+   * - border：日历外边框和月份切换按钮的边框色。
+   * - text：月份标题、弹窗标题、普通日期以及关闭按钮悬停时的文字颜色。
+   * - nav-text：上一个月、下一个月图标的颜色。
+   * - muted-text：星期标题和弹窗关闭按钮的默认文字颜色。
+   */
   --calendar-select-surface: #ffffff;
   --calendar-select-border: #d6e2da;
   --calendar-select-text: #1f2937;
   --calendar-select-nav-text: #334155;
   --calendar-select-muted-text: #7b8b82;
+
+  /*
+   * 普通日期：
+   * - day-bg：普通日期方块及月份切换按钮的背景色。
+   * - day-border：普通日期方块的边框色。
+   */
   --calendar-select-day-bg: #f8faf9;
   --calendar-select-day-border: #e3e9e5;
+
+  /*
+   * 鼠标悬停：
+   * - hover-bg：普通日期、月份切换按钮及弹窗关闭按钮悬停时的背景色。
+   * - hover-border：普通日期及月份切换按钮悬停时的边框色。
+   */
   --calendar-select-hover-bg: #eef4f0;
   --calendar-select-hover-border: #a7b8ad;
+
+  /*
+   * 不可选日期：
+   * - disabled-bg：不可选日期方块的背景色。
+   * - disabled-border：不可选日期方块的边框色。
+   * - disabled-text：不可选日期方块的文字颜色。
+   */
   --calendar-select-disabled-bg: #f3f5f4;
   --calendar-select-disabled-border: #edf1ee;
   --calendar-select-disabled-text: #a7b0aa;

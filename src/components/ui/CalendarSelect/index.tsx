@@ -479,14 +479,14 @@ export default function CalendarSelect(props: CalendarSelectProps) {
             <button
               ref={cancelRef}
               type="button"
-              className="flex h-11 items-center justify-center rounded-lg border border-[var(--calendar-select-border)] bg-white text-sm font-medium text-[var(--calendar-select-text)] outline-none hover:bg-[var(--calendar-select-hover-bg)] focus-visible:ring-2 focus-visible:ring-[var(--calendar-select-selected-bg)]"
+              className="flex h-11 items-center justify-center rounded-lg border border-[#d6e2da] bg-white text-sm font-medium text-[#1f2937] outline-none hover:bg-[#eef4f0] focus-visible:ring-2 focus-visible:ring-[#22c55e]"
               onClick={onCancel}
             >
               {labels.cancel}
             </button>
             <button
               type="button"
-              className="flex h-11 items-center justify-center rounded-lg bg-[var(--calendar-select-selected-bg)] text-sm font-semibold text-[var(--calendar-select-selected-text)] outline-none hover:brightness-95 focus-visible:ring-2 focus-visible:ring-[var(--calendar-select-selected-bg)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex h-11 items-center justify-center rounded-lg bg-[#22c55e] text-sm font-semibold text-white outline-none hover:brightness-95 focus-visible:ring-2 focus-visible:ring-[#22c55e] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40"
               disabled={!canConfirm}
               onClick={onConfirm}
             >
