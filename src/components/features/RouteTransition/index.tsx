@@ -143,7 +143,7 @@ export function RouteTransitionOutlet() {
   return (
     <>
       <div
-        className="grid min-h-0 min-w-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)] overflow-hidden"
+        className="grid min-h-0 min-w-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)] overflow-hidden bg-[var(--tab-page-background)]"
         data-route-transition="tab"
       >
         {Array.from(tabOutletsRef.current, ([path, cachedOutlet]) => (
@@ -165,7 +165,7 @@ export function RouteTransitionOutlet() {
       <div
         className={cn(
           'pointer-events-none absolute inset-0 z-20 grid grid-cols-1 overflow-hidden',
-          surface === 'stack' ? 'bg-[#f9f9f9]' : 'bg-transparent',
+          surface === 'stack' ? 'bg-[var(--secondary-page-background)]' : 'bg-transparent',
         )}
         data-route-transition="stack"
       >
@@ -219,7 +219,7 @@ function StackScene({
       animate="animate"
       aria-hidden={isPresent ? undefined : true}
       className={cn(
-        'scrollbar-hidden relative col-start-1 row-start-1 h-dvh min-w-0 overflow-y-auto overscroll-y-contain bg-[#f9f9f9]',
+        'scrollbar-hidden relative col-start-1 row-start-1 h-dvh min-w-0 overflow-y-auto overscroll-y-contain bg-[var(--secondary-page-background)]',
         isPresent ? 'pointer-events-auto' : 'pointer-events-none',
       )}
       custom={motionContext}

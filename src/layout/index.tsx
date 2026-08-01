@@ -20,7 +20,7 @@ export default function RootLayout() {
   const header = tabHeaders[pathname] ?? tabHeaders['/'];
 
   return (
-    <div className="flex h-dvh w-full flex-col overflow-hidden bg-[#f9f9f9]">
+    <div className="flex h-dvh w-full flex-col overflow-hidden bg-[var(--tab-page-background)]">
       <AppHeader title={header.title} description={header.description} />
       <RouteTransitionOutlet />
       <TabBar />
