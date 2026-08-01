@@ -164,7 +164,7 @@ export function RouteTransitionOutlet() {
       </div>
       <div
         className={cn(
-          'pointer-events-none absolute inset-0 z-20 grid grid-cols-1 overflow-hidden',
+          'pointer-events-none absolute inset-0 z-30 grid grid-cols-1 overflow-hidden',
           surface === 'stack' ? 'bg-[var(--secondary-page-background)]' : 'bg-transparent',
         )}
         data-route-transition="stack"
@@ -217,7 +217,6 @@ function StackScene({
   return (
     <m.div
       animate="animate"
-      aria-hidden={isPresent ? undefined : true}
       className={cn(
         'scrollbar-hidden relative col-start-1 row-start-1 h-dvh min-w-0 overflow-y-auto overscroll-y-contain bg-[var(--secondary-page-background)]',
         isPresent ? 'pointer-events-auto' : 'pointer-events-none',
@@ -283,7 +282,6 @@ function TabScene({
 
   return (
     <m.div
-      aria-hidden={active ? undefined : true}
       className={cn(
         'scrollbar-hidden col-start-1 row-start-1 flex min-h-0 min-w-0 flex-col overflow-y-auto overscroll-y-contain [&>*]:flex-1',
         !active && 'pointer-events-none',

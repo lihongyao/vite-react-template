@@ -10,6 +10,7 @@ export const SVG_PATH_NAMES = [
   'goods',
   'tabbar_casino',
   'tabbar_home',
+  'tabbar_menu',
   'tabbar_profile',
   'tabbar_sport',
   'tips_correct',

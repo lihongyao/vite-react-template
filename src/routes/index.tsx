@@ -13,6 +13,7 @@ import Goods from '@/pages/Goods';
 import GoodsDetail from '@/pages/GoodsDetail';
 import Home from '@/pages/Home';
 import Integral from '@/pages/Integral';
+import Menu from '@/pages/Menu';
 import NotFound from '@/pages/NotFound';
 import PrivilegeBrand from '@/pages/PrivilegeBrand';
 import Profile from '@/pages/Profile';
@@ -48,8 +49,8 @@ function createPageRoutes(): RouteObject[] {
       handle: tabTransitionHandle,
     },
     {
-      path: toChildPath(ROUTE_PATHS.Profile),
-      element: <Profile />,
+      path: toChildPath(ROUTE_PATHS.Menu),
+      element: <Menu />,
       handle: tabTransitionHandle,
     },
   ];
@@ -68,6 +69,11 @@ const localeRoutes: RouteObject[] = SUPPORTED_LOCALES.map((locale) => {
         element: <RootLayout />,
         children: [
           ...createPageRoutes(),
+          {
+            path: toChildPath(ROUTE_PATHS.Profile),
+            element: <Profile />,
+            handle: stackTransitionHandle,
+          },
           {
             path: toChildPath(ROUTE_PATHS.Apply),
             element: <Apply />,

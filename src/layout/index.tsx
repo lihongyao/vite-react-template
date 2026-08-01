@@ -12,7 +12,7 @@ const tabHeaders: Record<string, { title: string; description: string }> = {
     description: 'Your monthly commission and referral data',
   },
   '/integral': { title: 'Agent Center', description: 'Your monthly commission and referral data' },
-  '/profile': { title: 'Profile', description: 'Account and activity overview' },
+  '/menu': { title: 'Menu', description: 'Explore services and account options' },
 };
 
 export default function RootLayout() {

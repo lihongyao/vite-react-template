@@ -4,12 +4,13 @@ export const TAB_ROUTE_PATHS = {
   Goods: '/goods',
   PrivilegeBrand: '/privilege-brand',
   Integral: '/integral',
-  Profile: '/profile',
+  Menu: '/menu',
 } as const;
 
 export const PAGE_ROUTE_PATHS = {
   Apply: '/apply',
   GoodsDetail: '/goods/:id',
+  Profile: '/profile',
 } as const;
 
 export const ROUTE_PATHS = {

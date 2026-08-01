@@ -27,9 +27,9 @@ const tabs = [
     icon: 'tabbar_sport',
   },
   {
-    path: ROUTE_PATHS.Profile,
-    text: 'Profile',
-    icon: 'tabbar_profile',
+    path: ROUTE_PATHS.Menu,
+    text: 'Menu',
+    icon: 'tabbar_menu',
   },
 ] satisfies Array<{ path: TabRoutePath; text: string; icon: IconName }>;
 
