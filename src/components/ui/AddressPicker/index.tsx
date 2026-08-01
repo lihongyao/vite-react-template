@@ -8,7 +8,7 @@
 	onSure={async (data: AddressPickerDataProps) => {
 		console.log(data);
 	}}
-	onCancel={() => {}}
+	onCancel={setOpen}
 />
 */
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
@@ -204,7 +204,7 @@ export default memo(function AddressPicker({
         'flex h-[min(520px,90dvh)] flex-col rounded-t-[22px] px-[15px] py-7',
         contentClassName,
       )}
-      onClose={() => onCancel(false)}
+      onClose={onCancel}
     >
       <div className="contents" style={pickerStyle}>
         <h3 className="mb-[17px] shrink-0 text-sm leading-4 font-normal text-[#b5b5b5]">已选择</h3>

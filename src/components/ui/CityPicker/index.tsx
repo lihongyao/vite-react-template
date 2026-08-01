@@ -31,7 +31,7 @@ export default memo(function CityPicker({
   };
 
   return (
-    <Popup visible={open} className="ui-city-picker" onClose={() => onCancel(false)}>
+    <Popup visible={open} className="ui-city-picker" onClose={onCancel}>
       <div className="relative flex h-[80dvh] flex-col bg-white">
         <div className="flex h-[60px] shrink-0 items-center justify-center border-b border-[#eee] text-base font-bold">
           {renderTitle ? renderTitle() : '选择城市'}

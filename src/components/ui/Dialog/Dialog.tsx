@@ -95,7 +95,7 @@ interface DialogProps {
   dataName?: string;
 
   /** 用户意图关闭（仅受控模式触发） */
-  onClose?: () => void;
+  onClose?: (open: boolean) => void;
   /** 弹窗完全关闭后触发（任何模式） */
   onAfterClose?: (event: DialogAfterCloseEvent) => void;
 
@@ -156,7 +156,7 @@ const DialogComponent = forwardRef<DialogRef, DialogProps>((props, ref) => {
       closeReasonRef.current = reason;
 
       if (isControlled && viaControlledOnClose) {
-        onClose?.();
+        onClose?.(false);
         return true;
       }
 

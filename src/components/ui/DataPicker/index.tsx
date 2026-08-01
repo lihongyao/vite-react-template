@@ -102,7 +102,7 @@ export default function DataPicker<T>({
         className={cn('ui-data-picker', popupClassName)}
         closeOnClickOverlay={closeOnClickOverlay}
         contentClassName={cn('min-h-0', contentClassName)}
-        onClose={() => setVisible(false)}
+        onClose={setVisible}
       >
         <dialog
           id={dialogId}

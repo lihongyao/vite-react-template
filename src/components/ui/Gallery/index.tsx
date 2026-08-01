@@ -7,18 +7,20 @@ import Zoom from 'yet-another-react-lightbox/plugins/zoom';
 
 import 'yet-another-react-lightbox/styles.css';
 
-export type GalleryProps = LightboxExternalProps;
+export type GalleryProps = Omit<LightboxExternalProps, 'close'> & {
+  close: (open: boolean) => void;
+};
 export type GallerySlide = Slide;
 export type GalleryImageSlide = SlideImage;
 export type GalleryDownloadHandler = NonNullable<NonNullable<GalleryProps['download']>['download']>;
 
 const requiredPlugins: readonly Plugin[] = [Zoom, Download];
 
-export default function Gallery({ plugins, ...lightboxProps }: GalleryProps) {
+export default function Gallery({ close, plugins, ...lightboxProps }: GalleryProps) {
   const resolvedPlugins = useMemo(
     () => Array.from(new Set<Plugin>([...requiredPlugins, ...(plugins ?? [])])),
     [plugins],
   );
 
-  return <Lightbox {...lightboxProps} plugins={resolvedPlugins} />;
+  return <Lightbox {...lightboxProps} close={() => close(false)} plugins={resolvedPlugins} />;
 }

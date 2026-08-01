@@ -14,7 +14,7 @@ interface IProps {
   className?: string;
   contentClassName?: string;
   children?: ReactNode;
-  onClose: () => void;
+  onClose: (visible: boolean) => void;
 }
 
 export default memo(function Popup({
@@ -39,6 +39,8 @@ export default memo(function Popup({
     };
   }, [visible]);
 
+  const close = () => onClose(false);
+
   const content = (
     <div
       className={cn(
@@ -54,7 +56,7 @@ export default memo(function Popup({
         className="absolute inset-0 size-full cursor-default"
         aria-label="Close popup"
         disabled={!visible || !closeOnClickOverlay}
-        onClick={onClose}
+        onClick={close}
       />
       <div
         className={cn(
@@ -74,7 +76,7 @@ export default memo(function Popup({
             className="absolute top-4 right-4 flex size-[26px] items-center justify-center text-[#B3B8C1]"
             aria-label="Close popup"
             disabled={!visible}
-            onClick={onClose}
+            onClick={close}
           >
             <Icon name="close" className="size-[26px]" />
           </button>

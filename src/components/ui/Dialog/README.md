@@ -106,7 +106,7 @@ interface DialogProps {
   multiple?: boolean;
 
   /** 用户意图关闭（仅受控模式触发） */
-  onClose?: () => void;
+  onClose?: (open: boolean) => void;
   /** 弹窗完全关闭后触发（任何模式） */
   onAfterClose?: (event: DialogAfterCloseEvent) => void;
 
@@ -128,7 +128,7 @@ interface DialogRef {
 ```tsx
 const dialogRef = useRef<DialogRef>(null);
 
-<Dialog ref={dialogRef} open={open} onClose={() => setOpen(false)}>
+<Dialog ref={dialogRef} open={open} onClose={setOpen}>
   <div>内容</div>
 </Dialog>;
 
@@ -197,7 +197,7 @@ export default function Page() {
 
       <Dialog
         open={open}
-        onClose={() => setOpen(false)}
+        onClose={setOpen}
         onAfterClose={({ reason, stayDurationMs }) =>
           console.log('关闭完成', reason, stayDurationMs)
         }
