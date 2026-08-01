@@ -310,6 +310,9 @@ function TabScene({
       exit="exit"
       inert={isPresent ? undefined : true}
       initial="initial"
+      onScroll={(event) => {
+        tabScrollPositions.set(scrollKey, event.currentTarget.scrollTop);
+      }}
       ref={sceneRef}
       style={{ transformOrigin: '50% 50%', zIndex: isPresent ? 1 : 0 }}
       variants={tabVariants}

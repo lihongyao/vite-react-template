@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-import type { NavigateOptions, To } from 'react-router';
+import type { NavigateFunction, NavigateOptions, To } from 'react-router';
 import { createPath, parsePath, useLocation, useNavigate } from 'react-router';
 
 import type { Locale } from './config';
@@ -24,12 +24,13 @@ export function useCurrentLocale() {
   return getLocaleFromPathname(pathname);
 }
 
-export function useLocalizedNavigate() {
+export function useLocalizedNavigate(): NavigateFunction {
   const locale = useCurrentLocale();
   const navigate = useNavigate();
 
-  return useCallback(
-    (to: To, options?: NavigateOptions) => navigate(localizeTo(to, locale), options),
+  return useCallback<NavigateFunction>(
+    (to: To | number, options?: NavigateOptions) =>
+      typeof to === 'number' ? navigate(to) : navigate(localizeTo(to, locale), options),
     [locale, navigate],
   );
 }

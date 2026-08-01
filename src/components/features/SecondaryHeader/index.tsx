@@ -1,9 +1,8 @@
-import { useNavigate } from 'react-router';
-
 import Icon from '@/components/ui/Icon';
+import { useLocalizedNavigate } from '@/i18n/navigation';
 
 export default function SecondaryHeader({ title }: { title: string }) {
-  const navigate = useNavigate();
+  const navigate = useLocalizedNavigate();
 
   return (
     <header className="sticky top-0 z-20 border-b border-[#E8EAED] bg-white/95 pt-[env(safe-area-inset-top)] backdrop-blur-sm">
