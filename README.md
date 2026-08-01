@@ -18,7 +18,7 @@ pnpm install
 pnpm dev
 ```
 
-开发服务器默认运行在 [http://localhost:8888](http://localhost:8888)。如果端口已被占用，Vite 会自动选择其他端口。
+开发服务器默认运行在 [http://localhost:8090](http://localhost:8090)。如果端口已被占用，Vite 会自动选择其他端口。
 
 常用命令：
 
@@ -36,7 +36,6 @@ pnpm dev
 | `pnpm format:check` | 检查代码格式                 |
 | `pnpm gen-svg`      | 生成 Sprite、SVGR 和图标类型 |
 | `pnpm i18n`         | 从 Excel 生成多语言 JSON     |
-| `pnpm i18n:lark`    | 运行飞书多语言同步脚本       |
 
 ### 多品牌本地开发
 
@@ -106,7 +105,7 @@ src/
 ├── index.css             # Tailwind 入口和全局样式
 └── main.tsx              # 应用启动入口
 
-scripts/                  # SVG、Excel、飞书等工程脚本
+scripts/                  # SVG、Excel、Crowdin 等工程脚本
 public/                   # 原样发布的静态资源、生成的 Sprite 和预览页
 ```
 
@@ -315,16 +314,29 @@ const appInitializers: AppInitializer[] = [initializeGlobalConfig];
 语言配置位于 `src/i18n/config.ts`，翻译资源位于 `src/i18n/locales`。每种语言共享同一组页面路由，整体结构如下：
 
 ```text
-LocaleLayout                    # 切换语言、提供页面转场容器
-├── RootLayout                  # Tab 页面公共布局
-│   ├── TabTransitionOutlet     # 渲染当前 Tab 页面
-│   └── AppTabBar               # 底部导航栏
-├── apply                       # 普通二级页，不显示 TabBar
-├── goods/:id                   # 带动态参数的普通二级页
-└── *                           # 404 页面
+LocaleLayout                     # 激活当前语言并提供转场上下文
+└── RootLayout                   # 一级页和二级页共同的持久布局
+    ├── AppHeader                # 一级页公共 Header
+    ├── RouteTransitionOutlet    # 单一 Outlet 消费者，管理 Tab/Stack 场景
+    ├── AppTabBar                # 一级页公共底部导航
+    └── routes
+        ├── Tab routes           # Home、Goods、Privilege、Integral、Profile
+        ├── apply                # Stack 页面
+        ├── goods/:id            # Stack 动态详情页
+        └── *                    # Stack 404 页面
 ```
 
-Tab 页面使用 `transitionSurface: 'tab'`，切换时不产生页面入栈效果；普通二级页使用 `transitionSurface: 'stack'`，按页面栈方式转场。
+Tab 页面使用 `transitionSurface: 'tab'`，一级页之间使用淡入缩放动画，不产生页面入栈效果；普通二级页使用 `transitionSurface: 'stack'`，按页面栈方向执行前进和返回动画。
+
+`RootLayout` 是所有页面的共同父布局。一级页的固定结构是 `AppHeader -> RouteTransitionOutlet -> AppTabBar`；二级页由 Stack scene 覆盖整个视口，因此不会显示底层的 Header 和 TabBar。一级页标题配置集中在 `src/layout/index.tsx` 的 `tabHeaders` 中。
+
+`RouteTransitionOutlet` 只读取一次 React Router `Outlet`，再根据 route handle 分配到 Tab 或 Stack 场景：
+
+- 已访问的 Tab 页面按 pathname 持久挂载。切换一级页不会卸载组件，因此接口数据和局部 state 会保留；每次从一个一级页切换到另一个一级页时，目标页滚动位置重置为顶部。
+- Stack 页面按 history location key 创建 scene。一级页进入二级页后，底层一级页保持挂载；返回一级页时恢复离开前的滚动位置。
+- 二级页进入另一个二级页时，每个 history entry 分别保存滚动位置；返回上一层二级页时恢复该 entry 的位置。
+- 非活动 Tab scene 使用 `inert` 并禁用指针事件，不参与交互和焦点导航。
+- 用户开启减少动态效果时，转场会使用最短动画时长。
 
 `ROUTE_PATHS` 保存不带语言前缀的应用内绝对路径和动态路径模式，是 Router、TabBar 和站内链接的唯一业务路径来源。`TAB_ROUTE_PATHS` 和 `PAGE_ROUTE_PATHS` 只用于按页面类型组织路径；业务代码通常直接使用合并后的 `ROUTE_PATHS`。语言前缀继续由 `LocalizedLink`、`LocalizedNavLink` 和 `useLocalizedNavigate` 自动处理，不应写入路径常量。
 
@@ -336,7 +348,7 @@ React Router 的嵌套子路由需要相对 `path`，使用 `toChildPath(ROUTE_P
 
 1. 在 `src/pages/<PageName>/index.tsx` 创建并默认导出页面组件。
 2. 在 `src/routes/paths.ts` 的 `PAGE_ROUTE_PATHS` 中添加 canonical 绝对路径。
-3. 在 `src/routes/index.tsx` 引入页面，并用 `toChildPath(ROUTE_PATHS.Xxx)` 将路由添加到对应的 `children` 中。
+3. 在 `src/routes/index.tsx` 引入页面，并用 `toChildPath(ROUTE_PATHS.Xxx)` 将路由添加到 `RootLayout` 的 `children` 中。
 4. 非首屏页面可以通过 `lazy` 按需加载；使用 `lazy` 时，页面会由现有转场出口内的 `Suspense` 处理加载状态。
 
 ### 添加 Tab 页
@@ -346,7 +358,9 @@ Tab 页会显示底部导航栏，需要同时修改路由和 TabBar：
 1. 将 canonical 绝对路径加入 `src/routes/paths.ts` 的 `TAB_ROUTE_PATHS`。
 2. 将页面路由加入 `createPageRoutes()`，并设置 `handle: tabTransitionHandle`。
 3. 在 `src/components/features/AppTabBar/index.tsx` 的 `tabs` 中引用对应的 `ROUTE_PATHS` 成员，并添加标题和图标。
-4. TabBar 继续使用 `LocalizedNavLink`，不要手动拼接语言前缀。
+4. 在 `src/layout/index.tsx` 的 `tabHeaders` 中添加公共 Header 的标题和描述。
+5. Tab 页面自身不要再渲染 `AppHeader` 或 `AppTabBar`。
+6. TabBar 继续使用 `LocalizedNavLink`，不要手动拼接语言前缀。
 
 ```tsx
 // src/routes/index.tsx
@@ -354,13 +368,16 @@ Tab 页会显示底部导航栏，需要同时修改路由和 TabBar：
 
 // src/components/features/AppTabBar/index.tsx
 { path: ROUTE_PATHS.Orders, text: 'Orders', icon: 'orders' }
+
+// src/layout/index.tsx
+'/orders': { title: 'Orders', description: 'Review and manage your orders' }
 ```
 
 首页是 `createPageRoutes()` 中的 `index: true` 路由，对应 TabBar 的 `/`。
 
 ### 添加普通二级页
 
-普通二级页不应放入 `RootLayout`，而应作为它的同级路由直接添加到 `LocaleLayout` 的 `children`，这样页面不会显示底部 TabBar：
+普通二级页也添加到 `RootLayout` 的 `children`，并设置 `handle: stackTransitionHandle`。它们会由 `RouteTransitionOutlet` 作为前景 Stack scene 覆盖整个视口，不会显示一级页的 Header 和 TabBar：
 
 ```tsx
 {

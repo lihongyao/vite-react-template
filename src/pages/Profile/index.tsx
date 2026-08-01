@@ -1,6 +1,15 @@
-import AppHeader from '@/components/features/AppHeader';
+import IconButton from '@/components/ui/Button/IconButton';
+import DataPicker from '@/components/ui/DataPicker';
 import Icon from '@/components/ui/Icon';
 import { message } from '@/components/ui/Message';
+import { LOCALE_CONFIG, SUPPORTED_LOCALES } from '@/i18n/config';
+import type { Locale } from '@/i18n/config';
+import { useCurrentLocale, useSwitchLocale } from '@/i18n/navigation';
+
+const localeOptions = SUPPORTED_LOCALES.map((value) => ({
+  label: LOCALE_CONFIG[value].label,
+  value,
+}));
 
 const statistics = [
   { label: 'Wagers', value: '2,100', tone: 'bg-[#EAF8F0] text-[#168653]' },
@@ -12,15 +21,20 @@ const statistics = [
 const accountDetails = [
   { label: 'Account status', value: 'Verified' },
   { label: 'Member since', value: 'May 2024' },
+  { label: 'Language', value: '' },
 ];
 
 export default function Page() {
   const [messageApi] = message.useMessage();
+  const locale = useCurrentLocale();
+  const switchLocale = useSwitchLocale();
+
+  const handleLocaleChange = (value: Locale) => {
+    void switchLocale(value);
+  };
 
   return (
     <main className="min-h-full bg-[#F4F5F7] pb-6 text-[#202124]">
-      <AppHeader title="Profile" description="Account and activity overview" />
-
       <div className="mx-auto w-full max-w-[720px]">
         <section
           className="flex items-center gap-4 bg-white px-4 py-6"
@@ -45,15 +59,13 @@ export default function Page() {
 
             <div className="mt-1 flex items-center gap-1.5 text-sm leading-5 text-[#737780]">
               <span>ID: 1314210</span>
-              <button
-                type="button"
+              <IconButton
                 aria-label="Copy user ID"
                 title="Copy user ID"
                 className="flex size-7 cursor-pointer items-center justify-center text-[#737780] transition-colors hover:text-[#168653] active:opacity-60"
+                icon={<Icon name="copy" className="size-[17px]" />}
                 onClick={() => messageApi.success('复制成功')}
-              >
-                <Icon name="copy" className="size-[17px]" />
-              </button>
+              />
             </div>
           </div>
         </section>
@@ -103,15 +115,48 @@ export default function Page() {
               className="flex min-h-14 items-center justify-between gap-4 border-b border-[#ECEEF1] last:border-b-0"
             >
               <span className="text-sm font-medium text-[#4C515A]">{item.label}</span>
-              <span
-                className={
-                  item.label === 'Account status'
-                    ? 'rounded-md bg-[#EAF8F0] px-2 py-1 text-xs font-semibold text-[#168653]'
-                    : 'text-sm text-[#737780]'
-                }
-              >
-                {item.value}
-              </span>
+              {item.label === 'Language' ? (
+                <DataPicker
+                  title="Language"
+                  items={localeOptions}
+                  closeAriaLabel="Close language picker"
+                  triggerClassName="flex min-h-10 items-center justify-end gap-2 text-sm text-[#737780]"
+                  renderItem={(option) => (
+                    <span className="flex items-center justify-between gap-3">
+                      <span
+                        className={option.value === locale ? 'font-semibold text-[#0f766e]' : ''}
+                      >
+                        {option.label}
+                      </span>
+                      {option.value === locale ? (
+                        <span
+                          aria-hidden
+                          className="text-base leading-none font-semibold text-[#0f766e]"
+                        >
+                          ✓
+                        </span>
+                      ) : null}
+                    </span>
+                  )}
+                  onClick={(option) => handleLocaleChange(option.value)}
+                >
+                  <span>{LOCALE_CONFIG[locale].label}</span>
+                  <span
+                    aria-hidden
+                    className="size-2 shrink-0 rotate-45 border-r border-b border-current"
+                  />
+                </DataPicker>
+              ) : (
+                <span
+                  className={
+                    item.label === 'Account status'
+                      ? 'rounded-md bg-[#EAF8F0] px-2 py-1 text-xs font-semibold text-[#168653]'
+                      : 'text-sm text-[#737780]'
+                  }
+                >
+                  {item.value}
+                </span>
+              )}
             </div>
           ))}
         </section>

@@ -1,43 +1,15 @@
 import { forwardRef, useEffect, useRef, useState } from 'react';
 import type { ButtonHTMLAttributes, MouseEvent, ReactNode } from 'react';
 
-import { cva } from 'class-variance-authority';
-import type { VariantProps } from 'class-variance-authority';
-
 import { cn } from '@/libs/class-helpers';
 
-const buttonVariants = cva(
-  'relative animate-pressable inline-flex shrink-0 cursor-pointer items-center justify-center rounded-lg font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[#16a34a] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
-  {
-    variants: {
-      variant: {
-        primary: 'bg-[#1f2937] text-white hover:bg-[#111827]',
-        secondary: 'bg-[#0f766e] text-white hover:bg-[#0d665f]',
-        outline: 'border border-[#d1d5db] bg-white text-[#374151] hover:bg-[#f3f4f6]',
-        danger: 'bg-[#dc2626] text-white hover:bg-[#b91c1c]',
-        ghost: 'bg-transparent text-[#374151] hover:bg-[#f3f4f6]',
-      },
-      size: {
-        small: 'h-9 px-3 text-sm',
-        medium: 'h-11 px-4 text-sm',
-        large: 'h-12 px-5 text-base',
-      },
-      block: {
-        true: 'w-full',
-        false: 'w-auto',
-      },
-    },
-    defaultVariants: {
-      variant: 'primary',
-      size: 'medium',
-      block: false,
-    },
-  },
-);
+const buttonClassName =
+  'relative animate-pressable inline-flex h-11 shrink-0 cursor-pointer items-center justify-center rounded-lg bg-[#168653] px-4 text-sm font-medium text-white transition-colors outline-none hover:bg-[#0f7044] focus-visible:ring-2 focus-visible:ring-[#16a34a] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50';
 
 type NativeButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onClick' | 'prefix'>;
 
-export interface ButtonProps extends NativeButtonProps, VariantProps<typeof buttonVariants> {
+export interface ButtonProps extends NativeButtonProps {
+  block?: boolean;
   prefix?: ReactNode;
   suffix?: ReactNode;
   loading?: boolean;
@@ -47,12 +19,6 @@ export interface ButtonProps extends NativeButtonProps, VariantProps<typeof butt
   cooldownMs?: number;
   onClick?: (event: MouseEvent<HTMLButtonElement>) => unknown;
 }
-
-const spinnerSizeClasses = {
-  small: 'size-4',
-  medium: 'size-5',
-  large: 'size-6',
-} as const;
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
   {
@@ -64,8 +30,6 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
     loadingText,
     autoLoading = true,
     cooldownMs = 0,
-    variant,
-    size = 'medium',
     block,
     type = 'button',
     disabled,
@@ -81,12 +45,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
   const cooldownTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const pending = loading || internalLoading;
   const spinner = loadingIcon ?? (
-    <span
-      className={cn(
-        'animate-spin rounded-full border-2 border-[#ddd] border-t-current',
-        spinnerSizeClasses[size ?? 'medium'],
-      )}
-    />
+    <span className="size-5 animate-spin rounded-full border-2 border-[#ddd] border-t-current" />
   );
 
   useEffect(() => {
@@ -136,7 +95,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
       {...buttonProps}
       type={type}
       aria-busy={pending || undefined}
-      className={cn(buttonVariants({ variant, size, block }), className)}
+      className={cn(buttonClassName, block && 'w-full', className)}
       disabled={disabled || pending}
       onClick={handleClick}
     >

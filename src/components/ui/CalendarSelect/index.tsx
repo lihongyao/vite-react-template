@@ -424,7 +424,7 @@ export default function CalendarSelect(props: CalendarSelectProps) {
             </button>
           </div>
 
-          <div className="px-4 pt-3 pb-2">
+          <div className="h-[510px] px-4 pt-3 pb-2">
             {props.mode === 'single' ? (
               <CalendarSelectPanel
                 key={panelKey}

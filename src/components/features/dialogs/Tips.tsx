@@ -124,7 +124,6 @@ export default function Tips({
             block
             disabled={pendingAction !== null}
             loading={pendingAction === 'cancel'}
-            variant="outline"
             onClick={handleCancel}
           >
             {cancelText}
@@ -136,7 +135,6 @@ export default function Tips({
           disabled={pendingAction !== null}
           loading={pendingAction === 'confirm'}
           loadingText={confirmText}
-          variant={type === 'error' ? 'danger' : 'primary'}
           onClick={handleConfirm}
         >
           {confirmText}

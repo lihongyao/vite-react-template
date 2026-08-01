@@ -66,22 +66,24 @@ const localeRoutes: RouteObject[] = SUPPORTED_LOCALES.map((locale) => {
     children: [
       {
         element: <RootLayout />,
-        children: createPageRoutes(),
-      },
-      {
-        path: toChildPath(ROUTE_PATHS.Apply),
-        element: <Apply />,
-        handle: stackTransitionHandle,
-      },
-      {
-        path: toChildPath(ROUTE_PATHS.GoodsDetail),
-        element: <GoodsDetail />,
-        handle: stackTransitionHandle,
-      },
-      {
-        path: '*',
-        element: <NotFound />,
-        handle: stackTransitionHandle,
+        children: [
+          ...createPageRoutes(),
+          {
+            path: toChildPath(ROUTE_PATHS.Apply),
+            element: <Apply />,
+            handle: stackTransitionHandle,
+          },
+          {
+            path: toChildPath(ROUTE_PATHS.GoodsDetail),
+            element: <GoodsDetail />,
+            handle: stackTransitionHandle,
+          },
+          {
+            path: '*',
+            element: <NotFound />,
+            handle: stackTransitionHandle,
+          },
+        ],
       },
     ],
   };

@@ -2,7 +2,6 @@ import { useRef, useState } from 'react';
 
 import { Trans, useTranslation } from 'react-i18next';
 
-import AppHeader from '@/components/features/AppHeader';
 import AddressPicker from '@/components/ui/AddressPicker';
 import type {
   AddressPickerDataProps,
@@ -259,8 +258,6 @@ export default function Page() {
 
   return (
     <main className="bg-white text-[#222]">
-      <AppHeader title="Agent Center" description="Your monthly commission and referral data" />
-
       <div className="flex flex-col gap-4 px-4 py-3">
         {/* 轮播图 */}
         <Carousel
@@ -511,7 +508,6 @@ export default function Page() {
             <Button
               block
               cooldownMs={600}
-              variant="secondary"
               onClick={() =>
                 dialog.open('X1Dialog', {
                   props: { message: 'Dialog registry is working.', count: 1 },
@@ -523,13 +519,12 @@ export default function Page() {
             >
               Show dialog
             </Button>
-            <Button block variant="outline" onClick={() => setCityPickerOpen(true)}>
+            <Button block onClick={() => setCityPickerOpen(true)}>
               {selectedCity ? `City: ${selectedCity}` : 'Choose city'}
             </Button>
             <Button
               block
               className="col-span-2"
-              variant="outline"
               onClick={() =>
                 dialog.open('Tips', {
                   maskClosable: false,
@@ -549,7 +544,6 @@ export default function Page() {
             <Button
               block
               className="col-span-2 justify-start text-left"
-              variant="outline"
               onClick={() => setAddressPickerOpen(true)}
             >
               {selectedAddressLabel ? `Address: ${selectedAddressLabel}` : 'Choose address'}
