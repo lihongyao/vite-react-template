@@ -39,6 +39,8 @@ Schemes.config('xxx://www.xxx.com');
 
 // 4. 国际化
 await initializeI18n();
+
+// 5. 统一设置接口请求上下文（便于统一管理接口请求参数）
 setApiRequestContextProvider(() => {
   const resolvedLanguage = i18n.resolvedLanguage;
   const locale = resolvedLanguage && isLocale(resolvedLanguage) ? resolvedLanguage : DEFAULT_LOCALE;

@@ -1,7 +1,7 @@
 import { memo } from 'react';
 
 import Icon, { type IconName } from '@/components/ui/Icon';
-import { LocalizedNavLink } from '@/i18n/links';
+import { LocalizedNavLink } from '@/i18n/navigation';
 import { cn } from '@/libs/class-helpers';
 import { ROUTE_PATHS, type TabRoutePath } from '@/routes/paths';
 

@@ -1,4 +1,4 @@
-import { LocalizedLink } from '@/i18n/links';
+import { LocalizedLink } from '@/i18n/navigation';
 import { ROUTE_PATHS } from '@/routes/paths';
 
 export default function AppHeader({ title, description }: { title: string; description: string }) {

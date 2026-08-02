@@ -5,7 +5,7 @@ import { generatePath } from 'react-router';
 import { ApiError, productApi } from '@/api';
 import type { Product } from '@/api/modules/product/types';
 import Skeleton from '@/components/ui/Skeleton';
-import { LocalizedLink } from '@/i18n/links';
+import { LocalizedLink } from '@/i18n/navigation';
 import { ROUTE_PATHS } from '@/routes/paths';
 
 const PRODUCT_SELECT = [
@@ -105,7 +105,7 @@ function GoodsCard({ product }: { product: Product }) {
   return (
     <LocalizedLink
       to={generatePath(ROUTE_PATHS.GoodsDetail, { id: String(product.id) })}
-      className="flex min-w-0 flex-col overflow-hidden rounded-lg border border-[#E7E9EC] bg-white transition outline-none focus-visible:border-[#168653] focus-visible:ring-2 focus-visible:ring-[#168653]/20 active:scale-[0.98]"
+      className="flex min-w-0 flex-col overflow-hidden rounded-lg border border-[#E7E9EC] bg-white outline-none focus-visible:border-[#168653] focus-visible:ring-2 focus-visible:ring-[#168653]/20"
     >
       <div className="relative aspect-square overflow-hidden bg-[#F7F8F9] p-2">
         <img

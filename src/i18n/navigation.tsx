@@ -1,7 +1,8 @@
+/* oxlint-disable react/only-export-components -- Localized navigation helpers share one public module. */
 import { useCallback } from 'react';
 
-import type { NavigateFunction, NavigateOptions, To } from 'react-router';
-import { createPath, parsePath, useLocation, useNavigate } from 'react-router';
+import type { LinkProps, NavLinkProps, NavigateFunction, NavigateOptions, To } from 'react-router';
+import { Link, NavLink, createPath, parsePath, useLocation, useNavigate } from 'react-router';
 
 import type { Locale } from './config';
 import { getLocaleFromPathname, localizePathname } from './routing';
@@ -51,4 +52,14 @@ export function useSwitchLocale() {
       ),
     [location.hash, location.pathname, location.search, navigate],
   );
+}
+
+export function LocalizedLink({ to, ...props }: LinkProps) {
+  const locale = useCurrentLocale();
+  return <Link {...props} to={localizeTo(to, locale)} />;
+}
+
+export function LocalizedNavLink({ to, ...props }: NavLinkProps) {
+  const locale = useCurrentLocale();
+  return <NavLink {...props} to={localizeTo(to, locale)} />;
 }

@@ -5,9 +5,8 @@ import { RouterProvider, createBrowserRouter } from 'react-router';
 
 import { AppErrorFallback } from '@/components/features/AppErrorBoundary';
 import type { RouteTransitionHandle } from '@/components/features/RouteTransition/types';
-import LocaleLayout from '@/i18n/LocaleLayout';
 import { LOCALE_CONFIG, SUPPORTED_LOCALES } from '@/i18n/config';
-import { createLocaleLoader } from '@/i18n/locale-loader';
+import LocaleLayout, { createLocaleLoader } from '@/i18n/locale-route';
 import RootLayout from '@/layout';
 import Goods from '@/pages/Goods';
 import GoodsDetail from '@/pages/GoodsDetail';
