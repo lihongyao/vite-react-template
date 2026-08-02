@@ -18,12 +18,16 @@ const tabHeaders: Record<string, { title: string; description: string }> = {
 export default function RootLayout() {
   const { pathname } = useLocation();
   const header = tabHeaders[pathname] ?? tabHeaders['/'];
+  const isStackPage =
+    pathname.endsWith('/profile') ||
+    pathname.endsWith('/apply') ||
+    /\/goods\/[^/]+$/.test(pathname);
 
   return (
-    <div className="flex h-dvh w-full flex-col overflow-hidden bg-[var(--tab-page-background)]">
-      <AppHeader title={header.title} description={header.description} />
+    <div className="flex min-h-dvh w-full flex-col bg-[var(--tab-page-background)]">
+      {!isStackPage ? <AppHeader title={header.title} description={header.description} /> : null}
       <RouteTransitionOutlet />
-      <TabBar />
+      {!isStackPage ? <TabBar /> : null}
     </div>
   );
 }

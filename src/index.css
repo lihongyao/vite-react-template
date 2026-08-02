@@ -12,6 +12,8 @@
 
 :root {
   --app-max-width: 500px;
+  --app-header-height: calc(76px + env(safe-area-inset-top));
+  --app-tabbar-height: calc(50px + env(safe-area-inset-bottom));
   --tab-page-background: #f9f9f9;
   --secondary-page-background: #f9f9f9;
   --app-surface: var(--tab-page-background);
@@ -20,15 +22,22 @@
 
 html {
   min-height: 100%;
-  background: var(--desktop-canvas);
+  background: #ffffff;
   scrollbar-width: none;
 }
 
 body {
   min-height: 100dvh;
-  background: var(--desktop-canvas);
+  background: #ffffff;
   scrollbar-width: none;
   font-family: var(--font-sans);
+}
+
+@media (min-width: 501px) {
+  html,
+  body {
+    background: var(--desktop-canvas);
+  }
 }
 
 html::-webkit-scrollbar,

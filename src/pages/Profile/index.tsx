@@ -14,7 +14,7 @@ export default function Page() {
   const [messageApi] = message.useMessage();
 
   return (
-    <div className="min-h-dvh bg-[#F4F5F7] text-[#202124]">
+    <div className="bg-[#F4F5F7] text-[#202124]">
       <SecondaryHeader title="Profile" />
       <main className="pb-8">
         <section className="bg-white px-4 py-6">

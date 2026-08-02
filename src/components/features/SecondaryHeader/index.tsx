@@ -6,7 +6,7 @@ export default function SecondaryHeader({ title }: { title: string }) {
 
   return (
     <header className="sticky top-0 z-20 border-b border-[#E8EAED] bg-white/95 pt-[env(safe-area-inset-top)] backdrop-blur-sm">
-      <div className="relative flex h-12 items-center justify-center px-14">
+      <div className="relative flex h-[76px] items-center justify-center px-14">
         <button
           type="button"
           aria-label="返回上一页"

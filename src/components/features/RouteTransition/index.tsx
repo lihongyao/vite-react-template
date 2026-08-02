@@ -1,4 +1,4 @@
-import { createContext, useContext, useLayoutEffect, useRef, useState } from 'react';
+import { createContext, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 
 import type { Variants } from 'motion/react';
@@ -41,6 +41,7 @@ const RouteTransitionContext = createContext<RouteTransitionContextValue>({
 });
 const stackScrollPositions = new Map<string, number>();
 const tabScrollPositions = new Map<string, number>();
+let browserBackGesture = false;
 
 const loadMotionFeatures = () => import('./motion-features').then((module) => module.default);
 
@@ -101,6 +102,36 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
         };
   const { direction, fromSurface, toSurface } = transition;
 
+  useEffect(() => {
+    let startX = 0;
+    let resetTimer: number | undefined;
+
+    const onTouchStart = (event: TouchEvent) => {
+      startX = event.touches[0]?.clientX ?? 0;
+      browserBackGesture = false;
+    };
+    const onTouchMove = (event: TouchEvent) => {
+      const currentX = event.touches[0]?.clientX ?? startX;
+      if (startX <= 32 && currentX - startX > 40) browserBackGesture = true;
+    };
+    const onTouchEnd = () => {
+      window.clearTimeout(resetTimer);
+      resetTimer = window.setTimeout(() => {
+        browserBackGesture = false;
+      }, 800);
+    };
+
+    window.addEventListener('touchstart', onTouchStart, { passive: true });
+    window.addEventListener('touchmove', onTouchMove, { passive: true });
+    window.addEventListener('touchend', onTouchEnd, { passive: true });
+    return () => {
+      window.clearTimeout(resetTimer);
+      window.removeEventListener('touchstart', onTouchStart);
+      window.removeEventListener('touchmove', onTouchMove);
+      window.removeEventListener('touchend', onTouchEnd);
+    };
+  }, []);
+
   useLayoutEffect(() => {
     committedLocationRef.current = {
       historyIndex: currentHistoryIndex,
@@ -143,7 +174,10 @@ export function RouteTransitionOutlet() {
   return (
     <>
       <div
-        className="grid min-h-0 min-w-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)] overflow-hidden bg-[var(--tab-page-background)]"
+        className={cn(
+          'relative min-w-0 flex-1 bg-[var(--tab-page-background)] pb-[var(--app-tabbar-height)]',
+          surface === 'stack' && 'pointer-events-none absolute inset-x-0 top-0 hidden',
+        )}
         data-route-transition="tab"
       >
         {Array.from(tabOutletsRef.current, ([path, cachedOutlet]) => (
@@ -164,8 +198,10 @@ export function RouteTransitionOutlet() {
       </div>
       <div
         className={cn(
-          'pointer-events-none absolute inset-0 z-30 grid grid-cols-1 overflow-hidden',
-          surface === 'stack' ? 'bg-[var(--secondary-page-background)]' : 'bg-transparent',
+          'app-fixed-frame z-30 grid grid-cols-1',
+          surface === 'stack'
+            ? 'relative min-h-dvh bg-[var(--secondary-page-background)]'
+            : 'pointer-events-none absolute inset-x-0 top-0 overflow-hidden bg-transparent',
         )}
         data-route-transition="stack"
       >
@@ -198,19 +234,14 @@ function StackScene({
   surface: RouteTransitionSurface;
 }) {
   const isPresent = useIsPresent();
-  const { direction } = useContext(RouteTransitionContext);
-  const sceneRef = useRef<HTMLDivElement>(null);
+  const { direction, toSurface } = useContext(RouteTransitionContext);
   const zIndex = isPresent ? (direction >= 0 ? 2 : 0) : direction < 0 ? 2 : 0;
 
   useLayoutEffect(() => {
-    const scene = sceneRef.current;
-    if (!scene) return undefined;
-
-    // Each stack scene needs its own viewport so a foreground page cannot move its background.
-    scene.scrollTop = stackScrollPositions.get(scrollKey) ?? 0;
+    window.scrollTo({ top: stackScrollPositions.get(scrollKey) ?? 0, behavior: 'auto' });
 
     return () => {
-      stackScrollPositions.set(scrollKey, scene.scrollTop);
+      stackScrollPositions.set(scrollKey, window.scrollY);
     };
   }, [scrollKey]);
 
@@ -218,17 +249,16 @@ function StackScene({
     <m.div
       animate="animate"
       className={cn(
-        'scrollbar-hidden relative col-start-1 row-start-1 h-dvh min-w-0 overflow-y-auto overscroll-y-contain bg-[var(--secondary-page-background)]',
+        'relative col-start-1 row-start-1 min-h-dvh min-w-0 overflow-visible bg-[var(--secondary-page-background)] [&>*]:min-h-full',
         isPresent ? 'pointer-events-auto' : 'pointer-events-none',
       )}
       custom={motionContext}
       data-route-direction={getDirectionLabel(direction)}
       data-route-present={isPresent ? 'true' : 'false'}
       data-route-surface={surface}
-      exit="exit"
+      exit={toSurface === 'tab' && browserBackGesture ? undefined : 'exit'}
       inert={isPresent ? undefined : true}
       initial="initial"
-      ref={sceneRef}
       style={{
         boxShadow: direction === 0 ? undefined : '-12px 0 28px rgb(0 0 0 / 12%)',
         zIndex,
@@ -253,46 +283,38 @@ function TabScene({
   resetScrollOnActivate: boolean;
   scrollKey: string;
 }) {
-  const sceneRef = useRef<HTMLDivElement>(null);
   const [animatedActive, setAnimatedActive] = useState(false);
 
   useLayoutEffect(() => {
     if (!active) {
+      tabScrollPositions.set(scrollKey, window.scrollY);
       setAnimatedActive(false);
       return undefined;
     }
 
+    const restoreFrame = requestAnimationFrame(() => {
+      window.scrollTo({
+        top: resetScrollOnActivate ? 0 : (tabScrollPositions.get(scrollKey) ?? 0),
+      });
+    });
     const frame = requestAnimationFrame(() => setAnimatedActive(true));
-    return () => cancelAnimationFrame(frame);
-  }, [active]);
-
-  useLayoutEffect(() => {
-    const scene = sceneRef.current;
-    if (!scene) return undefined;
-
-    // Initialize a tab scene only once for its key. The tab shell can be
-    // re-rendered while a stack transition is in flight; resetting here based
-    // on that transient state would wipe the tab's saved scroll position.
-    scene.scrollTop = resetScrollOnActivate ? 0 : (tabScrollPositions.get(scrollKey) ?? 0);
 
     return () => {
-      tabScrollPositions.set(scrollKey, scene.scrollTop);
+      cancelAnimationFrame(restoreFrame);
+      cancelAnimationFrame(frame);
+      if (active) tabScrollPositions.set(scrollKey, window.scrollY);
     };
-  }, [resetScrollOnActivate, scrollKey]);
+  }, [active, resetScrollOnActivate, scrollKey]);
 
   return (
     <m.div
       className={cn(
-        'scrollbar-hidden col-start-1 row-start-1 flex min-h-0 min-w-0 flex-col overflow-y-auto overscroll-y-contain [&>*]:flex-1',
-        !active && 'pointer-events-none',
+        'flex min-h-[calc(100dvh-var(--app-header-height)-var(--app-tabbar-height))] min-w-0 flex-col bg-[var(--tab-page-background)] [&>*]:flex-1',
+        !active && 'pointer-events-none absolute inset-x-0 top-0 hidden',
       )}
       data-route-present={active ? 'true' : 'false'}
       inert={active ? undefined : true}
       initial={false}
-      onScroll={(event) => {
-        tabScrollPositions.set(scrollKey, event.currentTarget.scrollTop);
-      }}
-      ref={sceneRef}
       style={{
         opacity: animatedActive ? 1 : 0,
         transform: animatedActive ? 'scale(1)' : active ? 'scale(0.96)' : 'scale(0.985)',

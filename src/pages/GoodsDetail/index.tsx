@@ -45,11 +45,11 @@ export default function Page() {
   }, [productId]);
 
   return (
-    <div className="min-h-dvh bg-[#F4F5F7] text-[#202124]">
+    <div className="flex flex-col bg-[#F4F5F7] text-[#202124]">
       <SecondaryHeader title="商品详情" />
       {loading ? <GoodsDetailSkeleton /> : null}
       {!loading && error ? (
-        <main className="flex min-h-[calc(100dvh-49px)] items-center justify-center px-6 text-center">
+        <main className="flex flex-1 items-center justify-center px-6 text-center">
           <div>
             <h2 className="text-lg font-bold">无法加载商品</h2>
             <p className="mt-2 text-sm leading-5 text-[#737780]">商品不存在或网络连接异常。</p>

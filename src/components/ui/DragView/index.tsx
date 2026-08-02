@@ -60,17 +60,10 @@ export default memo(function DragView({
   }, [bottom, left, right, top, x, y]);
 
   useEffect(() => {
-    const resetPosition = () => {
-      x.set(0);
-      y.set(0);
-    };
-
-    window.addEventListener('resize', resetPosition);
     return () => {
-      window.removeEventListener('resize', resetPosition);
       if (dragResetTimerRef.current) clearTimeout(dragResetTimerRef.current);
     };
-  }, [x, y]);
+  }, []);
 
   const handleKeyDown = (event: ReactKeyboardEvent<HTMLButtonElement>) => {
     const delta = keyboardDirections[event.key];

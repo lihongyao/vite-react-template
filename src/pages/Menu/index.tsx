@@ -29,7 +29,7 @@ export default function Page() {
   const switchLocale = useSwitchLocale();
 
   return (
-    <main className="min-h-full bg-[#F4F5F7] pb-6 text-[#202124]">
+    <main className="bg-[#F4F5F7] pb-6 text-[#202124]">
       <div className="mx-auto w-full max-w-[720px] px-3 pt-3">
         <section className="flex min-h-32 flex-col justify-end rounded-lg bg-[#163E31] p-5 text-white">
           <span className="text-xs font-bold text-[#9DE0BD]">INVITE & EARN</span>

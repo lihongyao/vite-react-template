@@ -56,7 +56,7 @@ export default function Page() {
   }, []);
 
   return (
-    <main className="min-h-full bg-[#F4F5F7] px-3 pt-5 pb-6 text-[#202124]">
+    <main className="bg-[#F4F5F7] px-3 pt-5 pb-6 text-[#202124]">
       <section aria-labelledby="goods-title">
         <div className="flex items-end justify-between gap-4 px-1">
           <div>

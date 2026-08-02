@@ -19,6 +19,7 @@ import { type Root, createRoot } from 'react-dom/client';
 import { dialogRegistry } from '@/components/features/dialogs';
 import { ZIndex } from '@/constants/z-index';
 import { cn } from '@/libs/class-helpers';
+import { lockDocumentScroll, unlockDocumentScroll } from '@/libs/scroll-lock';
 
 import { DialogContext, setGlobalDialog } from './context';
 
@@ -41,21 +42,9 @@ export type DialogAfterCloseEvent = {
   stayDurationMs: number;
 };
 
-/** 全局可见 Dialog 集合，用于 body scroll 管理 */
-const visibleDialogs = new Set<string>();
-
 const createDialogId = () => `DIALOG_${Math.random().toString(36).slice(2).toUpperCase()}`;
 
 /** 锁住 body 滚动 */
-const lockBodyScroll = () => {
-  document.documentElement.style.overflow = 'hidden';
-};
-
-/** 解锁 body 滚动（只有没有任何弹窗时才解锁） */
-const unlockBodyScroll = () => {
-  if (visibleDialogs.size === 0) document.documentElement.style.overflow = 'auto';
-};
-
 /** 对外暴露的 Ref 方法类型 */
 interface DialogRef {
   setIsExiting: (reason?: DialogCloseReason) => void;
@@ -246,9 +235,6 @@ const DialogComponent = forwardRef<DialogRef, DialogProps>((props, ref) => {
     setIsExiting(false);
     isAnimatingRef.current = false;
 
-    visibleDialogs.delete(instanceId.current);
-    unlockBodyScroll();
-
     const reason = closeReasonRef.current;
     const endAt = Date.now();
     const stayDurationMs =
@@ -259,16 +245,13 @@ const DialogComponent = forwardRef<DialogRef, DialogProps>((props, ref) => {
     afterCloseResolveRef.current?.();
   };
 
-  // 管理全局可见 Dialog 集合，锁滚动
+  // 在可见期间锁定文档滚动，支持多个弹层同时存在
   useEffect(() => {
-    const currentInstanceId = instanceId.current;
     if (visible && !isExiting) {
-      visibleDialogs.add(currentInstanceId);
-      lockBodyScroll();
+      lockDocumentScroll();
     }
     return () => {
-      visibleDialogs.delete(currentInstanceId);
-      unlockBodyScroll();
+      unlockDocumentScroll();
     };
   }, [visible, isExiting]);
 

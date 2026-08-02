@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 
 import Icon from '@/components/ui/Icon';
 import { cn } from '@/libs/class-helpers';
+import { lockDocumentScroll, unlockDocumentScroll } from '@/libs/scroll-lock';
 
 interface IProps {
   visible: boolean;
@@ -31,11 +32,10 @@ export default memo(function Popup({
   useEffect(() => {
     if (!visible) return undefined;
 
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    lockDocumentScroll();
 
     return () => {
-      document.body.style.overflow = previousOverflow;
+      unlockDocumentScroll();
     };
   }, [visible]);
 
@@ -44,7 +44,7 @@ export default memo(function Popup({
   const content = (
     <div
       className={cn(
-        'ui-popup app-fixed-frame fixed inset-y-0 z-[-1] bg-black/0 transition-all duration-[250ms] ease-linear',
+        'ui-popup app-fixed-frame fixed inset-y-0 z-[-1] touch-none overscroll-none bg-black/0 transition-all duration-[250ms] ease-linear',
         visible && 'z-[1700] bg-black/75',
         className,
       )}

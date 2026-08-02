@@ -605,6 +605,19 @@ RUN pnpm build:prod
 
 环境变量类型统一维护在 `src/vite-env.d.ts`。新增变量时，应同时更新对应环境文件、类型声明和本 README。
 
+## 移动端布局与滚动
+
+一级页面和二级页面使用独立的页面壳层：
+
+- 一级页面由公共 `AppHeader`、Tab 内容和底部 `TabBar` 组成。
+- 二级页面只渲染页面自身的 `SecondaryHeader` 和内容，不挂载一级导航。
+- 两类页面都使用 document/body 作为主滚动容器，避免局部滚动容器阻止移动浏览器工具栏自动收缩。
+- 一级页面的滚动位置按 Tab 路径保存，返回 Tab 时恢复；二级页面按路由 key 保存滚动位置。
+
+`Popup` 和 `Dialog` 通过 Portal 挂载到 `document.body`，共享 `src/libs/scroll-lock.ts` 的文档滚动锁。打开时会锁定 `html/body`，并使用 `body { position: fixed }` 保存当前滚动位置，兼容 iOS Safari 的遮罩滚动问题；引用计数保证多个弹层同时存在时不会提前解锁，关闭后恢复原页面滚动位置。弹层内部如果需要滚动，应在内容区域单独设置 `overflow-y-auto` 和 `overscroll-contain`。
+
+移动端 Safari 的主题色在 `index.html` 中通过 `theme-color` 和 iOS 状态栏 meta 配置，`html/body` 在移动端使用白色背景以便浏览器系统工具栏正确取色；桌面端保留灰色 H5 画布背景。
+
 ## 代码质量
 
 提交前 Husky 会运行 lint-staged，对代码执行 Oxlint 自动修复和 Prettier 格式化。CI 建议执行：
