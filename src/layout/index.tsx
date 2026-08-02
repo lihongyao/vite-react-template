@@ -1,31 +1,28 @@
-import { useLocation } from 'react-router';
+import { useMatches } from 'react-router';
 
 import AppHeader from '@/components/features/AppHeader';
 import TabBar from '@/components/features/AppTabBar';
 import { RouteTransitionOutlet } from '@/components/features/RouteTransition';
+import type { RouteTransitionHandle } from '@/components/features/RouteTransition/types';
 
-const tabHeaders: Record<string, { title: string; description: string }> = {
-  '/': { title: 'Agent Center', description: 'Your monthly commission and referral data' },
-  '/goods': { title: 'Goods', description: 'Discover products worth adding to your list' },
-  '/privilege-brand': {
-    title: 'Agent Center',
-    description: 'Your monthly commission and referral data',
-  },
-  '/integral': { title: 'Agent Center', description: 'Your monthly commission and referral data' },
-  '/menu': { title: 'Menu', description: 'Explore services and account options' },
+type AppRouteHandle = RouteTransitionHandle & {
+  header?: { title: string; description: string };
 };
 
 export default function RootLayout() {
-  const { pathname } = useLocation();
-  const header = tabHeaders[pathname] ?? tabHeaders['/'];
-  const isStackPage =
-    pathname.endsWith('/profile') ||
-    pathname.endsWith('/apply') ||
-    /\/goods\/[^/]+$/.test(pathname);
+  const matches = useMatches();
+  const routeHandle = matches
+    .toReversed()
+    .map((match) => match.handle as AppRouteHandle | undefined)
+    .find(Boolean);
+  const isStackPage = routeHandle?.transitionSurface === 'stack';
+  const header = routeHandle?.header;
 
   return (
-    <div className="flex min-h-dvh w-full flex-col bg-[var(--tab-page-background)]">
-      {!isStackPage ? <AppHeader title={header.title} description={header.description} /> : null}
+    <div className="flex min-h-dvh w-full flex-col overflow-x-clip bg-[var(--tab-page-background)]">
+      {!isStackPage && header ? (
+        <AppHeader title={header.title} description={header.description} />
+      ) : null}
       <RouteTransitionOutlet />
       {!isStackPage ? <TabBar /> : null}
     </div>

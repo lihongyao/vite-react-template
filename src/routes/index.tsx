@@ -29,28 +29,51 @@ const stackTransitionHandle = {
   transitionSurface: 'stack',
 } satisfies RouteTransitionHandle;
 
+const tabRouteHandles = {
+  home: {
+    ...tabTransitionHandle,
+    header: { title: 'Agent Center', description: 'Your monthly commission and referral data' },
+  },
+  goods: {
+    ...tabTransitionHandle,
+    header: { title: 'Goods', description: 'Discover products worth adding to your list' },
+  },
+  privilegeBrand: {
+    ...tabTransitionHandle,
+    header: { title: 'Agent Center', description: 'Your monthly commission and referral data' },
+  },
+  integral: {
+    ...tabTransitionHandle,
+    header: { title: 'Agent Center', description: 'Your monthly commission and referral data' },
+  },
+  menu: {
+    ...tabTransitionHandle,
+    header: { title: 'Menu', description: 'Explore services and account options' },
+  },
+} as const;
+
 function createPageRoutes(): RouteObject[] {
   return [
-    { index: true, element: <Home />, handle: tabTransitionHandle },
+    { index: true, element: <Home />, handle: tabRouteHandles.home },
     {
       path: toChildPath(ROUTE_PATHS.Goods),
       element: <Goods />,
-      handle: tabTransitionHandle,
+      handle: tabRouteHandles.goods,
     },
     {
       path: toChildPath(ROUTE_PATHS.PrivilegeBrand),
       element: <PrivilegeBrand />,
-      handle: tabTransitionHandle,
+      handle: tabRouteHandles.privilegeBrand,
     },
     {
       path: toChildPath(ROUTE_PATHS.Integral),
       element: <Integral />,
-      handle: tabTransitionHandle,
+      handle: tabRouteHandles.integral,
     },
     {
       path: toChildPath(ROUTE_PATHS.Menu),
       element: <Menu />,
-      handle: tabTransitionHandle,
+      handle: tabRouteHandles.menu,
     },
   ];
 }

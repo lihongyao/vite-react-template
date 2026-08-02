@@ -1,7 +1,7 @@
 /**
  * Axios 实例、Token、通用请求上下文、请求/响应拦截、业务数据解包、Blob 下载。
  */
-import { type AxiosResponse, type InternalAxiosRequestConfig, create, isAxiosError } from 'axios';
+import { type AxiosResponse, type InternalAxiosRequestConfig, create } from 'axios';
 
 import { authSession } from './auth-session';
 import { notifyApiError } from './error-handler';
@@ -63,12 +63,6 @@ instance.interceptors.response.use(
   (error: unknown) => {
     // 这里只归一化错误并继续抛出，避免调用方或 Query 将失败请求视为成功。
     const apiError = normalizeApiError(error);
-    const requestConfig = isAxiosError(error)
-      ? (error.config as InternalApiRequestConfig | undefined)
-      : undefined;
-
-    if (!requestConfig?.skipAuth && isUnauthorized(apiError)) authSession.expire(apiError);
-
     throw apiError;
   },
 );
