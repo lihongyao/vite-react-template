@@ -1,3 +1,5 @@
+import copy from 'copy-to-clipboard';
+
 import SecondaryHeader from '@/components/features/SecondaryHeader';
 import IconButton from '@/components/ui/Button/IconButton';
 import Icon from '@/components/ui/Icon';
@@ -36,7 +38,10 @@ export default function Page() {
                   title="Copy user ID"
                   className="flex size-8 items-center justify-center active:opacity-60"
                   icon={<Icon name="copy" className="size-4" />}
-                  onClick={() => messageApi.success('复制成功')}
+                  onClick={() => {
+                    void copy('1314210');
+                    messageApi.success('复制成功');
+                  }}
                 />
               </div>
             </div>

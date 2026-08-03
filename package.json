@@ -45,6 +45,7 @@
     "ahooks": "^3.9.7",
     "axios": "^1.18.1",
     "class-variance-authority": "^0.7.1",
+    "copy-to-clipboard": "^4.0.2",
     "i18next": "^26.3.6",
     "immer": "^11.1.15",
     "motion": "^12.42.2",

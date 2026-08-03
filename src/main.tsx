@@ -58,8 +58,8 @@ const router = createAppRouter();
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <SpriteSvgSource />
-    <AppErrorBoundary>
-      <I18nextProvider i18n={i18n}>
+    <I18nextProvider i18n={i18n}>
+      <AppErrorBoundary>
         <NotificationProvider>
           <MessageProvider>
             <DialogProvider>
@@ -72,7 +72,7 @@ createRoot(document.getElementById('root')!).render(
             </DialogProvider>
           </MessageProvider>
         </NotificationProvider>
-      </I18nextProvider>
-    </AppErrorBoundary>
+      </AppErrorBoundary>
+    </I18nextProvider>
   </StrictMode>,
 );

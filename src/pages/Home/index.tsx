@@ -616,6 +616,13 @@ export default function Page() {
               </label>
               <Input id="input-demo-disabled" disabled value="This field is unavailable" />
             </div>
+
+            <div className="grid gap-1.5 py-4">
+              <label htmlFor="input-demo-readOnly" className="text-sm font-medium text-[#4b5563]">
+                readOnly input
+              </label>
+              <Input id="input-demo-readOnly" value="This field is readOnly" readOnly />
+            </div>
           </div>
         </section>
 
