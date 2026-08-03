@@ -68,6 +68,24 @@ body::-webkit-scrollbar,
   transform: translateX(-50%);
 }
 
+/* Keep the sticky app header in place while body-level overlays lock document scrolling. */
+body[data-scroll-locked='true'] .app-header {
+  position: fixed;
+  right: auto;
+  left: 50%;
+  width: min(100vw, var(--app-max-width));
+  transform: translateX(-50%);
+}
+
+.app-header-lock-spacer {
+  display: none;
+}
+
+body[data-scroll-locked='true'] .app-header-lock-spacer {
+  display: block;
+  height: var(--app-header-height);
+}
+
 @media (min-width: 501px) {
   #root {
     box-shadow:
