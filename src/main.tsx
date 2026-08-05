@@ -7,7 +7,6 @@ import './index.css';
 import Schemes from '@likg/schemes';
 import { createRoot } from 'react-dom/client';
 import { I18nextProvider } from 'react-i18next';
-import VConsole from 'vconsole';
 
 import { setApiRequestContextProvider } from './api';
 import SpriteSvgSource from './assets/svg/generated/sprite-svg';
@@ -22,8 +21,13 @@ import { DEFAULT_LOCALE, LOCALE_CONFIG, isLocale } from './i18n/config';
 import i18n, { initializeI18n } from './i18n/instance';
 import AppRoutes, { createAppRouter } from './routes';
 
-// 1. 创建 vConsole 对象
-if (import.meta.env.VITE_APP_ENV !== 'production') {
+// 1. 调试时通过 ?vconsole=1 显式开启，避免调试面板影响真机性能测试。
+const vConsoleEnabled =
+  import.meta.env.VITE_APP_ENV !== 'production' &&
+  new URLSearchParams(window.location.search).get('vconsole') === '1';
+
+if (vConsoleEnabled) {
+  const { default: VConsole } = await import('vconsole');
   const debugConsole = new VConsole();
 
   if (import.meta.hot) {

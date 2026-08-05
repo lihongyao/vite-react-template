@@ -1,3 +1,5 @@
+import { useRef } from 'react';
+
 import { useMatches } from 'react-router';
 
 import AppHeader from '@/components/features/AppHeader';
@@ -5,8 +7,10 @@ import TabBar from '@/components/features/AppTabBar';
 import { RouteTransitionOutlet } from '@/components/features/RouteTransition';
 import type { RouteTransitionHandle } from '@/components/features/RouteTransition/types';
 
+type AppHeaderConfig = { title: string; description: string };
+
 type AppRouteHandle = RouteTransitionHandle & {
-  header?: { title: string; description: string };
+  header?: AppHeaderConfig;
 };
 
 export default function RootLayout() {
@@ -17,14 +21,35 @@ export default function RootLayout() {
     .find(Boolean);
   const isStackPage = routeHandle?.transitionSurface === 'stack';
   const header = routeHandle?.header;
+  const tabHeaderRef = useRef<AppHeaderConfig | undefined>(header);
+
+  if (!isStackPage && header) tabHeaderRef.current = header;
+
+  const tabHeader = isStackPage ? tabHeaderRef.current : header;
 
   return (
-    <div className="flex min-h-dvh w-full flex-col overflow-x-clip bg-[var(--tab-page-background)]">
-      {!isStackPage && header ? (
-        <AppHeader title={header.title} description={header.description} />
+    <div className="relative flex h-dvh min-h-0 w-full flex-col overflow-hidden bg-[var(--tab-page-background)]">
+      {tabHeader ? (
+        <div
+          aria-hidden={isStackPage || undefined}
+          className="shrink-0"
+          data-primary-chrome="header"
+          data-route-present={isStackPage ? 'false' : 'true'}
+          inert={isStackPage ? true : undefined}
+        >
+          <AppHeader title={tabHeader.title} description={tabHeader.description} />
+        </div>
       ) : null}
       <RouteTransitionOutlet />
-      {!isStackPage ? <TabBar /> : null}
+      <div
+        aria-hidden={isStackPage || undefined}
+        className="shrink-0"
+        data-primary-chrome="tabbar"
+        data-route-present={isStackPage ? 'false' : 'true'}
+        inert={isStackPage ? true : undefined}
+      >
+        <TabBar />
+      </div>
     </div>
   );
 }

@@ -3,8 +3,6 @@ import type { Key, KeyboardEvent, ReactNode } from 'react';
 
 import { createPortal } from 'react-dom';
 
-import { m } from 'motion/react';
-
 import { ZIndex } from '@/constants/z-index';
 import { cn } from '@/libs/class-helpers';
 
@@ -179,13 +177,11 @@ function Tabs({
                 </span>
               ) : null}
               {cursor && active ? (
-                <m.span
-                  layoutId={`${tabsId}-indicator`}
+                <span
                   className={cn(
                     'absolute bottom-0 left-1/2 h-1 w-[30px] -translate-x-1/2 rounded-full bg-[#2d46f1]',
                     indicatorClassName,
                   )}
-                  transition={{ duration: 0.18, ease: 'easeOut' }}
                 />
               ) : null}
             </button>

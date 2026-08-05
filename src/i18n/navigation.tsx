@@ -4,6 +4,8 @@ import { useCallback } from 'react';
 import type { LinkProps, NavLinkProps, NavigateFunction, NavigateOptions, To } from 'react-router';
 import { Link, NavLink, createPath, parsePath, useLocation, useNavigate } from 'react-router';
 
+import { markAppHistoryTraversal } from '@/libs/history-navigation';
+
 import type { Locale } from './config';
 import { getLocaleFromPathname, localizePathname } from './routing';
 
@@ -30,8 +32,14 @@ export function useLocalizedNavigate(): NavigateFunction {
   const navigate = useNavigate();
 
   return useCallback<NavigateFunction>(
-    (to: To | number, options?: NavigateOptions) =>
-      typeof to === 'number' ? navigate(to) : navigate(localizeTo(to, locale), options),
+    (to: To | number, options?: NavigateOptions) => {
+      if (typeof to === 'number') {
+        if (to !== 0) markAppHistoryTraversal(to);
+        return navigate(to);
+      }
+
+      return navigate(localizeTo(to, locale), options);
+    },
     [locale, navigate],
   );
 }

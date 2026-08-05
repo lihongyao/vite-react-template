@@ -5,7 +5,7 @@ export default function SecondaryHeader({ title }: { title: string }) {
   const navigate = useLocalizedNavigate();
 
   return (
-    <header className="sticky top-0 z-20 border-b border-[#E8EAED] bg-white/95 pt-[env(safe-area-inset-top)] backdrop-blur-sm">
+    <header className="sticky top-0 z-20 border-b border-[#E8EAED] bg-white pt-[env(safe-area-inset-top)]">
       <div className="relative flex h-[76px] items-center justify-center px-14">
         <button
           type="button"

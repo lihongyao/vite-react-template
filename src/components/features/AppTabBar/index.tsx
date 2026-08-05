@@ -37,7 +37,7 @@ export default memo(function TabBar() {
   return (
     <nav
       aria-label="Primary navigation"
-      className="app-fixed-frame fixed bottom-0 z-20 flex h-[var(--app-tabbar-height)] border-t border-[#eee] bg-white pb-[env(safe-area-inset-bottom)]"
+      className="relative z-20 flex h-[var(--app-tabbar-height)] w-full shrink-0 border-t border-[#eee] bg-white pb-[env(safe-area-inset-bottom)]"
     >
       {tabs.map(({ icon, path, text }) => (
         <LocalizedNavLink
