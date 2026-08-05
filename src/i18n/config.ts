@@ -1,3 +1,5 @@
+import type { ParseKeys } from 'i18next';
+
 export const SUPPORTED_LOCALES = ['en-US', 'zh-CN', 'es', 'pt'] as const;
 
 export type Locale = (typeof SUPPORTED_LOCALES)[number];
@@ -8,6 +10,7 @@ type LocaleConfig = {
   apiLang: number;
 };
 
+export type TKey = ParseKeys;
 export const LOCALE_CONFIG = {
   'en-US': {
     label: 'English',
