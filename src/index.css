@@ -62,10 +62,19 @@ body::-webkit-scrollbar,
 
 /* Keep body-level overlays aligned with the centered H5 canvas on wide screens. */
 .app-fixed-frame {
-  right: auto;
-  left: 50%;
-  width: min(100vw, var(--app-max-width));
-  transform: translateX(-50%);
+  right: 0;
+  left: 0;
+  width: auto;
+  transform: none;
+}
+
+@media (min-width: 501px) {
+  .app-fixed-frame {
+    right: auto;
+    left: 50%;
+    width: var(--app-max-width);
+    transform: translateX(-50%);
+  }
 }
 
 /* Keep the sticky app header in place while body-level overlays lock document scrolling. */

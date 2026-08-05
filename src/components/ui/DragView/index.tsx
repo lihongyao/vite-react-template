@@ -45,7 +45,7 @@ export default memo(function DragView({
   ariaLabel = 'Draggable control',
   onPress,
 }: DragViewProps) {
-  const constraintsRef = useRef<HTMLDivElement>(null);
+  const frameRef = useRef<HTMLDivElement>(null);
   const controlRef = useRef<HTMLButtonElement>(null);
   const draggedRef = useRef(false);
   const dragResetTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -65,23 +65,50 @@ export default memo(function DragView({
     };
   }, []);
 
+  // Ref constraints rescale Motion values on viewport resize, so clamp only while dragging.
+  const keepControlInFrame = () => {
+    const control = controlRef.current;
+    const frame = frameRef.current;
+    if (!control || !frame) return;
+
+    const controlRect = control.getBoundingClientRect();
+    const frameRect = frame.getBoundingClientRect();
+    let nextX = x.get();
+    let nextY = y.get();
+
+    if (controlRect.left < frameRect.left) {
+      nextX += frameRect.left - controlRect.left;
+    } else if (controlRect.right > frameRect.right) {
+      nextX += frameRect.right - controlRect.right;
+    }
+
+    if (controlRect.top < frameRect.top) {
+      nextY += frameRect.top - controlRect.top;
+    } else if (controlRect.bottom > frameRect.bottom) {
+      nextY += frameRect.bottom - controlRect.bottom;
+    }
+
+    x.set(nextX);
+    y.set(nextY);
+  };
+
   const handleKeyDown = (event: ReactKeyboardEvent<HTMLButtonElement>) => {
     const delta = keyboardDirections[event.key];
     const control = controlRef.current;
-    const constraints = constraintsRef.current;
-    if (!delta || !control || !constraints) return;
+    const frame = frameRef.current;
+    if (!delta || !control || !frame) return;
 
     event.preventDefault();
     const controlRect = control.getBoundingClientRect();
-    const constraintsRect = constraints.getBoundingClientRect();
+    const frameRect = frame.getBoundingClientRect();
     const currentX = x.get();
     const currentY = y.get();
     const baseLeft = controlRect.left - currentX;
     const baseTop = controlRect.top - currentY;
-    const minX = constraintsRect.left - baseLeft;
-    const maxX = constraintsRect.right - baseLeft - controlRect.width;
-    const minY = constraintsRect.top - baseTop;
-    const maxY = constraintsRect.bottom - baseTop - controlRect.height;
+    const minX = frameRect.left - baseLeft;
+    const maxX = frameRect.right - baseLeft - controlRect.width;
+    const minY = frameRect.top - baseTop;
+    const maxY = frameRect.bottom - baseTop - controlRect.height;
 
     x.set(Math.min(Math.max(currentX + delta.x, minX), maxX));
     y.set(Math.min(Math.max(currentY + delta.y, minY), maxY));
@@ -98,7 +125,7 @@ export default memo(function DragView({
 
   return createPortal(
     <div
-      ref={constraintsRef}
+      ref={frameRef}
       className="app-fixed-frame pointer-events-none fixed inset-y-0"
       style={{ zIndex }}
     >
@@ -106,8 +133,6 @@ export default memo(function DragView({
         ref={controlRef}
         type="button"
         drag
-        dragConstraints={constraintsRef}
-        dragElastic={0}
         dragMomentum={false}
         aria-label={ariaLabel}
         aria-roledescription="draggable"
@@ -123,6 +148,7 @@ export default memo(function DragView({
           if (!draggedRef.current) onPress?.();
         }}
         onDragEnd={() => {
+          keepControlInFrame();
           setDragging(false);
           dragResetTimerRef.current = setTimeout(() => {
             draggedRef.current = false;
@@ -133,6 +159,7 @@ export default memo(function DragView({
           draggedRef.current = true;
           setDragging(true);
         }}
+        onDrag={keepControlInFrame}
         onKeyDown={handleKeyDown}
       >
         {children}
