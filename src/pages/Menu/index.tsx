@@ -1,11 +1,4 @@
-import DataPicker from '@/components/ui/DataPicker';
-import { LOCALE_CONFIG, SUPPORTED_LOCALES } from '@/i18n/config';
-import { useCurrentLocale, useSwitchLocale } from '@/i18n/navigation';
-
-const localeOptions = SUPPORTED_LOCALES.map((value) => ({
-  label: LOCALE_CONFIG[value].label,
-  value,
-}));
+import LanguageSwitcher from '@/components/features/LanguageSwitcher';
 
 const quickLinks = ['Popular', 'Favorites', 'Recent'];
 const exploreLinks = ['VIP Club', 'Bonus', 'Rewards', 'Tournaments'];
@@ -25,9 +18,6 @@ function MenuRow({ label, trailing }: { label: string; trailing?: React.ReactNod
 }
 
 export default function Page() {
-  const locale = useCurrentLocale();
-  const switchLocale = useSwitchLocale();
-
   return (
     <main className="bg-[#F4F5F7] pb-6 text-[#202124]">
       <div className="mx-auto w-full max-w-[720px] px-3 pt-3">
@@ -79,28 +69,7 @@ export default function Page() {
           {supportLinks.map((label) => (
             <MenuRow key={label} label={label} />
           ))}
-          <MenuRow
-            label="Language"
-            trailing={
-              <DataPicker
-                title="Language"
-                items={localeOptions}
-                closeAriaLabel="Close language picker"
-                triggerClassName="flex min-h-10 items-center gap-2 text-sm text-[#737780]"
-                renderItem={(option) => (
-                  <span className={option.value === locale ? 'font-semibold text-[#168653]' : ''}>
-                    {option.label}
-                  </span>
-                )}
-                onClick={(option) => void switchLocale(option.value)}
-              >
-                <span>{LOCALE_CONFIG[locale].label}</span>
-                <span aria-hidden className="text-lg leading-none text-[#B3B8C1]">
-                  ›
-                </span>
-              </DataPicker>
-            }
-          />
+          <MenuRow label="Language" trailing={<LanguageSwitcher />} />
         </section>
       </div>
     </main>

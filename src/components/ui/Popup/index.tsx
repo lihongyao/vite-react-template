@@ -1,4 +1,4 @@
-import { memo, useEffect } from 'react';
+import { memo, useEffect, useLayoutEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
 
 import { createPortal } from 'react-dom';
@@ -28,6 +28,9 @@ export default memo(function Popup({
   closeOnClickOverlay = true,
   onClose,
 }: IProps) {
+  const popupRef = useRef<HTMLDivElement>(null);
+  const returnFocusRef = useRef<HTMLElement | null>(null);
+
   /** 阻止显示时页面可拖拽 */
   useEffect(() => {
     if (!visible) return undefined;
@@ -39,16 +42,39 @@ export default memo(function Popup({
     };
   }, [visible]);
 
+  useLayoutEffect(() => {
+    if (visible) {
+      const activeElement = document.activeElement;
+      if (activeElement instanceof HTMLElement && !popupRef.current?.contains(activeElement)) {
+        returnFocusRef.current = activeElement;
+      }
+      return;
+    }
+
+    const returnFocusElement = returnFocusRef.current;
+    returnFocusRef.current = null;
+
+    if (returnFocusElement?.isConnected) {
+      returnFocusElement.focus({ preventScroll: true });
+      return;
+    }
+
+    const activeElement = document.activeElement;
+    if (activeElement instanceof HTMLElement && popupRef.current?.contains(activeElement)) {
+      activeElement.blur();
+    }
+  }, [visible]);
+
   const close = () => onClose(false);
 
   const content = (
     <div
+      ref={popupRef}
       className={cn(
         'ui-popup app-fixed-frame fixed inset-y-0 z-[-1] touch-none overscroll-none bg-black/0 transition-all duration-[250ms] ease-linear',
         visible && 'z-[1700] bg-black/75',
         className,
       )}
-      aria-hidden={!visible}
       inert={!visible ? true : undefined}
     >
       <button

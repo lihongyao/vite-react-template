@@ -36,21 +36,25 @@ export function useLocalizedNavigate(): NavigateFunction {
   );
 }
 
-export function useSwitchLocale() {
+export function useSwitchLocale(to?: To) {
   const location = useLocation();
   const navigate = useNavigate();
 
   return useCallback(
     (locale: Locale, options?: NavigateOptions) =>
       navigate(
-        {
-          pathname: localizePathname(location.pathname, locale),
-          search: location.search,
-          hash: location.hash,
-        },
+        localizeTo(
+          to ??
+            ({
+              pathname: location.pathname,
+              search: location.search,
+              hash: location.hash,
+            } satisfies To),
+          locale,
+        ),
         options,
       ),
-    [location.hash, location.pathname, location.search, navigate],
+    [location.hash, location.pathname, location.search, navigate, to],
   );
 }
 
