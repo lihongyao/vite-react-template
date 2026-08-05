@@ -6,7 +6,7 @@
 
 - React 19、React Router 8、TypeScript 6、Vite 8
 - Tailwind CSS 4、Fontsource Variable Fonts、SVG Sprite 与 SVGR
-- 原生 CSS `transform`/`opacity` 路由动画与独立页面滚动容器
+- 原生 CSS `transform`/`opacity` 路由动画与文档级滚动恢复
 - i18next、react-i18next
 - Zustand、Immer、持久化中间件
 - Axios 统一请求层
@@ -327,7 +327,7 @@ LocaleLayout                     # 激活当前语言并提供转场上下文
 
 页面通过 route handle 声明所属表面：一级页使用 `transitionSurface: 'tab'`，二级页使用 `transitionSurface: 'stack'`。`RouteTransitionProvider` 根据 React Router 的 `location.key`、navigation type 和 `window.history.state.idx` 计算本次导航的来源、目标与方向，`RouteTransitionOutlet` 再把 Router 生成的 Outlet 分配给对应场景。
 
-`RootLayout` 是所有页面的共同父布局，固定结构为 `AppHeader -> RouteTransitionOutlet -> AppTabBar`。进入二级页时，Stack scene 以 fixed 层覆盖整个 H5 视口，一级页 Header、Tab 内容和 TabBar 仍完整挂载在底层，只被遮盖并设置为 `inert`。因此返回时不需要重新创建一级导航，也不会出现内容先显示、Header 稍后覆盖的闪烁。一级页 Header 配置与对应 route handle 一起维护在 `src/routes/index.tsx` 的 `tabRouteHandles` 中。
+`RootLayout` 是所有页面的共同父布局，固定结构为 `AppHeader -> RouteTransitionOutlet -> AppTabBar`。进入二级页时，Stack scene 在 push/pop 动画期间以 fixed 前景层覆盖整个 H5 视口，动画结束后回到普通文档流；一级页 Header 和 Tab 内容仍完整挂载在底层，Tab scene 在二级页期间作为 fixed underlay 保留，并设置为 `inert`。因此返回时不需要重新创建一级导航，也不会出现内容先显示、Header 稍后覆盖的闪烁。一级页 Header 配置与对应 route handle 一起维护在 `src/routes/index.tsx` 的 `tabRouteHandles` 中。
 
 ### 场景缓存与动画规则
 
@@ -341,7 +341,7 @@ LocaleLayout                     # 激活当前语言并提供转场上下文
 缓存规则如下：
 
 - 已访问的 Tab 按 pathname 缓存在内存中，后续切换只改变可见性，不卸载页面。组件的局部 state 和以“组件首次挂载”为触发条件的请求都会保留；依赖全局状态或定时器主动发起的请求仍由业务代码自行控制。
-- Stack scene 按 history location key 缓存，一个 history entry 对应一个独立页面实例和独立滚动容器。二级页继续进入二级页、再逐级返回时，各层位置都会保留。
+- Stack scene 按 history location key 缓存，一个 history entry 对应一个独立页面实例和独立滚动位置。二级页继续进入二级页、再逐级返回时，各层位置都会保留；只有转场动画期间，当前 Stack scene 才会临时变成 fixed scrollport。
 - 用户返回后再 push 新页面时，会清理已失效的 forward Stack scene，保持缓存与浏览器历史分支一致。
 - 不可见场景设置 `inert`、`aria-hidden`、`visibility: hidden` 和禁用指针事件，不参与点击或焦点导航。
 - 页面内需要 Portal 到 `document.body` 的常驻控件必须读取 `RouteScenePresentContext`，只在所属场景 present 时渲染。`DragView` 已按此规则实现，避免缓存页产生重复悬浮控件。
@@ -637,18 +637,19 @@ RUN pnpm build:prod
 
 ## 移动端布局与滚动
 
-应用采用“固定视口 + 场景内滚动”，不再使用 document/body 作为业务页面的主滚动容器：
+应用使用浏览器 document/body 作为稳定的主滚动容器，内容自然撑起页面高度。这样 iOS Safari 和 Android Chrome 可以正常参与地址栏、工具栏的展开与收缩，同时避免固定视口内部滚动带来的手势和视口高度问题：
 
-- `html`、`body` 和 `#root` 固定为视口高度并设置 `overflow: hidden`，`RootLayout` 使用 `100dvh` 纵向 flex 布局。
-- 一级页公共 Header 和 TabBar 是固定 flex 区域，中间的 Tab scene 容器占据剩余空间。
-- 每个 Tab/Stack scene 都是独立的原生 `overflow-y: auto` 容器，并启用 `-webkit-overflow-scrolling: touch`、`overscroll-behavior-y: contain` 和 `touch-action: pan-y`。
-- Tab 切换时目标页 `scrollTop` 立即归零；从二级页返回一级页时不重置，因此会恢复进入二级页前的位置。
-- 新 push 的二级页初始位于顶部；返回或前进到已经存在的 Stack history entry 时，其滚动位置由仍然挂载的容器自然保留，不执行 `window.scrollTo()`。
-- 场景使用 `contain: layout paint` 限制布局和绘制影响范围，滚动条在视觉上隐藏，但仍保留触摸、鼠标滚轮和键盘滚动能力。
+- `html`、`body` 和 `#root` 只设置最小高度，不锁定页面高度，也不设置根级 `overflow: hidden`；一级页和二级页内容按文档流自然布局。
+- 一级页公共 Header 使用 sticky，底部 TabBar 使用 fixed；两者都通过 `.app-fixed-frame` 与桌面宽屏下最大 500px 的 H5 画布对齐。
+- 一级页 Tab scene 按 pathname 保活。切换 Tab 时目标页置顶，但不会重新挂载已访问页面，也不会重复触发首次加载请求。
+- Stack scene 按 history location key 保活。进入二级页时目标页从文档顶部开始；返回或前进到已有 history entry 时，路由层通过 `window.scrollTo()` 恢复该 entry 的文档滚动位置。
+- 二级页 push/pop 动画期间，参与动画的 Stack scene 临时使用 fixed scrollport，并在动画结束后立即回到普通文档流；这个临时层只用于避免 Header、内容和滚动位置在转场中错帧。
+- 二级页显示期间，已访问的一级 Tab scene 会以 fixed underlay 保留在 Stack 下方，并带上进入二级页前的滚动偏移；浏览器手势返回时可以直接看到一级页底层，不会出现白板。
+- 不可见场景设置 `inert`、`aria-hidden` 和 `display: none`，避免缓存页面参与点击、焦点和布局。
 
-业务页面不要读取 `window.scrollY`、调用 `window.scrollTo()`，也不要给页面根节点增加第二层纵向滚动。需要监听页面位置时，应获取当前 `.route-scroll-container`，或在业务内容中使用 `IntersectionObserver`。全屏 fixed/Portal 控件在桌面宽屏下应继续使用 `.app-fixed-frame`，使其和最大宽度为 500px 的 H5 画布对齐。
+业务页面不要自行创建第二层纵向滚动容器，也不要在路由切换相关逻辑中主动读取或写入 `window.scrollY`/`window.scrollTo()`；滚动位置由 `RouteTransitionOutlet` 统一管理。业务内容内需要观察可见性时，优先使用 `IntersectionObserver`。弹层内部如果确实需要独立滚动，应只在弹层内容区域设置 `overflow-y-auto` 和 `overscroll-contain`。
 
-`Popup` 和 `Dialog` 通过 Portal 挂载到 `document.body`，共享 `src/libs/scroll-lock.ts` 的滚动锁。锁开启时，`body[data-scroll-locked='true']` 会同时禁用所有 route scene 的纵向滚动；引用计数保证多个弹层同时存在时不会提前解锁。弹层内部如果需要滚动，应在内容区域单独设置 `overflow-y-auto` 和 `overscroll-contain`。
+`Popup` 和 `Dialog` 通过 Portal 挂载到 `document.body`，共享 `src/libs/scroll-lock.ts` 的滚动锁。锁开启时，`body[data-scroll-locked='true']` 会禁用文档滚动，并把公共 Header 临时固定在当前 H5 画布顶部；引用计数保证多个弹层同时存在时不会提前解锁。弹层内部如果需要滚动，应在内容区域单独设置 `overflow-y-auto` 和 `overscroll-contain`。
 
 移动端 Safari 的主题色在 `index.html` 中通过 `theme-color` 和 iOS 状态栏 meta 配置，`html/body` 在移动端使用白色背景以便浏览器系统工具栏正确取色；桌面端保留灰色 H5 画布背景。
 

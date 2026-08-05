@@ -1,22 +1,36 @@
-.route-scroll-container {
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: contain;
-  scrollbar-width: none;
-  touch-action: pan-y;
+.route-tab-host {
+  min-height: calc(100svh - var(--app-header-height));
+  padding-bottom: var(--app-tabbar-height);
+  background: var(--tab-page-background);
 }
 
-.route-scroll-container::-webkit-scrollbar {
-  display: none;
+.route-tab-host-underlay {
+  position: fixed;
+  inset: var(--app-header-height) 0 0;
+  z-index: 0;
+  min-height: 0;
+  overflow: hidden;
+  padding-bottom: 0;
+  pointer-events: none;
+}
+
+@media (min-width: 501px) {
+  .route-tab-host-underlay {
+    right: auto;
+    left: 50%;
+    width: var(--app-max-width);
+    margin-left: calc(var(--app-max-width) / -2);
+  }
 }
 
 .route-tab-scene,
 .route-stack-scene {
-  position: absolute;
-  inset: 0;
   min-width: 0;
-  overflow-x: hidden;
-  overflow-y: auto;
-  contain: layout paint;
+}
+
+.route-tab-scene,
+.route-stack-flow {
+  min-height: inherit;
 }
 
 .route-tab-scene {
@@ -24,15 +38,38 @@
 }
 
 .route-stack-scene {
-  pointer-events: none;
-  visibility: visible;
   background: var(--secondary-page-background);
-  transform: translate3d(0, 0, 0);
+}
+
+.route-stack-flow {
+  position: relative;
+  z-index: 30;
+  min-height: 100svh;
+}
+
+.root-layout-has-primary-header .route-stack-flow {
+  margin-top: calc(0px - var(--app-header-height));
+}
+
+.route-stack-fixed {
+  position: fixed;
+  inset-block: 0;
+  z-index: 40;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  scrollbar-width: none;
+  touch-action: none;
+  contain: layout paint;
+  -webkit-overflow-scrolling: touch;
+}
+
+.route-stack-fixed::-webkit-scrollbar {
+  display: none;
 }
 
 .route-scene-hidden {
-  pointer-events: none;
-  visibility: hidden;
+  display: none;
 }
 
 .route-scene-visible,
@@ -41,12 +78,8 @@
   visibility: visible;
 }
 
-.route-stack-active {
-  z-index: 2;
-}
-
-.route-stack-underlay {
-  z-index: 1;
+.route-stack-source {
+  pointer-events: none;
 }
 
 .route-tab-enter {
@@ -58,7 +91,6 @@
 
 .route-stack-enter,
 .route-stack-exit {
-  z-index: 2;
   animation-duration: 230ms;
   animation-fill-mode: both;
   animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
@@ -74,7 +106,7 @@
   animation-name: route-stack-pop-out;
 }
 
-body[data-scroll-locked='true'] .route-scroll-container {
+body[data-scroll-locked='true'] .route-stack-fixed {
   overflow-y: hidden;
 }
 
@@ -110,6 +142,7 @@ body[data-scroll-locked='true'] .route-scroll-container {
 @media (prefers-reduced-motion: reduce) {
   .route-tab-enter {
     animation: none;
+    will-change: auto;
   }
 
   .route-stack-enter,

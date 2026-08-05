@@ -27,9 +27,6 @@ export function lockDocumentScroll() {
 
   document.documentElement.style.overflow = 'hidden';
   document.body.setAttribute('data-scroll-locked', 'true');
-  document.body.style.position = 'fixed';
-  document.body.style.top = `-${scrollY}px`;
-  document.body.style.width = '100%';
   document.body.style.overflow = 'hidden';
 }
 
@@ -48,7 +45,7 @@ export function unlockDocumentScroll() {
   } else {
     document.body.setAttribute('data-scroll-locked', previousScrollLockedAttribute);
   }
-  window.scrollTo(0, scrollY);
+  if (window.scrollY !== scrollY) window.scrollTo(0, scrollY);
   previousBodyStyles = null;
   previousScrollLockedAttribute = null;
 }

@@ -6,6 +6,7 @@ import AppHeader from '@/components/features/AppHeader';
 import TabBar from '@/components/features/AppTabBar';
 import { RouteTransitionOutlet } from '@/components/features/RouteTransition';
 import type { RouteTransitionHandle } from '@/components/features/RouteTransition/types';
+import { cn } from '@/libs/class-helpers';
 
 type AppHeaderConfig = { title: string; description: string };
 
@@ -28,11 +29,16 @@ export default function RootLayout() {
   const tabHeader = isStackPage ? tabHeaderRef.current : header;
 
   return (
-    <div className="relative flex h-dvh min-h-0 w-full flex-col overflow-hidden bg-[var(--tab-page-background)]">
+    <div
+      className={cn(
+        'relative min-h-svh w-full bg-[var(--tab-page-background)]',
+        tabHeader && 'root-layout-has-primary-header',
+      )}
+    >
       {tabHeader ? (
         <div
           aria-hidden={isStackPage || undefined}
-          className="shrink-0"
+          className="sticky top-0 z-20"
           data-primary-chrome="header"
           data-route-present={isStackPage ? 'false' : 'true'}
           inert={isStackPage ? true : undefined}
@@ -43,7 +49,7 @@ export default function RootLayout() {
       <RouteTransitionOutlet />
       <div
         aria-hidden={isStackPage || undefined}
-        className="shrink-0"
+        className="app-fixed-frame fixed bottom-0 z-20"
         data-primary-chrome="tabbar"
         data-route-present={isStackPage ? 'false' : 'true'}
         inert={isStackPage ? true : undefined}
