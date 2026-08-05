@@ -21,10 +21,8 @@ import { DEFAULT_LOCALE, LOCALE_CONFIG, isLocale } from './i18n/config';
 import i18n, { initializeI18n } from './i18n/instance';
 import AppRoutes, { createAppRouter } from './routes';
 
-// 1. 调试时通过 ?vconsole=1 显式开启，避免调试面板影响真机性能测试。
-const vConsoleEnabled =
-  import.meta.env.VITE_APP_ENV !== 'production' &&
-  new URLSearchParams(window.location.search).get('vconsole') === '1';
+// 1. URL 中存在 debug 参数时显式开启调试面板。
+const vConsoleEnabled = new URLSearchParams(window.location.search).has('debug');
 
 if (vConsoleEnabled) {
   const { default: VConsole } = await import('vconsole');
