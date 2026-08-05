@@ -1,11 +1,12 @@
 # Vite React H5 Template
 
-一个面向移动端 H5 的 React 项目模板，基于 Vite、TypeScript 和 Tailwind CSS。项目内置多环境构建、多语言路由、统一 API 请求层、全局状态、错误边界、通知组件，以及微信和 Telegram WebView 的基础适配能力。
+一个面向移动端 H5 的 React 项目模板，基于 Vite、TypeScript 和 Tailwind CSS。项目内置多环境构建、多语言路由、原生 CSS 页面转场、Tab/Stack 场景缓存、统一 API 请求层、全局状态、错误边界、通知组件，以及微信和 Telegram WebView 的基础适配能力。
 
 ## 技术栈
 
 - React 19、React Router 8、TypeScript 6、Vite 8
 - Tailwind CSS 4、Fontsource Variable Fonts、SVG Sprite 与 SVGR
+- 原生 CSS `transform`/`opacity` 路由动画与独立页面滚动容器
 - i18next、react-i18next
 - Zustand、Immer、持久化中间件
 - Axios 统一请求层
@@ -92,7 +93,7 @@ src/
 ├── assets/
 │   └── svg/              # SVG source、生成组件、Sprite 和图标类型
 ├── components/
-│   ├── features/         # 带业务或应用语义的组件
+│   ├── features/         # 带业务或应用语义的组件，包括路由场景管理
 │   └── ui/               # 通用 UI 组件，包括统一 Icon 入口
 ├── constants/            # 全局常量
 ├── i18n/                 # 语言资源、路由本地化和导航工具
@@ -185,8 +186,8 @@ Sprite 图标预览页会生成到 `public/sprite-preview.html`，首页的 Inte
 ```text
 StrictMode
 ├── SpriteSvgSource
-└── AppErrorBoundary
-    └── I18nextProvider
+└── I18nextProvider
+    └── AppErrorBoundary
         └── NotificationProvider
             └── MessageProvider
                 └── DialogProvider
@@ -202,7 +203,7 @@ StrictMode
 - `ApiErrorReporter` 将 API 层抛出的非 401 错误接入 notification 或 Dialog Tips。
 - `AppEnvGuard` 根据 `VITE_APP_SOURCE` 校验运行来源，并通过 Context 向启动流程提供只检测一次的运行环境。
 - `AppStartup` 统一协调平台授权、公共初始化、启动错误重试和业务路由挂载。
-- 非生产环境会启用 vConsole，方便移动端调试。
+- URL 查询参数中存在 `debug` 时才会按需加载 vConsole，例如 `?debug` 或 `?debug=1`；该行为不区分开发、QA 和生产环境，普通 URL 不会请求 vConsole 模块。
 
 ### 构建来源与运行环境
 
@@ -316,27 +317,40 @@ const appInitializers: AppInitializer[] = [initializeGlobalConfig];
 ```text
 LocaleLayout                     # 激活当前语言并提供转场上下文
 └── RootLayout                   # 一级页和二级页共同的持久布局
-    ├── AppHeader                # 一级页公共 Header
+    ├── AppHeader                # 已进入一级页后持续挂载的公共 Header
     ├── RouteTransitionOutlet    # 单一 Outlet 消费者，管理 Tab/Stack 场景
-    ├── AppTabBar                # 一级页公共底部导航
+    ├── AppTabBar                # 始终挂载的一级页公共底部导航
     └── routes
-        ├── Tab routes           # Home、Goods、Privilege、Integral、Profile
-        ├── apply                # Stack 页面
-        ├── goods/:id            # Stack 动态详情页
-        └── *                    # Stack 404 页面
+        ├── Tab routes           # Home、Goods、Privilege、Integral、Menu
+        └── Stack routes         # Profile、Apply、GoodsDetail、NotFound 等二级页
 ```
 
-Tab 页面使用 `transitionSurface: 'tab'`，一级页之间使用淡入缩放动画，不产生页面入栈效果；普通二级页使用 `transitionSurface: 'stack'`，按页面栈方向执行前进和返回动画。
+页面通过 route handle 声明所属表面：一级页使用 `transitionSurface: 'tab'`，二级页使用 `transitionSurface: 'stack'`。`RouteTransitionProvider` 根据 React Router 的 `location.key`、navigation type 和 `window.history.state.idx` 计算本次导航的来源、目标与方向，`RouteTransitionOutlet` 再把 Router 生成的 Outlet 分配给对应场景。
 
-`RootLayout` 是所有页面的共同父布局。一级页的固定结构是 `AppHeader -> RouteTransitionOutlet -> AppTabBar`；二级页由 Stack scene 覆盖整个视口，因此不会显示底层的 Header 和 TabBar。一级页标题配置集中在 `src/layout/index.tsx` 的 `tabHeaders` 中。
+`RootLayout` 是所有页面的共同父布局，固定结构为 `AppHeader -> RouteTransitionOutlet -> AppTabBar`。进入二级页时，Stack scene 以 fixed 层覆盖整个 H5 视口，一级页 Header、Tab 内容和 TabBar 仍完整挂载在底层，只被遮盖并设置为 `inert`。因此返回时不需要重新创建一级导航，也不会出现内容先显示、Header 稍后覆盖的闪烁。一级页 Header 配置与对应 route handle 一起维护在 `src/routes/index.tsx` 的 `tabRouteHandles` 中。
 
-`RouteTransitionOutlet` 只读取一次 React Router `Outlet`，再根据 route handle 分配到 Tab 或 Stack 场景：
+### 场景缓存与动画规则
 
-- 已访问的 Tab 页面按 pathname 持久挂载。切换一级页不会卸载组件，因此接口数据和局部 state 会保留；每次从一个一级页切换到另一个一级页时，目标页滚动位置重置为顶部。
-- Stack 页面按 history location key 创建 scene。一级页进入二级页后，底层一级页保持挂载；返回一级页时恢复离开前的滚动位置。
-- 二级页进入另一个二级页时，每个 history entry 分别保存滚动位置；返回上一层二级页时恢复该 entry 的位置。
-- 非活动 Tab scene 使用 `inert` 并禁用指针事件，不参与交互和焦点导航。
-- 用户开启减少动态效果时，转场会使用最短动画时长。
+| 导航场景                      | 实现                                           | 动画                                                     | 滚动行为                        |
+| ----------------------------- | ---------------------------------------------- | -------------------------------------------------------- | ------------------------------- |
+| Tab -> Tab                    | 旧 Tab 首帧直接隐藏，目标 Tab 保持或首次挂载   | 目标页在 150ms 内从 `scale(0.96)`、`opacity: 0` 放大淡入 | 目标 Tab 置顶                   |
+| Tab/Stack -> 新 Stack         | 来源场景保留为静态底图，只动画新建的顶层 Stack | 230ms `translate3d(100%, 0, 0)` 推入                     | 新页面从顶部开始                |
+| Stack -> 上一页（程序内返回） | 目标场景保持静止，只动画当前顶层 Stack         | 230ms `translate3d(100%, 0, 0)` 推出                     | 恢复目标 history entry 原有位置 |
+| 浏览器手势/浏览器历史返回     | 底层目标已提前挂载，跳过自定义 Stack 动画      | 使用 Safari/Chrome 自身的历史手势效果，避免双重动画      | 恢复目标场景原有位置            |
+
+缓存规则如下：
+
+- 已访问的 Tab 按 pathname 缓存在内存中，后续切换只改变可见性，不卸载页面。组件的局部 state 和以“组件首次挂载”为触发条件的请求都会保留；依赖全局状态或定时器主动发起的请求仍由业务代码自行控制。
+- Stack scene 按 history location key 缓存，一个 history entry 对应一个独立页面实例和独立滚动容器。二级页继续进入二级页、再逐级返回时，各层位置都会保留。
+- 用户返回后再 push 新页面时，会清理已失效的 forward Stack scene，保持缓存与浏览器历史分支一致。
+- 不可见场景设置 `inert`、`aria-hidden`、`visibility: hidden` 和禁用指针事件，不参与点击或焦点导航。
+- 页面内需要 Portal 到 `document.body` 的常驻控件必须读取 `RouteScenePresentContext`，只在所属场景 present 时渲染。`DragView` 已按此规则实现，避免缓存页产生重复悬浮控件。
+
+动画只使用合成友好的 `transform` 和 `opacity`。`will-change` 仅在 150ms/230ms 动画期间启用，`animationend` 后立即释放，并带有 400ms fallback 防止异常动画事件让页面停留在过渡态。底层页面、Header 和 TabBar 不做位移动画；`prefers-reduced-motion` 开启时会关闭 Tab 动画并把 Stack 动画缩短到 1ms。
+
+路由转场不依赖 Motion 等 JavaScript 动画运行时。维护时不要给场景新增逐帧 React state、滚动监听驱动动画、背景页缩放、blur 或大面积 box-shadow，这些操作会增加移动端合成和重绘成本。
+
+### 路径与导航约定
 
 `ROUTE_PATHS` 保存不带语言前缀的应用内绝对路径和动态路径模式，是 Router、TabBar 和站内链接的唯一业务路径来源。`TAB_ROUTE_PATHS` 和 `PAGE_ROUTE_PATHS` 只用于按页面类型组织路径；业务代码通常直接使用合并后的 `ROUTE_PATHS`。语言前缀继续由 `LocalizedLink`、`LocalizedNavLink` 和 `useLocalizedNavigate` 自动处理，不应写入路径常量。
 
@@ -344,40 +358,51 @@ Tab 页面使用 `transitionSurface: 'tab'`，一级页之间使用淡入缩放�
 
 React Router 的嵌套子路由需要相对 `path`，使用 `toChildPath(ROUTE_PATHS.Xxx)` 从 canonical 绝对路径转换。首页 `/` 始终使用 `index: true`，类型上也不允许将它传给 `toChildPath`。
 
-### 添加普通页面
+站内前进使用 `LocalizedLink`、`LocalizedNavLink` 或 `useLocalizedNavigate`。程序内返回必须使用 `useLocalizedNavigate()` 返回的函数执行 `navigate(-1)`；该封装会标记这是应用主动触发的 history traversal，从而执行自定义 pop 动画。不要直接从 React Router 获取 `useNavigate()` 执行数字返回，否则这次导航会被识别为浏览器历史返回并跳过自定义动画。`SecondaryHeader` 已使用正确的封装。
+
+### 添加路由页面
 
 1. 在 `src/pages/<PageName>/index.tsx` 创建并默认导出页面组件。
-2. 在 `src/routes/paths.ts` 的 `PAGE_ROUTE_PATHS` 中添加 canonical 绝对路径。
+2. 在 `src/routes/paths.ts` 中添加 canonical 绝对路径：一级页放入 `TAB_ROUTE_PATHS`，二级页放入 `PAGE_ROUTE_PATHS`。
 3. 在 `src/routes/index.tsx` 引入页面，并用 `toChildPath(ROUTE_PATHS.Xxx)` 将路由添加到 `RootLayout` 的 `children` 中。
-4. 非首屏页面可以通过 `lazy` 按需加载；使用 `lazy` 时，页面会由现有转场出口内的 `Suspense` 处理加载状态。
+4. 明确设置 `handle: tabTransitionHandle` 或 `handle: stackTransitionHandle`，不要依赖默认 surface。未声明或声明错误会影响缓存、导航层级和动画方向。
+5. 非首屏页面可以通过 `lazy` 按需加载。首访期间的动态模块加载可能延迟新 scene 提交和动画起始，核心二级页应结合实际网络环境决定是否预加载；如需显示 fallback，必须保证其尺寸稳定，避免加载完成时发生布局跳动。
 
 ### 添加 Tab 页
 
 Tab 页会显示底部导航栏，需要同时修改路由和 TabBar：
 
 1. 将 canonical 绝对路径加入 `src/routes/paths.ts` 的 `TAB_ROUTE_PATHS`。
-2. 将页面路由加入 `createPageRoutes()`，并设置 `handle: tabTransitionHandle`。
-3. 在 `src/components/features/AppTabBar/index.tsx` 的 `tabs` 中引用对应的 `ROUTE_PATHS` 成员，并添加标题和图标。
-4. 在 `src/layout/index.tsx` 的 `tabHeaders` 中添加公共 Header 的标题和描述。
-5. Tab 页面自身不要再渲染 `AppHeader` 或 `AppTabBar`。
-6. TabBar 继续使用 `LocalizedNavLink`，不要手动拼接语言前缀。
+2. 在 `src/routes/index.tsx` 的 `tabRouteHandles` 中配置 `transitionSurface`、Header 标题和描述。
+3. 将页面路由加入 `createPageRoutes()`，并引用对应的 handle。
+4. 在 `src/components/features/AppTabBar/index.tsx` 的 `tabs` 中引用对应的 `ROUTE_PATHS` 成员，并添加标题和图标。
+5. Tab 页面自身不要再渲染 `AppHeader`、`AppTabBar` 或新的根滚动容器。
+6. TabBar 继续使用带 `replace` 的 `LocalizedNavLink`，不要手动拼接语言前缀。Tab 切换使用 replace，避免把一级页选择堆叠成需要逐项返回的 history entry。
 
 ```tsx
 // src/routes/index.tsx
-{ path: toChildPath(ROUTE_PATHS.Orders), element: <Orders />, handle: tabTransitionHandle }
+const tabRouteHandles = {
+  orders: {
+    ...tabTransitionHandle,
+    header: { title: 'Orders', description: 'Review and manage your orders' },
+  },
+};
+
+{
+  path: toChildPath(ROUTE_PATHS.Orders),
+  element: <Orders />,
+  handle: tabRouteHandles.orders,
+}
 
 // src/components/features/AppTabBar/index.tsx
 { path: ROUTE_PATHS.Orders, text: 'Orders', icon: 'orders' }
-
-// src/layout/index.tsx
-'/orders': { title: 'Orders', description: 'Review and manage your orders' }
 ```
 
 首页是 `createPageRoutes()` 中的 `index: true` 路由，对应 TabBar 的 `/`。
 
 ### 添加普通二级页
 
-普通二级页也添加到 `RootLayout` 的 `children`，并设置 `handle: stackTransitionHandle`。它们会由 `RouteTransitionOutlet` 作为前景 Stack scene 覆盖整个视口，不会显示一级页的 Header 和 TabBar：
+普通二级页也添加到 `RootLayout` 的 `children`，并设置 `handle: stackTransitionHandle`。它们会由 `RouteTransitionOutlet` 作为前景 Stack scene 覆盖整个视口；底层一级页继续保持挂载，但不可交互：
 
 ```tsx
 {
@@ -387,7 +412,7 @@ Tab 页会显示底部导航栏，需要同时修改路由和 TabBar：
 }
 ```
 
-页面可以通过 `useParams()` 读取动态参数，并使用 `SecondaryHeader` 提供统一的返回栏。若页面需要从任意入口打开，使用 `LocalizedLink` 或 `useLocalizedNavigate`：
+页面可以通过 `useParams()` 读取动态参数，并使用 `SecondaryHeader` 提供统一的返回栏。新二级页不要自己实现手势识别或监听页面边缘触摸；浏览器原生历史手势由路由场景层统一处理。若页面需要从任意入口打开，使用 `LocalizedLink` 或 `useLocalizedNavigate`：
 
 ```tsx
 <LocalizedLink to={generatePath(ROUTE_PATHS.OrderDetail, { id: String(order.id) })}>
@@ -398,7 +423,12 @@ const navigate = useLocalizedNavigate();
 navigate(generatePath(ROUTE_PATHS.OrderDetail, { id: String(order.id) }));
 ```
 
-站内跳转应优先使用 `LocalizedLink`、`LocalizedNavLink` 和 `useLocalizedNavigate`，避免丢失当前语言前缀。只有返回上一页这类历史记录操作需要直接使用 React Router 的 `navigate(-1)`。
+二级页返回同样使用 `useLocalizedNavigate`：
+
+```tsx
+const navigate = useLocalizedNavigate();
+navigate(-1);
+```
 
 ## API 与状态管理
 
@@ -607,16 +637,30 @@ RUN pnpm build:prod
 
 ## 移动端布局与滚动
 
-一级页面和二级页面使用独立的页面壳层：
+应用采用“固定视口 + 场景内滚动”，不再使用 document/body 作为业务页面的主滚动容器：
 
-- 一级页面由公共 `AppHeader`、Tab 内容和底部 `TabBar` 组成。
-- 二级页面只渲染页面自身的 `SecondaryHeader` 和内容，不挂载一级导航。
-- 两类页面都使用 document/body 作为主滚动容器，避免局部滚动容器阻止移动浏览器工具栏自动收缩。
-- 一级页面的滚动位置按 Tab 路径保存，返回 Tab 时恢复；二级页面按路由 key 保存滚动位置。
+- `html`、`body` 和 `#root` 固定为视口高度并设置 `overflow: hidden`，`RootLayout` 使用 `100dvh` 纵向 flex 布局。
+- 一级页公共 Header 和 TabBar 是固定 flex 区域，中间的 Tab scene 容器占据剩余空间。
+- 每个 Tab/Stack scene 都是独立的原生 `overflow-y: auto` 容器，并启用 `-webkit-overflow-scrolling: touch`、`overscroll-behavior-y: contain` 和 `touch-action: pan-y`。
+- Tab 切换时目标页 `scrollTop` 立即归零；从二级页返回一级页时不重置，因此会恢复进入二级页前的位置。
+- 新 push 的二级页初始位于顶部；返回或前进到已经存在的 Stack history entry 时，其滚动位置由仍然挂载的容器自然保留，不执行 `window.scrollTo()`。
+- 场景使用 `contain: layout paint` 限制布局和绘制影响范围，滚动条在视觉上隐藏，但仍保留触摸、鼠标滚轮和键盘滚动能力。
 
-`Popup` 和 `Dialog` 通过 Portal 挂载到 `document.body`，共享 `src/libs/scroll-lock.ts` 的文档滚动锁。打开时会锁定 `html/body`，并使用 `body { position: fixed }` 保存当前滚动位置，兼容 iOS Safari 的遮罩滚动问题；引用计数保证多个弹层同时存在时不会提前解锁，关闭后恢复原页面滚动位置。弹层内部如果需要滚动，应在内容区域单独设置 `overflow-y-auto` 和 `overscroll-contain`。
+业务页面不要读取 `window.scrollY`、调用 `window.scrollTo()`，也不要给页面根节点增加第二层纵向滚动。需要监听页面位置时，应获取当前 `.route-scroll-container`，或在业务内容中使用 `IntersectionObserver`。全屏 fixed/Portal 控件在桌面宽屏下应继续使用 `.app-fixed-frame`，使其和最大宽度为 500px 的 H5 画布对齐。
+
+`Popup` 和 `Dialog` 通过 Portal 挂载到 `document.body`，共享 `src/libs/scroll-lock.ts` 的滚动锁。锁开启时，`body[data-scroll-locked='true']` 会同时禁用所有 route scene 的纵向滚动；引用计数保证多个弹层同时存在时不会提前解锁。弹层内部如果需要滚动，应在内容区域单独设置 `overflow-y-auto` 和 `overscroll-contain`。
 
 移动端 Safari 的主题色在 `index.html` 中通过 `theme-color` 和 iOS 状态栏 meta 配置，`html/body` 在移动端使用白色背景以便浏览器系统工具栏正确取色；桌面端保留灰色 H5 画布背景。
+
+### 真机性能验收
+
+路由动画最终以 iOS Safari 和 Android Chrome 真机为准。开发服务器的 HMR、React StrictMode 和调试工具会放大主线程开销，性能验收应同时覆盖 QA/production 构建。建议至少验证：
+
+1. 连续切换多个 Tab，确认旧页立即消失、目标页置顶且首次加载后不再出现请求骨架。
+2. 在长列表中滚动后进入二级页，再分别使用顶部返回按钮和浏览器右滑/历史返回，确认底层 Header、内容和滚动位置没有闪烁。
+3. 从二级页继续进入另一二级页，逐层返回并使用浏览器前进，确认每个 history entry 的滚动位置独立保留。
+4. 动画结束后检查活动 scene 已移除 `route-tab-enter`/`route-stack-enter`/`route-stack-exit`，且 `animation-name: none`、`will-change: auto`，避免长期保留临时动画提示。
+5. 默认关闭 vConsole 进行性能测试；只有需要现场调试时才在 URL 增加 `debug` 参数。
 
 ## 代码质量
 
