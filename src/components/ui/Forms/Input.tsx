@@ -93,6 +93,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           {...inputProps}
           aria-describedby={describedBy || undefined}
           aria-invalid={hasError || ariaInvalid || undefined}
+          autoComplete="off"
           className={cn(
             'h-full min-w-0 flex-1 bg-transparent text-base text-inherit outline-none placeholder:text-[#9ca3af] disabled:cursor-not-allowed',
             className,
