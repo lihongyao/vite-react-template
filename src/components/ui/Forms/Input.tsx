@@ -111,7 +111,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           aria-invalid={hasError || ariaInvalid || undefined}
           autoComplete="off"
           className={cn(
-            'h-full min-w-0 flex-1 bg-transparent text-base text-inherit outline-none placeholder:text-[#9ca3af] disabled:cursor-not-allowed',
+            'h-full min-w-0 flex-1 bg-transparent text-[13px] text-inherit outline-none placeholder:text-[#9AA7A2] disabled:cursor-not-allowed [&:-webkit-autofill]:shadow-none [&:-webkit-autofill]:[-webkit-text-fill-color:#fff] [&:-webkit-autofill]:[transition:background-color_9999s_ease-out_0s]',
             className,
           )}
           defaultValue={defaultValue}
