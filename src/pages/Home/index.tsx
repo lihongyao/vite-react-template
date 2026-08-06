@@ -564,7 +564,13 @@ export default function Page() {
               <label htmlFor="input-demo-basic" className="text-sm font-medium text-[#4b5563]">
                 Basic input
               </label>
-              <Input id="input-demo-basic" allowClear placeholder="Type something..." />
+              <Input
+                id="input-demo-basic"
+                allowClear
+                description="This description appears below the input."
+                descriptionClassName="text-[#0f766e]"
+                placeholder="Type something..."
+              />
             </div>
 
             <div className="grid gap-1.5 border-b border-[#e5e7eb] py-4">

@@ -9,10 +9,12 @@ export interface InputProps extends NativeInputProps {
   prefix?: ReactNode;
   suffix?: ReactNode;
   error?: ReactNode;
+  description?: ReactNode;
   allowClear?: boolean;
   rootClassName?: string;
   wrapperClassName?: string;
   errorClassName?: string;
+  descriptionClassName?: string;
   onClear?: () => void;
 }
 
@@ -24,10 +26,12 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
     prefix,
     suffix,
     error,
+    description,
     allowClear = false,
     rootClassName,
     wrapperClassName,
     errorClassName,
+    descriptionClassName,
     className,
     defaultValue,
     value,
@@ -45,9 +49,21 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   const inputRef = useRef<HTMLInputElement>(null);
   const [uncontrolledValue, setUncontrolledValue] = useState(defaultValue);
   const hasError = error !== undefined && error !== null && error !== false && error !== '';
+  const hasDescription =
+    description !== undefined &&
+    description !== null &&
+    description !== false &&
+    description !== '';
   const hasValue = hasInputValue(value === undefined ? uncontrolledValue : value);
   const errorId = `${generatedId}-error`;
-  const describedBy = [ariaDescribedBy, hasError ? errorId : undefined].filter(Boolean).join(' ');
+  const descriptionId = `${generatedId}-description`;
+  const describedBy = [
+    ariaDescribedBy,
+    hasError ? errorId : undefined,
+    hasDescription ? descriptionId : undefined,
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   const setInputRef = useCallback(
     (input: HTMLInputElement | null) => {
@@ -132,6 +148,15 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           className={cn('mt-1.5 text-sm leading-5 text-[#dc2626]', errorClassName)}
         >
           {error}
+        </div>
+      ) : null}
+
+      {hasDescription ? (
+        <div
+          id={descriptionId}
+          className={cn('mt-1.5 text-sm leading-5 text-[#6b7280]', descriptionClassName)}
+        >
+          {description}
         </div>
       ) : null}
     </div>
