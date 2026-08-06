@@ -365,8 +365,6 @@ function StackScene({
         mode === 'active' && 'route-stack-active',
         mode === 'source' && 'route-stack-source',
         fixed && 'app-fixed-frame route-stack-fixed',
-        mode === 'enter' && 'route-stack-enter',
-        mode === 'exit' && 'route-stack-exit',
         mode === 'hidden' && 'route-scene-hidden',
       )}
       data-route-mode={mode}
@@ -375,11 +373,19 @@ function StackScene({
       data-route-scene-key={sceneKey}
       data-route-surface="stack"
       inert={present ? undefined : true}
-      onAnimationEnd={handleAnimationEnd}
     >
-      <RouteScenePresentContext.Provider value={present}>
-        {children}
-      </RouteScenePresentContext.Provider>
+      <div
+        className={cn(
+          'route-stack-panel',
+          mode === 'enter' && 'route-stack-enter',
+          mode === 'exit' && 'route-stack-exit',
+        )}
+        onAnimationEnd={handleAnimationEnd}
+      >
+        <RouteScenePresentContext.Provider value={present}>
+          {children}
+        </RouteScenePresentContext.Provider>
+      </div>
     </div>
   );
 }

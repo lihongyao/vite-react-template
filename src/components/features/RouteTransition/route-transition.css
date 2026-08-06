@@ -37,7 +37,8 @@
   background: var(--tab-page-background);
 }
 
-.route-stack-scene {
+.route-stack-panel {
+  min-height: inherit;
   background: var(--secondary-page-background);
 }
 
@@ -62,6 +63,10 @@
   touch-action: none;
   contain: layout paint;
   -webkit-overflow-scrolling: touch;
+}
+
+.route-stack-fixed .route-stack-panel {
+  min-height: 100svh;
 }
 
 .route-stack-fixed::-webkit-scrollbar {
