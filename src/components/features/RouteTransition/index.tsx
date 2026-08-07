@@ -188,7 +188,8 @@ export function RouteTransitionOutlet() {
   const outlet = useOutlet();
   const surface = useRouteTransitionSurface();
   const currentHistoryIndex = readHistoryIndex();
-  const tabSceneRef = useRef<TabSceneEntry | null>(null);
+  const tabScenesRef = useRef(new Map<string, TabSceneEntry>());
+  const activeTabPathRef = useRef<string | null>(null);
   const stackScenesRef = useRef(new Map<string, StackSceneEntry>());
   const handledTransitionTokenRef = useRef(0);
   const restoredDocumentLocationKeyRef = useRef<string | null>(null);
@@ -196,9 +197,8 @@ export function RouteTransitionOutlet() {
 
   if (transition.token > handledTransitionTokenRef.current) {
     if (transition.fromSurface === 'tab') {
-      if (tabSceneRef.current?.pathname === transition.fromPathname) {
-        tabSceneRef.current.scrollTop = transition.fromScrollY;
-      }
+      const sourceEntry = tabScenesRef.current.get(transition.fromPathname);
+      if (sourceEntry) sourceEntry.scrollTop = transition.fromScrollY;
     } else {
       const sourceEntry = stackScenesRef.current.get(transition.fromKey);
       if (sourceEntry) sourceEntry.scrollTop = transition.fromScrollY;
@@ -207,12 +207,13 @@ export function RouteTransitionOutlet() {
   }
 
   if (surface === 'tab') {
-    if (tabSceneRef.current?.pathname !== location.pathname) {
-      tabSceneRef.current = {
+    activeTabPathRef.current = location.pathname;
+    if (!tabScenesRef.current.has(location.pathname)) {
+      tabScenesRef.current.set(location.pathname, {
         node: outlet,
         pathname: location.pathname,
         scrollTop: 0,
-      };
+      });
     }
   } else if (!stackScenesRef.current.has(location.key)) {
     if (transition.navigationType === NavigationType.Push && currentHistoryIndex !== null) {
@@ -231,6 +232,9 @@ export function RouteTransitionOutlet() {
     });
   }
 
+  const activeTabPath = activeTabPathRef.current;
+  const activeTabScene = activeTabPath ? (tabScenesRef.current.get(activeTabPath) ?? null) : null;
+
   const transitionPending =
     transition.token > 0 && settledStackTransitionToken !== transition.token;
   const pushTransition =
@@ -244,20 +248,13 @@ export function RouteTransitionOutlet() {
     transition.direction < 0 &&
     transition.fromSurface === 'stack';
   const tabHostVisible = surface === 'tab' || (pushTransition && transition.fromSurface === 'tab');
-  const tabHostUnderlay = surface === 'stack' && tabSceneRef.current !== null;
-  const tabUnderlayScrollTop = tabSceneRef.current?.scrollTop ?? 0;
-  const tabTransitionId =
-    surface === 'tab' &&
-    tabTransition?.toPath === location.pathname &&
-    tabTransition.fromPath !== tabTransition.toPath
-      ? tabTransition.id
-      : null;
+  const tabHostUnderlay = surface === 'stack' && activeTabScene !== null;
+  const tabUnderlayScrollTop = activeTabScene?.scrollTop ?? 0;
   const targetScrollTop = getTargetDocumentScrollTop({
     locationKey: location.key,
     stackScenes: stackScenesRef.current,
     surface,
-    tabScene: tabSceneRef.current,
-    transition,
+    tabScene: activeTabScene,
   });
 
   useEffect(() => {
@@ -292,6 +289,7 @@ export function RouteTransitionOutlet() {
           !tabHostVisible && !tabHostUnderlay && 'route-scene-hidden',
         )}
         data-route-transition="tab"
+        data-tab-cache-size={tabScenesRef.current.size}
         inert={tabHostVisible ? undefined : true}
         style={
           tabHostUnderlay
@@ -299,16 +297,28 @@ export function RouteTransitionOutlet() {
             : undefined
         }
       >
-        {tabSceneRef.current ? (
-          <TabScene
-            key={tabSceneRef.current.pathname}
-            present={surface === 'tab' && !popTransition}
-            scrollKey={tabSceneRef.current.pathname}
-            transitionId={tabTransitionId}
-          >
-            {tabSceneRef.current.node}
-          </TabScene>
-        ) : null}
+        {Array.from(tabScenesRef.current.values(), (entry) => {
+          const visible = entry.pathname === activeTabPath;
+          const transitionId =
+            visible &&
+            surface === 'tab' &&
+            tabTransition?.toPath === location.pathname &&
+            tabTransition.fromPath !== tabTransition.toPath
+              ? tabTransition.id
+              : null;
+
+          return (
+            <TabScene
+              key={entry.pathname}
+              present={visible && surface === 'tab' && !popTransition}
+              scrollKey={entry.pathname}
+              transitionId={transitionId}
+              visible={visible}
+            >
+              {entry.node}
+            </TabScene>
+          );
+        })}
       </div>
 
       <div data-route-transition="stack">
@@ -345,22 +355,21 @@ function TabScene({
   present,
   scrollKey,
   transitionId,
+  visible,
 }: {
   children: ReactNode;
   present: boolean;
   scrollKey: string;
   transitionId: number | null;
+  visible: boolean;
 }) {
   const { completeTabTransition } = useTabRouteTransition();
   const motionProfileRef = useRef<TabMotionProfile | null>(null);
   motionProfileRef.current ??= resolveTabMotionProfile();
   const motionProfile = motionProfileRef.current;
-  const shouldAnimate = transitionId !== null && motionProfile.level !== 'reduced';
-  const [animationPhase, setAnimationPhase] = useState<TabAnimationPhase>(() =>
-    shouldAnimate ? 'prepare' : 'idle',
-  );
+  const [animationPhase, setAnimationPhase] = useState<TabAnimationPhase>('idle');
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (transitionId === null) return undefined;
 
     if (motionProfile.level === 'reduced') {
@@ -368,6 +377,7 @@ function TabScene({
       return undefined;
     }
 
+    setAnimationPhase('prepare');
     const animationFrame = window.requestAnimationFrame(() => {
       setAnimationPhase('enter');
     });
@@ -381,6 +391,11 @@ function TabScene({
       window.clearTimeout(fallbackTimer);
     };
   }, [completeTabTransition, motionProfile.level, transitionId]);
+
+  const renderedAnimationPhase =
+    transitionId !== null && motionProfile.level !== 'reduced' && animationPhase === 'idle'
+      ? 'prepare'
+      : animationPhase;
 
   const handleAnimationEnd = (event: AnimationEvent<HTMLDivElement>) => {
     if (
@@ -400,8 +415,9 @@ function TabScene({
       aria-hidden={present ? undefined : true}
       className={cn(
         'route-tab-scene',
-        animationPhase === 'prepare' && 'route-tab-enter-prepare',
-        animationPhase === 'enter' && 'route-tab-enter',
+        !visible && 'route-scene-hidden',
+        renderedAnimationPhase === 'prepare' && 'route-tab-enter-prepare',
+        renderedAnimationPhase === 'enter' && 'route-tab-enter',
       )}
       data-route-path={scrollKey}
       data-route-present={present ? 'true' : 'false'}
@@ -510,18 +526,15 @@ function getTargetDocumentScrollTop({
   stackScenes,
   surface,
   tabScene,
-  transition,
 }: {
   locationKey: string;
   stackScenes: Map<string, StackSceneEntry>;
   surface: RouteTransitionSurface;
   tabScene: TabSceneEntry | null;
-  transition: RouteTransitionContextValue;
 }) {
   if (surface === 'stack') return stackScenes.get(locationKey)?.scrollTop ?? 0;
 
-  const returningFromStack = transition.fromSurface === 'stack' && transition.direction < 0;
-  return returningFromStack ? (tabScene?.scrollTop ?? 0) : 0;
+  return tabScene?.scrollTop ?? 0;
 }
 
 function resolveTabMotionProfile(): TabMotionProfile {

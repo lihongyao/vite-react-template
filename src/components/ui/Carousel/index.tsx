@@ -1,9 +1,12 @@
+import { useContext, useEffect, useRef } from 'react';
 import type { Key, ReactNode } from 'react';
 
+import type { Swiper as SwiperInstance } from 'swiper';
 import { A11y, Autoplay, Keyboard, Pagination } from 'swiper/modules';
 import type { SwiperProps } from 'swiper/react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 
+import { RouteScenePresentContext } from '@/components/features/RouteTransition/route-scene-context';
 import { cn } from '@/libs/class-helpers';
 
 import './index.css';
@@ -46,6 +49,20 @@ export default function Carousel<T>({
   ...swiperProps
 }: CarouselProps<T>) {
   const hasMultipleItems = items.length > 1;
+  const isRouteScenePresent = useContext(RouteScenePresentContext);
+  const swiperRef = useRef<SwiperInstance | null>(null);
+  const autoplayEnabled = autoPlay && hasMultipleItems && isRouteScenePresent;
+
+  useEffect(() => {
+    const autoplay = swiperRef.current?.autoplay;
+    if (!autoplay) return;
+
+    if (autoplayEnabled) {
+      autoplay.start();
+    } else {
+      autoplay.stop();
+    }
+  }, [autoplayEnabled]);
 
   if (items.length === 0) return emptyContent;
 
@@ -73,6 +90,10 @@ export default function Carousel<T>({
       keyboard={hasMultipleItems ? { enabled: true, onlyInViewport: true } : false}
       loop={loop && hasMultipleItems}
       modules={carouselModules}
+      onSwiper={(swiper) => {
+        swiperRef.current = swiper;
+        swiperProps.onSwiper?.(swiper);
+      }}
       pagination={
         showPagination && hasMultipleItems
           ? {
