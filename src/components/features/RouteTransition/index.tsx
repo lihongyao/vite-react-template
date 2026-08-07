@@ -255,6 +255,7 @@ export function RouteTransitionOutlet() {
     stackScenes: stackScenesRef.current,
     surface,
     tabScene: activeTabScene,
+    transition,
   });
 
   useEffect(() => {
@@ -526,15 +527,18 @@ function getTargetDocumentScrollTop({
   stackScenes,
   surface,
   tabScene,
+  transition,
 }: {
   locationKey: string;
   stackScenes: Map<string, StackSceneEntry>;
   surface: RouteTransitionSurface;
   tabScene: TabSceneEntry | null;
+  transition: RouteTransitionContextValue;
 }) {
   if (surface === 'stack') return stackScenes.get(locationKey)?.scrollTop ?? 0;
 
-  return tabScene?.scrollTop ?? 0;
+  const returningFromStack = transition.fromSurface === 'stack' && transition.direction < 0;
+  return returningFromStack ? (tabScene?.scrollTop ?? 0) : 0;
 }
 
 function resolveTabMotionProfile(): TabMotionProfile {
