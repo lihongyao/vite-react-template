@@ -36,15 +36,18 @@ export default function RootLayout() {
       )}
     >
       {tabHeader ? (
-        <div
-          aria-hidden={isStackPage || undefined}
-          className="sticky top-0 z-20"
-          data-primary-chrome="header"
-          data-route-present={isStackPage ? 'false' : 'true'}
-          inert={isStackPage ? true : undefined}
-        >
-          <AppHeader title={tabHeader.title} description={tabHeader.description} />
-        </div>
+        <>
+          <div
+            aria-hidden={isStackPage || undefined}
+            className="sticky top-0 z-20"
+            data-primary-chrome="header"
+            data-route-present={isStackPage ? 'false' : 'true'}
+            inert={isStackPage ? true : undefined}
+          >
+            <AppHeader title={tabHeader.title} description={tabHeader.description} />
+          </div>
+          <div aria-hidden className="app-header-lock-spacer" />
+        </>
       ) : null}
       <RouteTransitionOutlet />
       <div

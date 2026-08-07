@@ -48,6 +48,15 @@ body[data-scroll-locked='true'] [data-primary-chrome='header'] {
   top: 0;
 }
 
+.app-header-lock-spacer {
+  display: none;
+}
+
+body[data-scroll-locked='true'] .app-header-lock-spacer {
+  display: block;
+  height: calc(var(--app-header-height) + 1px);
+}
+
 @media (min-width: 501px) {
   html,
   body {

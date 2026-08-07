@@ -1,7 +1,11 @@
 import { memo } from 'react';
 
+import { useLocation } from 'react-router';
+
+import { useTabRouteTransition } from '@/components/features/RouteTransition/tab-transition-context';
 import Icon, { type IconName } from '@/components/ui/Icon';
-import { LocalizedNavLink } from '@/i18n/navigation';
+import { LocalizedNavLink, useCurrentLocale } from '@/i18n/navigation';
+import { localizePathname } from '@/i18n/routing';
 import { cn } from '@/libs/class-helpers';
 import { ROUTE_PATHS, type TabRoutePath } from '@/routes/paths';
 
@@ -34,6 +38,10 @@ const tabs = [
 ] satisfies Array<{ path: TabRoutePath; text: string; icon: IconName }>;
 
 export default memo(function TabBar() {
+  const locale = useCurrentLocale();
+  const location = useLocation();
+  const { beginTabTransition } = useTabRouteTransition();
+
   return (
     <nav
       aria-label="Primary navigation"
@@ -46,6 +54,26 @@ export default memo(function TabBar() {
           }
           end
           key={path}
+          onClick={(event) => {
+            if (
+              event.defaultPrevented ||
+              event.button !== 0 ||
+              event.metaKey ||
+              event.altKey ||
+              event.ctrlKey ||
+              event.shiftKey
+            ) {
+              return;
+            }
+
+            const targetPath = localizePathname(path, locale);
+            if (location.pathname === targetPath) {
+              event.preventDefault();
+              return;
+            }
+
+            beginTabTransition(location.pathname, targetPath);
+          }}
           replace
           to={path}
         >

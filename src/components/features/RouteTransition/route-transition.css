@@ -87,11 +87,31 @@
   pointer-events: none;
 }
 
+.route-tab-enter-prepare,
 .route-tab-enter {
-  animation: route-tab-scale-in 150ms cubic-bezier(0.22, 1, 0.36, 1) both;
   backface-visibility: hidden;
-  transform-origin: 50% 50%;
+  transform-origin: 50% 50vh;
   will-change: transform, opacity;
+}
+
+.route-tab-enter-prepare {
+  opacity: 0;
+  transform: scale(0.98);
+}
+
+.route-tab-enter {
+  animation: route-tab-scale-in 250ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.route-tab-enter-prepare[data-tab-motion='basic'] {
+  opacity: 0.82;
+  transform: none;
+}
+
+.route-tab-enter[data-tab-motion='basic'] {
+  animation-duration: 180ms;
+  animation-name: route-tab-fade-in;
+  will-change: opacity;
 }
 
 .route-stack-enter,
@@ -118,11 +138,20 @@ body[data-scroll-locked='true'] .route-stack-fixed {
 @keyframes route-tab-scale-in {
   from {
     opacity: 0;
-    transform: scale(0.96);
+    transform: scale(0.98);
   }
   to {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+@keyframes route-tab-fade-in {
+  from {
+    opacity: 0.82;
+  }
+  to {
+    opacity: 1;
   }
 }
 
@@ -145,8 +174,15 @@ body[data-scroll-locked='true'] .route-stack-fixed {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .route-tab-enter-prepare {
+    opacity: 1;
+    transform: none;
+    will-change: auto;
+  }
+
   .route-tab-enter {
-    animation: none;
+    animation-duration: 0.01ms;
+    animation-name: route-tab-fade-in;
     will-change: auto;
   }
 
