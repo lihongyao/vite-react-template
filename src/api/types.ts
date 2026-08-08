@@ -23,7 +23,7 @@ export interface ApiRequestConfig<D = unknown> extends AxiosRequestConfig<D> {
   errorHandling?: ApiErrorHandling;
   // 响应格式，默认为 base-response
   responseMode?: ApiResponseMode;
-  // 是否跳过鉴权（不需要 token 的接口）
+  // 是否跳过鉴权
   skipAuth?: boolean;
 }
 

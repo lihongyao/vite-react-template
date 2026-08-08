@@ -10,7 +10,7 @@ export async function authenticateTelegram(signal: AbortSignal): Promise<void> {
 
   console.log('initData >>> ', initData);
 
-  // const { token } = await telegramAuthApi.loginOnce({ initData });
+  // const { token } = await telegramAuthApi.login({ initData });
   // authSession.setToken(token);
 
   // 临时模拟登录耗时，接入真实 Telegram 登录接口后删除。
