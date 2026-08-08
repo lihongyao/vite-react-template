@@ -1,6 +1,6 @@
 import type { ParseKeys } from 'i18next';
 
-export const SUPPORTED_LOCALES = ['en-US', 'zh-CN', 'es', 'pt'] as const;
+export const SUPPORTED_LOCALES = ['en', 'zh', 'es', 'pt'] as const;
 
 export type Locale = (typeof SUPPORTED_LOCALES)[number];
 
@@ -12,12 +12,12 @@ type LocaleConfig = {
 
 export type TKey = ParseKeys;
 export const LOCALE_CONFIG = {
-  'en-US': {
+  en: {
     label: 'English',
     pathPrefix: '',
     apiLang: 1,
   },
-  'zh-CN': {
+  zh: {
     label: '简体中文',
     pathPrefix: 'zh',
     apiLang: 4,
@@ -34,7 +34,14 @@ export const LOCALE_CONFIG = {
   },
 } as const satisfies Record<Locale, LocaleConfig>;
 
-export const DEFAULT_LOCALE: Locale = 'en-US';
+export const DEFAULT_LOCALE: Locale = 'en';
+
+export const localeMap: Record<string, string> = {
+  en: 'en-US',
+  pt: 'pt-BR',
+  es: 'es-CO',
+  zh: 'zh-CN',
+};
 
 export function isLocale(value: string): value is Locale {
   return Object.hasOwn(LOCALE_CONFIG, value);

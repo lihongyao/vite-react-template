@@ -12,6 +12,8 @@ import { cn } from '@/libs/class-helpers';
 import '@daypicker/react/style.css';
 import './styles.css';
 
+import Button from '../Button';
+
 export type CalendarSelectRange = DateRange;
 
 export interface CalendarSelectLabels {
@@ -139,10 +141,10 @@ const defaultLabels: CalendarSelectLabels = {
 };
 
 const dayPickerLocaleMap = {
-  'en-US': { locale: enUS, weekStartsOn: 0 },
-  'zh-CN': { locale: zhCN, weekStartsOn: 1 },
+  en: { locale: enUS, weekStartsOn: 0 },
   es: { locale: es, weekStartsOn: 1 },
   pt: { locale: pt, weekStartsOn: 1 },
+  zh: { locale: zhCN, weekStartsOn: 1 },
 } as const satisfies Record<
   Locale,
   {
@@ -395,6 +397,8 @@ export default function CalendarSelect(props: CalendarSelectProps) {
 
       <Popup
         visible={visible}
+        title="选择日期"
+        closeable
         className={cn('ui-calendar-select', props.popupClassName)}
         closeOnClickOverlay={props.closeOnClickOverlay}
         contentClassName={cn('min-h-0 rounded-t-xl', props.contentClassName)}
@@ -407,24 +411,7 @@ export default function CalendarSelect(props: CalendarSelectProps) {
           aria-modal="true"
           className="calendar-select-dialog relative inset-auto m-0 w-full max-w-none border-0 bg-transparent p-0 text-inherit"
         >
-          <div className="relative flex h-[56px] items-center justify-center border-b border-[#eeeeee] px-14">
-            <h2
-              id={titleId}
-              className="min-w-0 truncate text-center text-base font-semibold text-[var(--calendar-select-text)]"
-            >
-              {labels.title}
-            </h2>
-            <button
-              type="button"
-              aria-label={labels.close}
-              className="absolute top-1/2 right-4 flex size-10 -translate-y-1/2 items-center justify-center rounded-lg text-2xl leading-none text-[var(--calendar-select-muted-text)] outline-none hover:bg-[var(--calendar-select-hover-bg)] hover:text-[var(--calendar-select-text)] focus-visible:ring-2 focus-visible:ring-[var(--calendar-select-selected-bg)]"
-              onClick={onCancel}
-            >
-              <span aria-hidden>×</span>
-            </button>
-          </div>
-
-          <div className="h-[510px] px-4 pt-3 pb-2">
+          <div className="h-[400px] px-3 pb-2">
             {props.mode === 'single' ? (
               <CalendarSelectPanel
                 key={panelKey}
@@ -475,23 +462,18 @@ export default function CalendarSelect(props: CalendarSelectProps) {
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-3 border-t border-[#eeeeee] px-4 pt-3 pb-[calc(12px+env(safe-area-inset-bottom))]">
-            <button
+          <div className="grid grid-cols-2 gap-3 px-4 pt-3 pb-[calc(12px+env(safe-area-inset-bottom))]">
+            <Button
               ref={cancelRef}
               type="button"
-              className="flex h-11 items-center justify-center rounded-lg border border-[#d6e2da] bg-white text-sm font-medium text-[#1f2937] outline-none hover:bg-[#eef4f0] focus-visible:ring-2 focus-visible:ring-[#22c55e]"
+              className="bg-[#2C363E] bg-none text-white"
               onClick={onCancel}
             >
               {labels.cancel}
-            </button>
-            <button
-              type="button"
-              className="flex h-11 items-center justify-center rounded-lg bg-[#22c55e] text-sm font-semibold text-white outline-none hover:brightness-95 focus-visible:ring-2 focus-visible:ring-[#22c55e] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-40"
-              disabled={!canConfirm}
-              onClick={onConfirm}
-            >
+            </Button>
+            <Button type="button" disabled={!canConfirm} onClick={onConfirm}>
               {labels.confirm}
-            </button>
+            </Button>
           </div>
         </dialog>
       </Popup>

@@ -1,13 +1,13 @@
-import enUS from './locales/en-US.json';
+import en from './locales/en.json';
 import es from './locales/es.json';
 import pt from './locales/pt.json';
-import zhCN from './locales/zh-CN.json';
+import zh from './locales/zh.json';
 
 export const DEFAULT_NAMESPACE = 'translation';
 
 export const resources = {
-  'en-US': { [DEFAULT_NAMESPACE]: enUS },
-  'zh-CN': { [DEFAULT_NAMESPACE]: zhCN },
+  en: { [DEFAULT_NAMESPACE]: en },
+  zh: { [DEFAULT_NAMESPACE]: zh },
   es: { [DEFAULT_NAMESPACE]: es },
   pt: { [DEFAULT_NAMESPACE]: pt },
 } as const;

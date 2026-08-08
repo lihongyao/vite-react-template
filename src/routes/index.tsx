@@ -40,11 +40,11 @@ const tabRouteHandles = {
   },
   privilegeBrand: {
     ...tabTransitionHandle,
-    header: { title: 'Agent Center', description: 'Your monthly commission and referral data' },
+    header: { title: 'Brand Privileges', description: 'Exclusive offers from selected partners' },
   },
   integral: {
     ...tabTransitionHandle,
-    header: { title: 'Agent Center', description: 'Your monthly commission and referral data' },
+    header: { title: 'My Points', description: 'Track your points and recent rewards' },
   },
   menu: {
     ...tabTransitionHandle,
