@@ -247,12 +247,14 @@ Telegram 环境首先显示“正在通过 Telegram 登录”，登录完成后�
 
 ```text
 src/components/features/AppStartup/
+├── components/
+│   ├── StartupErrorScreen.tsx   # 启动失败和重试界面
+│   └── StartupLoadingScreen.tsx  # 启动阶段共用且保持挂载的画面
 ├── platforms/
 │   ├── telegram.ts            # Telegram ready、initData 和登录逻辑
 │   └── wechat.ts              # 微信静默授权预留入口
 ├── index.tsx                  # 启动状态机、文案、错误和重试
-├── initialize.ts             # 授权后的跨平台公共初始化
-└── StartupLoadingScreen.tsx  # 启动阶段共用且保持挂载的画面
+└── initialize.ts              # 授权后的跨平台公共初始化
 ```
 
 ### 维护平台授权

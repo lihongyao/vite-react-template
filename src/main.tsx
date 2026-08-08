@@ -49,7 +49,7 @@ setApiRequestContextProvider(() => {
 
   return {
     params: {
-      ch: 1001,
+      proj: 'template',
       lang: LOCALE_CONFIG[locale].apiLang,
     },
   };
