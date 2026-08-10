@@ -18,6 +18,12 @@ import { ZIndex } from '@/constants/z-index';
 import { cn } from '@/libs/class-helpers';
 
 type NotificationType = 'success' | 'info' | 'warning' | 'error';
+type NotificationCloseReason = 'timeout' | 'manual' | 'api' | 'destroy';
+
+interface NotificationAfterCloseEvent {
+  key: string;
+  reason: NotificationCloseReason;
+}
 
 // 调用侧只需要关心这份配置。
 interface NotificationConfig {
@@ -32,6 +38,8 @@ interface NotificationConfig {
   /** 秒；0 或 null 表示不自动关闭 */
   duration?: number | null;
   maxCount?: number;
+  /** 通知离场动画结束并移除后触发。 */
+  onAfterClose?: (event: NotificationAfterCloseEvent) => void;
 }
 
 interface NotificationItem {
@@ -42,6 +50,8 @@ interface NotificationItem {
   type: NotificationType;
   duration: number | null;
   leaving: boolean;
+  closeReason?: NotificationCloseReason;
+  onAfterClose?: (event: NotificationAfterCloseEvent) => void;
 }
 
 interface NotificationApi {
@@ -56,8 +66,8 @@ interface NotificationApi {
 
 interface NotificationCardProps {
   item: NotificationItem;
-  onClose: (key: string) => void;
-  onExited: (key: string) => void;
+  onClose: (key: string, reason: NotificationCloseReason) => void;
+  onExited: (item: NotificationItem) => void;
 }
 
 const DEFAULT_DURATION = 4.5;
@@ -93,21 +103,27 @@ const NotificationApiContext = createContext<[NotificationApi] | null>(null);
 function NotificationProvider({ children }: PropsWithChildren) {
   const [items, setItems] = useState<NotificationItem[]>([]);
 
-  const remove = useCallback((key: string) => {
-    setItems((current) => current.filter((item) => item.key !== key));
+  const remove = useCallback((item: NotificationItem) => {
+    setItems((current) => current.filter((currentItem) => currentItem.key !== item.key));
+    item.onAfterClose?.({
+      key: item.key,
+      reason: item.closeReason ?? 'api',
+    });
   }, []);
 
-  const close = useCallback((key: string) => {
+  const close = useCallback((key: string, reason: NotificationCloseReason) => {
     setItems((current) =>
       current.map((item) =>
-        item.key === key && !item.leaving ? { ...item, leaving: true } : item,
+        item.key === key && !item.leaving ? { ...item, leaving: true, closeReason: reason } : item,
       ),
     );
   }, []);
 
   const closeAll = useCallback(() => {
     setItems((current) =>
-      current.map((item) => (item.leaving ? item : { ...item, leaving: true })),
+      current.map((item) =>
+        item.leaving ? item : { ...item, leaving: true, closeReason: 'destroy' },
+      ),
     );
   }, []);
 
@@ -120,6 +136,7 @@ function NotificationProvider({ children }: PropsWithChildren) {
       type: config.type ?? 'info',
       duration: config.duration === undefined ? DEFAULT_DURATION : config.duration,
       leaving: false,
+      onAfterClose: config.onAfterClose,
     };
 
     setItems((current) => {
@@ -138,10 +155,10 @@ function NotificationProvider({ children }: PropsWithChildren) {
       info: (config) => open({ ...config, type: 'info' }),
       warning: (config) => open({ ...config, type: 'warning' }),
       error: (config) => open({ ...config, type: 'error' }),
-      close,
+      close: (key) => close(key, 'api'),
       destroy: (key) => {
         if (key) {
-          close(key);
+          close(key, 'destroy');
           return;
         }
         closeAll();
@@ -170,7 +187,7 @@ function NotificationCard({ item, onClose, onExited }: NotificationCardProps) {
   useEffect(() => {
     if (item.leaving || typeof item.duration !== 'number' || item.duration <= 0) return undefined;
 
-    const timeout = setTimeout(() => onClose(item.key), item.duration * 1000);
+    const timeout = setTimeout(() => onClose(item.key, 'timeout'), item.duration * 1000);
     return () => clearTimeout(timeout);
   }, [item.duration, item.key, item.leaving, onClose]);
 
@@ -184,7 +201,7 @@ function NotificationCard({ item, onClose, onExited }: NotificationCardProps) {
       )}
       onAnimationEnd={(event) => {
         if (event.target !== event.currentTarget) return;
-        if (item.leaving) onExited(item.key);
+        if (item.leaving) onExited(item);
       }}
       aria-atomic="true"
       aria-live="polite"
@@ -203,7 +220,7 @@ function NotificationCard({ item, onClose, onExited }: NotificationCardProps) {
           type="button"
           aria-label={t('notification.close')}
           className="absolute top-4 right-4 flex size-6 cursor-pointer items-center justify-center rounded-full text-[#D9D9D9] transition-opacity hover:opacity-80"
-          onClick={() => onClose(item.key)}
+          onClick={() => onClose(item.key, 'manual')}
         >
           <Icon name="close" className="size-[18px]" />
         </button>
@@ -231,8 +248,8 @@ function NotificationViewport({
   remove,
 }: {
   items: NotificationItem[];
-  close: (key: string) => void;
-  remove: (key: string) => void;
+  close: (key: string, reason: NotificationCloseReason) => void;
+  remove: (item: NotificationItem) => void;
 }) {
   const itemRefs = useRef(new Map<string, HTMLDivElement>());
   const previousTopsRef = useRef(new Map<string, number>());
@@ -342,4 +359,10 @@ const notification = {
 
 // oxlint-disable-next-line react/only-export-components
 export { NotificationProvider, notification };
-export type { NotificationApi, NotificationConfig, NotificationType };
+export type {
+  NotificationAfterCloseEvent,
+  NotificationApi,
+  NotificationCloseReason,
+  NotificationConfig,
+  NotificationType,
+};
