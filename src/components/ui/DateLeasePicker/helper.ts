@@ -129,10 +129,10 @@ export function getHours() {
 export function getDefaultResult(currentDate: Date, businessHours: string): LeaseDateRange {
   // 1. 解析营业时间
   const { workTimeStart, workTimeEnd } = parseBusinessHours(currentDate, businessHours);
-  console.log('————————————————————————————————————');
-  console.log('上班时间：', workTimeStart);
-  console.log('下班时间：', workTimeEnd);
-  console.log('————————————————————————————————————');
+  // console.log('————————————————————————————————————');
+  // console.log('上班时间：', workTimeStart);
+  // console.log('下班时间：', workTimeEnd);
+  // console.log('————————————————————————————————————');
 
   // 2. 处理开始时间
   const startDate = new Date(currentDate);
@@ -147,7 +147,7 @@ export function getDefaultResult(currentDate: Date, businessHours: string): Leas
     }
   } else {
     const isClosed = currentDate > workTimeEnd;
-    console.log(isClosed ? '当前状态：已打烊' : '当前状态：未营业');
+    // console.log(isClosed ? '当前状态：已打烊' : '当前状态：未营业');
     setToBusinessStart(startDate, workTimeStart, isClosed);
   }
 

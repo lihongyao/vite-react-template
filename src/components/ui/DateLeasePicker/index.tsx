@@ -242,10 +242,10 @@ export default forwardRef<DateLeasePickerRef, DateLeasePickerProps>(function Dat
       }
     }
 
-    console.log(LOG_SEPARATOR);
-    console.log('开始时间(默认)：', initialResultRef.current.start);
-    console.log('结束时间(默认)：', initialResultRef.current.end);
-    console.log(LOG_SEPARATOR);
+    // console.log(LOG_SEPARATOR);
+    // console.log('开始时间(默认)：', initialResultRef.current.start);
+    // console.log('结束时间(默认)：', initialResultRef.current.end);
+    // console.log(LOG_SEPARATOR);
   }
   const initialResult = initialResultRef.current;
 

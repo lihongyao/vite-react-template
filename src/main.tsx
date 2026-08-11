@@ -19,6 +19,7 @@ import { MessageProvider } from './components/ui/Message';
 import { NotificationProvider } from './components/ui/Notification';
 import { DEFAULT_LOCALE, LOCALE_CONFIG, isLocale } from './i18n/config';
 import i18n, { initializeI18n } from './i18n/instance';
+import { registerSW } from './libs/service-worker';
 import AppRoutes, { createAppRouter } from './routes';
 
 // 1. URL 中存在 debug 参数时显式开启调试面板。
@@ -55,6 +56,9 @@ setApiRequestContextProvider(() => {
   };
 });
 const router = createAppRouter();
+
+// 6. 注册 service worker
+registerSW();
 
 // 5. 渲染
 createRoot(document.getElementById('root')!).render(

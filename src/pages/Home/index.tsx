@@ -780,7 +780,6 @@ export default function Page() {
             minDays={1}
             onNotice={(content) => messageApi.warning(content)}
             onSure={(value) => {
-              console.log(JSON.stringify(value));
               setSelectedLease(value);
             }}
           >
