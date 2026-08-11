@@ -1,8 +1,8 @@
 import Icon from '@/components/ui/Icon';
-import { useLocalizedNavigate } from '@/i18n/navigation';
+import { useAppNavigation } from '@/i18n/navigation';
 
 export default function SecondaryHeader({ title }: { title: string }) {
-  const navigate = useLocalizedNavigate();
+  const { navigateBack } = useAppNavigation();
 
   return (
     <header className="sticky top-0 z-20 border-b border-[#E8EAED] bg-white pt-[env(safe-area-inset-top)]">
@@ -11,7 +11,7 @@ export default function SecondaryHeader({ title }: { title: string }) {
           type="button"
           aria-label="返回上一页"
           className="absolute left-2 flex size-10 cursor-pointer items-center justify-center text-[#30343B] active:opacity-60"
-          onClick={() => navigate(-1)}
+          onClick={() => void navigateBack()}
         >
           <Icon name="arrow_left" className="size-5" />
         </button>

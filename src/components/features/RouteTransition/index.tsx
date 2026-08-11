@@ -19,7 +19,14 @@ import {
 } from 'react-router';
 
 import { cn } from '@/libs/class-helpers';
-import { clearAppHistoryTraversal, isAppHistoryTraversal } from '@/libs/history-navigation';
+import {
+  clearAppNavigation,
+  readHistoryIndex,
+  readPendingAppNavigation,
+  readTabHistoryIndex,
+  writeTabHistoryIndex,
+} from '@/libs/history-navigation';
+import type { AppNavigationIntent } from '@/libs/history-navigation';
 
 import { RouteScenePresentContext } from './route-scene-context';
 import { TabTransitionContext, useTabRouteTransition } from './tab-transition-context';
@@ -45,6 +52,8 @@ type RouteTransitionContextValue = {
   fromPathname: string;
   fromScrollY: number;
   fromSurface: RouteTransitionSurface;
+  navigationIntent: AppNavigationIntent | null;
+  navigationIntentId: number | null;
   navigationType: NavigationType;
   toKey: string;
   toSurface: RouteTransitionSurface;
@@ -78,6 +87,8 @@ const RouteTransitionContext = createContext<RouteTransitionContextValue>({
   fromPathname: '/',
   fromScrollY: 0,
   fromSurface: 'stack',
+  navigationIntent: null,
+  navigationIntentId: null,
   navigationType: NavigationType.Pop,
   toKey: 'default',
   toSurface: 'stack',
@@ -91,6 +102,9 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
   const surface = useRouteTransitionSurface();
   const [tabTransition, setTabTransition] = useState<TabTransitionIntent | null>(null);
   const nextTabTransitionIdRef = useRef(0);
+  const tabHistoryIndexRef = useRef<number | null>(
+    surface === 'tab' ? currentHistoryIndex : readTabHistoryIndex(),
+  );
   const committedLocationRef = useRef<CommittedLocation>({
     historyIndex: currentHistoryIndex,
     key: location.key,
@@ -104,12 +118,19 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
     fromPathname: location.pathname,
     fromScrollY: 0,
     fromSurface: surface,
+    navigationIntent: null,
+    navigationIntentId: null,
     navigationType,
     toKey: location.key,
     toSurface: surface,
     token: 0,
   });
   const committedLocation = committedLocationRef.current;
+
+  if (surface === 'tab' && currentHistoryIndex !== null) {
+    tabHistoryIndexRef.current = currentHistoryIndex;
+  }
+  const tabHistoryIndex = tabHistoryIndexRef.current;
 
   const beginTabTransition = useCallback((fromPath: string, toPath: string) => {
     if (fromPath === toPath) return;
@@ -125,26 +146,39 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
     setTabTransition((current) => (current?.id === id ? null : current));
   }, []);
   const tabTransitionContext = useMemo(
-    () => ({ beginTabTransition, completeTabTransition, tabTransition }),
-    [beginTabTransition, completeTabTransition, tabTransition],
+    () => ({
+      beginTabTransition,
+      completeTabTransition,
+      tabHistoryIndex,
+      tabTransition,
+    }),
+    [beginTabTransition, completeTabTransition, tabHistoryIndex, tabTransition],
   );
 
   let transition = lastTransitionRef.current;
   if (committedLocation.key !== location.key) {
-    const nextDirection = getNavigationDirection(
-      navigationType,
-      committedLocation.historyIndex,
+    const pendingNavigation = readPendingAppNavigation({
+      fromHistoryKey: committedLocation.key,
+      historyIndex: currentHistoryIndex,
+      pathname: location.pathname,
+    });
+    const navigationIntent = pendingNavigation?.intent ?? null;
+    const nextDirection = getNavigationDirection({
       currentHistoryIndex,
-    );
+      navigationIntent,
+      navigationType,
+      previousHistoryIndex: committedLocation.historyIndex,
+    });
 
     transition = {
-      browserHistoryTraversal:
-        navigationType === NavigationType.Pop && !isAppHistoryTraversal(currentHistoryIndex),
+      browserHistoryTraversal: navigationType === NavigationType.Pop && navigationIntent === null,
       direction: nextDirection,
       fromKey: committedLocation.key,
       fromPathname: committedLocation.pathname,
       fromScrollY: readDocumentScrollTop(),
       fromSurface: committedLocation.surface,
+      navigationIntent,
+      navigationIntentId: pendingNavigation?.id ?? null,
       navigationType,
       toKey: location.key,
       toSurface: surface,
@@ -169,7 +203,12 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
       surface,
     };
     lastTransitionRef.current = transition;
-    if (locationChanged) clearAppHistoryTraversal();
+    if (locationChanged && transition.navigationIntentId !== null) {
+      clearAppNavigation(transition.navigationIntentId);
+    }
+    if (tabHistoryIndexRef.current !== null) {
+      writeTabHistoryIndex(tabHistoryIndexRef.current);
+    }
   }, [currentHistoryIndex, location.key, location.pathname, surface, transition]);
 
   return (
@@ -204,6 +243,14 @@ export function RouteTransitionOutlet() {
       if (sourceEntry) sourceEntry.scrollTop = transition.fromScrollY;
     }
     handledTransitionTokenRef.current = transition.token;
+  }
+
+  if (
+    transition.token > 0 &&
+    transition.toSurface === 'tab' &&
+    (transition.navigationIntent === 'reset-stack' || transition.navigationIntent === 'switch-tab')
+  ) {
+    stackScenesRef.current.clear();
   }
 
   if (surface === 'tab') {
@@ -593,25 +640,25 @@ function isRouteTransitionHandle(value: unknown): value is RouteTransitionHandle
   return value.transitionSurface === 'stack' || value.transitionSurface === 'tab';
 }
 
-function readHistoryIndex() {
-  if (typeof window === 'undefined') return null;
-
-  const state: unknown = window.history.state;
-  if (typeof state !== 'object' || state === null || !('idx' in state)) return null;
-
-  return typeof state.idx === 'number' ? state.idx : null;
-}
-
 function readDocumentScrollTop() {
   if (typeof window === 'undefined') return 0;
   return window.scrollY;
 }
 
-function getNavigationDirection(
-  navigationType: ReturnType<typeof useNavigationType>,
-  previousHistoryIndex: number | null,
-  currentHistoryIndex: number | null,
-): NavigationDirection {
+function getNavigationDirection({
+  currentHistoryIndex,
+  navigationIntent,
+  navigationType,
+  previousHistoryIndex,
+}: {
+  currentHistoryIndex: number | null;
+  navigationIntent: AppNavigationIntent | null;
+  navigationType: ReturnType<typeof useNavigationType>;
+  previousHistoryIndex: number | null;
+}): NavigationDirection {
+  if (navigationIntent === 'navigate-to') return 1;
+  if (navigationIntent === 'navigate-back') return -1;
+  if (navigationIntent === 'reset-stack' || navigationIntent === 'switch-tab') return 0;
   if (navigationType === NavigationType.Push) return 1;
   if (navigationType === NavigationType.Replace) return 0;
 

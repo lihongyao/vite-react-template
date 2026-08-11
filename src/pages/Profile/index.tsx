@@ -1,19 +1,21 @@
 import copy from 'copy-to-clipboard';
 
 import SecondaryHeader from '@/components/features/SecondaryHeader';
+import Button from '@/components/ui/Button';
 import IconButton from '@/components/ui/Button/IconButton';
 import Icon from '@/components/ui/Icon';
 import { message } from '@/components/ui/Message';
+import { useAppNavigation } from '@/i18n/navigation';
+import { TAB_ROUTE_PATHS } from '@/routes/paths';
 
 const details = [
   { label: 'Account status', value: 'Verified', accent: true },
-  { label: 'User ID', value: '1314210' },
-  { label: 'Member since', value: 'May 2024' },
-  { label: 'Email', value: 'li***@example.com' },
+  { label: 'Email', value: 'gc@example.com' },
 ];
 
 export default function Page() {
   const [messageApi] = message.useMessage();
+  const { switchTab } = useAppNavigation();
 
   return (
     <div className="bg-[#F4F5F7] text-[#202124]">
@@ -29,7 +31,6 @@ export default function Page() {
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
                 <h1 className="truncate text-xl leading-7 font-bold">城南李大爷</h1>
-                <Icon name="edit" className="size-4 text-[#9297A1]" />
               </div>
               <div className="mt-1 flex items-center gap-1 text-sm text-[#737780]">
                 <span>ID: 1314210</span>
@@ -87,6 +88,17 @@ export default function Page() {
           <div className="mt-4 h-2 overflow-hidden rounded-full bg-[#E8EAED]">
             <div className="h-full w-4/5 rounded-full bg-[#168653]" />
           </div>
+        </section>
+
+        <section className="mt-3 px-3">
+          <Button
+            block
+            onClick={() => {
+              void switchTab(TAB_ROUTE_PATHS.Home);
+            }}
+          >
+            前往首页
+          </Button>
         </section>
       </main>
     </div>

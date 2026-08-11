@@ -5,7 +5,7 @@ import { generatePath } from 'react-router';
 import { ApiError, productApi } from '@/api';
 import type { Product } from '@/api/modules/product/types';
 import Skeleton from '@/components/ui/Skeleton';
-import { LocalizedLink } from '@/i18n/navigation';
+import { NavigateToLink } from '@/i18n/navigation';
 import { ROUTE_PATHS } from '@/routes/paths';
 
 const PRODUCT_SELECT = [
@@ -103,7 +103,7 @@ function GoodsCard({ product }: { product: Product }) {
   const originalPrice = discount > 0 ? product.price / (1 - discount / 100) : undefined;
 
   return (
-    <LocalizedLink
+    <NavigateToLink
       to={generatePath(ROUTE_PATHS.GoodsDetail, { id: String(product.id) })}
       className="flex min-w-0 flex-col overflow-hidden rounded-lg border border-[#E7E9EC] bg-white outline-none focus-visible:border-[#168653] focus-visible:ring-2 focus-visible:ring-[#168653]/20"
     >
@@ -145,7 +145,7 @@ function GoodsCard({ product }: { product: Product }) {
           ) : null}
         </div>
       </div>
-    </LocalizedLink>
+    </NavigateToLink>
   );
 }
 

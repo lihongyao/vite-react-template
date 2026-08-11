@@ -1,4 +1,4 @@
-import { LocalizedLink } from '@/i18n/navigation';
+import { NavigateToLink } from '@/i18n/navigation';
 import { ROUTE_PATHS } from '@/routes/paths';
 
 export default function AppHeader({ title, description }: { title: string; description: string }) {
@@ -14,7 +14,7 @@ export default function AppHeader({ title, description }: { title: string; descr
             </div>
           </div>
         </div>
-        <LocalizedLink
+        <NavigateToLink
           aria-label="Open profile"
           className="shrink-0 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-[#168653] focus-visible:ring-offset-2"
           to={ROUTE_PATHS.Profile}
@@ -22,7 +22,7 @@ export default function AppHeader({ title, description }: { title: string; descr
           <div className="size-12 overflow-hidden rounded-lg bg-gray-300">
             <img className="size-12" src={'/avatar.jpg'} alt="avatar" />
           </div>
-        </LocalizedLink>
+        </NavigateToLink>
       </div>
     </header>
   );

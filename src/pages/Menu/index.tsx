@@ -57,9 +57,9 @@ export default function Page() {
           ))}
         </section>
 
-        <section className="mt-3 flex min-h-24 flex-col justify-center rounded-lg bg-[#EAF8F0] px-5">
-          <strong className="text-lg text-[#145C3D]">Download APP</strong>
-          <span className="mt-1 text-sm text-[#4D7462]">Claim an exclusive bonus.</span>
+        <section className="mt-3 flex min-h-24 flex-col justify-center rounded-lg bg-[#163E31] px-5">
+          <strong className="text-lg text-white">Download APP</strong>
+          <span className="mt-1 text-sm text-[#9DE0BD]">Claim an exclusive bonus.</span>
         </section>
 
         <section

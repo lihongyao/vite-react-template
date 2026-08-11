@@ -1,10 +1,10 @@
 import Button from '@/components/ui/Button';
 import Icon from '@/components/ui/Icon';
-import { useLocalizedNavigate } from '@/i18n/navigation';
+import { useAppNavigation } from '@/i18n/navigation';
 import { ROUTE_PATHS } from '@/routes/paths';
 
 export default function Page() {
-  const navigate = useLocalizedNavigate();
+  const { switchTab } = useAppNavigation();
 
   return (
     <main className="flex min-h-dvh items-center justify-center bg-white px-6 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] text-center text-[#202124]">
@@ -24,7 +24,7 @@ export default function Page() {
           block
           className="mt-8"
           prefix={<Icon name="tabbar_home" className="size-5" />}
-          onClick={() => navigate(ROUTE_PATHS.Home, { replace: true })}
+          onClick={() => void switchTab(ROUTE_PATHS.Home)}
         >
           Go to home
         </Button>
