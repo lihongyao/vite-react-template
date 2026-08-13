@@ -1,4 +1,5 @@
 import {
+  Activity,
   createContext,
   useCallback,
   useContext,
@@ -356,15 +357,15 @@ export function RouteTransitionOutlet() {
               : null;
 
           return (
-            <TabScene
-              key={entry.pathname}
-              present={visible && surface === 'tab' && !popTransition}
-              scrollKey={entry.pathname}
-              transitionId={transitionId}
-              visible={visible}
-            >
-              {entry.node}
-            </TabScene>
+            <Activity key={entry.pathname} mode={visible ? 'visible' : 'hidden'}>
+              <TabScene
+                present={visible && surface === 'tab' && !popTransition}
+                scrollKey={entry.pathname}
+                transitionId={transitionId}
+              >
+                {entry.node}
+              </TabScene>
+            </Activity>
           );
         })}
       </div>
@@ -403,13 +404,11 @@ function TabScene({
   present,
   scrollKey,
   transitionId,
-  visible,
 }: {
   children: ReactNode;
   present: boolean;
   scrollKey: string;
   transitionId: number | null;
-  visible: boolean;
 }) {
   const { completeTabTransition } = useTabRouteTransition();
   const motionProfileRef = useRef<TabMotionProfile | null>(null);
@@ -463,7 +462,6 @@ function TabScene({
       aria-hidden={present ? undefined : true}
       className={cn(
         'route-tab-scene',
-        !visible && 'route-scene-hidden',
         renderedAnimationPhase === 'prepare' && 'route-tab-enter-prepare',
         renderedAnimationPhase === 'enter' && 'route-tab-enter',
       )}

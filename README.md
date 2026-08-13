@@ -343,11 +343,11 @@ LocaleLayout                     # 激活当前语言并提供转场上下文
 
 缓存规则如下：
 
-- 已访问的 Tab 按 pathname 缓存在内存中，后续切换只改变可见性，不卸载页面。组件的局部 state 和以“组件首次挂载”为触发条件的请求都会保留；依赖全局状态或定时器主动发起的请求仍由业务代码自行控制。
+- 已访问的 Tab 按 pathname 缓存在内存中，并分别挂载在 React `Activity` 中。非当前 Tab 使用 `hidden` 模式：组件 state 和 DOM 会保留，Effects 会清理；再次显示时恢复原有 state/DOM 并重新创建 Effects。当前 Tab 在二级页下方充当视觉底图时保持 `visible`，但 `RouteScenePresentContext` 为 `false`，Portal、轮播等场景感知组件仍会暂停。
 - Stack scene 按 history location key 缓存，一个 history entry 对应一个独立页面实例和独立滚动位置。二级页继续进入二级页、再逐级返回时，各层位置都会保留；只有转场动画期间，当前 Stack scene 才会临时变成 fixed scrollport。
 - 从 Stack 调用 `switchTab` 会回到最近的 Tab history anchor、清空全部 Stack scene，并通过同 URL round trip 截断已作废的 forward 分支。Tab anchor 随每个浏览器 history entry 保存，因此二级页刷新后仍可正确清栈，且不同导航链之间不会互相污染；清栈后浏览器前进不会重新打开旧二级页。
 - 用户返回后再 push 新页面时，会清理已失效的 forward Stack scene，保持缓存与浏览器历史分支一致。
-- 不可见场景设置 `inert`、`aria-hidden`、`visibility: hidden` 和禁用指针事件，不参与点击或焦点导航。
+- 非当前 Tab 由 `Activity` 使用 `display: none` 隐藏；其他不可见场景继续设置 `inert`、`aria-hidden` 和禁用指针事件，不参与点击或焦点导航。
 - 页面内需要 Portal 到 `document.body` 的常驻控件必须读取 `RouteScenePresentContext`，只在所属场景 present 时渲染。`DragView` 已按此规则实现，避免缓存页产生重复悬浮控件。
 
 动画只使用合成友好的 `transform` 和 `opacity`。`will-change` 仅在 250ms/230ms 动画期间启用，`animationend` 后立即释放，并带有 400ms fallback 防止异常动画事件让页面停留在过渡态。底层页面、Header 和 TabBar 不做位移动画；`prefers-reduced-motion` 开启时会关闭 Tab 动画并把 Stack 动画缩短到 1ms。
@@ -664,11 +664,11 @@ RUN pnpm build:prod
 
 - `html`、`body` 和 `#root` 只设置最小高度，不锁定页面高度，也不设置根级 `overflow: hidden`；一级页和二级页内容按文档流自然布局。
 - 一级页公共 Header 使用 sticky，底部 TabBar 使用 fixed；两者都通过 `.app-fixed-frame` 与桌面宽屏下最大 500px 的 H5 画布对齐。
-- 一级页 Tab scene 按 pathname 保活。切换 Tab 时目标页置顶，但不会重新挂载已访问页面，也不会重复触发首次加载请求。
+- 一级页 Tab scene 按 pathname 保活。非当前 Tab 进入 `Activity hidden`，保留组件 state 和 DOM 并清理 Effects；切回时不重新挂载页面，但会按 React 语义重新创建 Effects。
 - Stack scene 按 history location key 保活。进入二级页时目标页从文档顶部开始；返回或前进到已有 history entry 时，路由层通过 `window.scrollTo()` 恢复该 entry 的文档滚动位置。
 - 二级页 push/pop 动画期间，参与动画的 Stack scene 临时使用 fixed scrollport，并在动画结束后立即回到普通文档流；这个临时层只用于避免 Header、内容和滚动位置在转场中错帧。
 - 二级页显示期间，已访问的一级 Tab scene 会以 fixed underlay 保留在 Stack 下方，并带上进入二级页前的滚动偏移；浏览器手势返回时可以直接看到一级页底层，不会出现白板。
-- 不可见场景设置 `inert`、`aria-hidden` 和 `display: none`，避免缓存页面参与点击、焦点和布局。
+- 非当前 Tab 由 `Activity` 隐藏；其他不可见场景设置 `inert`、`aria-hidden` 和 `display: none`，避免缓存页面参与点击、焦点和布局。
 
 业务页面不要自行创建第二层纵向滚动容器，也不要在路由切换相关逻辑中主动读取或写入 `window.scrollY`/`window.scrollTo()`；滚动位置由 `RouteTransitionOutlet` 统一管理。业务内容内需要观察可见性时，优先使用 `IntersectionObserver`。弹层内部如果确实需要独立滚动，应只在弹层内容区域设置 `overflow-y-auto` 和 `overscroll-contain`。
 

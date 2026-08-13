@@ -16,13 +16,6 @@ import Button from '../Button';
 
 export type CalendarSelectRange = DateRange;
 
-export interface CalendarSelectLabels {
-  title: string;
-  cancel: string;
-  confirm: string;
-  close: string;
-}
-
 interface CalendarSelectPanelCommonProps {
   /** 是否允许选择今天之后的日期，默认允许。 */
   allowFutureDates?: boolean;
@@ -86,10 +79,12 @@ interface CalendarSelectCommonProps extends Omit<
 > {
   /** 触发器内容。 */
   children: ReactNode;
-  /** Popup 标题，优先级高于 labels.title。 */
+  /** Popup 标题。 */
   title?: string;
-  /** 文案配置。 */
-  labels?: Partial<CalendarSelectLabels>;
+  /** 取消按钮文案。 */
+  cancelText?: string;
+  /** 确认按钮文案。 */
+  confirmText?: string;
   /** 是否禁用触发器。 */
   disabled?: boolean;
   /** 受控打开状态。 */
@@ -98,7 +93,7 @@ interface CalendarSelectCommonProps extends Omit<
   defaultOpen?: boolean;
   /** 打开状态改变时触发。 */
   onOpenChange?: (open: boolean) => void;
-  /** 点击遮罩是否关闭，默认关闭。 */
+  /** 点击遮罩是否关闭，默认开启。 */
   closeOnClickOverlay?: boolean;
   /** 触发器样式。 */
   triggerClassName?: string;
@@ -132,13 +127,6 @@ export interface CalendarSelectRangeProps extends CalendarSelectCommonProps {
 }
 
 export type CalendarSelectProps = CalendarSelectSingleProps | CalendarSelectRangeProps;
-
-const defaultLabels: CalendarSelectLabels = {
-  title: '选择日期',
-  cancel: '取消',
-  confirm: '确定',
-  close: '关闭',
-};
 
 const dayPickerLocaleMap = {
   en: { locale: enUS, weekStartsOn: 0 },
@@ -273,11 +261,9 @@ export default function CalendarSelect(props: CalendarSelectProps) {
   const localeConfig = dayPickerLocaleMap[currentLocale];
   const dayPickerLocale = props.locale ?? localeConfig.locale;
   const dayPickerWeekStartsOn = props.weekStartsOn ?? localeConfig.weekStartsOn;
-  const labels = {
-    ...defaultLabels,
-    ...props.labels,
-    ...(props.title ? { title: props.title } : {}),
-  };
+  const title = props.title ?? '选择日期';
+  const cancelText = props.cancelText ?? '取消';
+  const confirmText = props.confirmText ?? '确定';
 
   const [innerOpen, setInnerOpen] = useState(props.defaultOpen ?? false);
   const [singleValue, setSingleValue] = useState<Date | undefined>(() =>
@@ -301,7 +287,7 @@ export default function CalendarSelect(props: CalendarSelectProps) {
       : undefined,
   );
 
-  const visible = (isOpenControlled ? props.open : innerOpen) ?? false;
+  const visible = props.open ?? innerOpen;
   const committedSingle =
     props.mode === 'single'
       ? normalizeDate(isValueControlled ? props.value : singleValue)
@@ -313,7 +299,6 @@ export default function CalendarSelect(props: CalendarSelectProps) {
   const committedSingleRef = useRef(committedSingle);
   const committedRangeRef = useRef(committedRange);
   const dialogId = `${generatedId}-dialog`;
-  const titleId = `${generatedId}-title`;
   const panelKey = `${props.mode}-${visible ? committedKey : 'closed'}`;
   const panelDefaultMonth =
     props.defaultMonth ??
@@ -397,7 +382,7 @@ export default function CalendarSelect(props: CalendarSelectProps) {
 
       <Popup
         visible={visible}
-        title="选择日期"
+        title={title}
         closeable
         className={cn('ui-calendar-select', props.popupClassName)}
         closeOnClickOverlay={props.closeOnClickOverlay}
@@ -407,9 +392,9 @@ export default function CalendarSelect(props: CalendarSelectProps) {
         <dialog
           id={dialogId}
           open
-          aria-labelledby={titleId}
+          aria-label={title}
           aria-modal="true"
-          className="calendar-select-dialog relative inset-auto m-0 w-full max-w-none border-0 bg-transparent p-0 text-inherit"
+          className="relative inset-auto m-0 w-full max-w-none border-0 bg-transparent p-0 text-inherit"
         >
           <div className="h-[400px] px-3 pb-2">
             {props.mode === 'single' ? (
@@ -469,10 +454,10 @@ export default function CalendarSelect(props: CalendarSelectProps) {
               className="bg-[#2C363E] bg-none text-white"
               onClick={onCancel}
             >
-              {labels.cancel}
+              {cancelText}
             </Button>
             <Button type="button" disabled={!canConfirm} onClick={onConfirm}>
-              {labels.confirm}
+              {confirmText}
             </Button>
           </div>
         </dialog>

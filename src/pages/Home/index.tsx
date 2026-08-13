@@ -735,7 +735,8 @@ export default function Page() {
           </div>
           <CalendarSelect
             allowFutureDates={false}
-            labels={{ cancel: 'Cancel', close: 'Close calendar', confirm: 'Confirm' }}
+            cancelText="Cancel"
+            confirmText="Confirm"
             maxRangeDays={10}
             mode="range"
             title="Select date"

@@ -135,11 +135,7 @@ export default memo(function Popup({
         )}
         onTransitionEnd={handlePanelTransitionEnd}
       >
-        {title && (
-          <div className="text-center text-base leading-[50px] font-semibold tracking-[1px]">
-            {title}
-          </div>
-        )}
+        {title && <div className="text-center text-base leading-[50px] font-semibold">{title}</div>}
         {closeable && (
           <button
             type="button"
