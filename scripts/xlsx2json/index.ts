@@ -22,8 +22,8 @@ const SHEET_NAME = 'Sheet1';
 const ROOT = path.resolve(scriptDirectory, '../../');
 const INPUT_DIR = path.join(ROOT, 'scripts/xlsx2json');
 const OUTPUT_DIR = path.join(ROOT, 'src/i18n/locales');
-const SOURCE_LOCALE = 'zh-CN';
-const TARGET_LOCALES = ['en-US', 'pt', 'es'] as const;
+const SOURCE_LOCALE = 'zh';
+const TARGET_LOCALES = ['en', 'pt', 'es'] as const;
 const CONFIGURED_LOCALES = [SOURCE_LOCALE, ...TARGET_LOCALES] as const;
 
 // === 2. 类型定义 ===

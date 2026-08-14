@@ -1,4 +1,4 @@
-export type AppNavigationIntent = 'navigate-back' | 'navigate-to' | 'reset-stack' | 'switch-tab';
+export type AppNavigationIntent = 'navigate-back' | 'switch-tab';
 
 type PendingAppNavigation = {
   expectedHistoryIndex?: number;
@@ -10,8 +10,6 @@ type PendingAppNavigation = {
 };
 
 const FALLBACK_INTENT_LIFETIME_MS = 10_000;
-const TAB_HISTORY_INDEX_STATE_KEY = '__appTabHistoryIndex';
-
 let pendingAppNavigation: PendingAppNavigation | null = null;
 let nextAppNavigationId = 0;
 
@@ -71,25 +69,6 @@ export function clearAppNavigation(id?: number) {
 export function readHistoryIndex() {
   const state = readHistoryState();
   return state && typeof state.idx === 'number' ? state.idx : null;
-}
-
-export function readTabHistoryIndex() {
-  const state = readHistoryState();
-  if (!state) return null;
-
-  const historyIndex = state[TAB_HISTORY_INDEX_STATE_KEY];
-  return typeof historyIndex === 'number' && Number.isInteger(historyIndex) && historyIndex >= 0
-    ? historyIndex
-    : null;
-}
-
-export function writeTabHistoryIndex(tabHistoryIndex: number) {
-  if (typeof window === 'undefined') return;
-
-  const state = readHistoryState();
-  if (!state || state[TAB_HISTORY_INDEX_STATE_KEY] === tabHistoryIndex) return;
-
-  window.history.replaceState({ ...state, [TAB_HISTORY_INDEX_STATE_KEY]: tabHistoryIndex }, '');
 }
 
 function readHistoryKey() {

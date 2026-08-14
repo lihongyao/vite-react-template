@@ -2,18 +2,8 @@
 import { useCallback } from 'react';
 
 import type { LinkProps, NavLinkProps, NavigateOptions, To } from 'react-router';
-import {
-  Link,
-  NavLink,
-  createPath,
-  parsePath,
-  useLocation,
-  useMatches,
-  useNavigate,
-} from 'react-router';
+import { Link, NavLink, createPath, parsePath, useLocation, useNavigate } from 'react-router';
 
-import { useTabRouteTransition } from '@/components/features/RouteTransition/tab-transition-context';
-import type { RouteTransitionHandle } from '@/components/features/RouteTransition/types';
 import { markAppNavigation, readHistoryIndex } from '@/libs/history-navigation';
 import { ROUTE_PATHS } from '@/routes/paths';
 import type { TabRoutePath } from '@/routes/paths';
@@ -54,15 +44,11 @@ export type AppNavigation = {
 export function useAppNavigation(): AppNavigation {
   const locale = useCurrentLocale();
   const location = useLocation();
-  const matches = useMatches();
   const navigate = useNavigate();
-  const { beginTabTransition, tabHistoryIndex } = useTabRouteTransition();
-  const surface = getRouteTransitionSurface(matches.map((match) => match.handle));
 
   const navigateTo = useCallback<AppNavigation['navigateTo']>(
     async (to, options) => {
       const localizedTo = localizeTo(to, locale);
-      markAppNavigation('navigate-to', { pathname: getAbsolutePathname(localizedTo) });
       await navigate(localizedTo, options);
     },
     [locale, navigate],
@@ -71,35 +57,12 @@ export function useAppNavigation(): AppNavigation {
   const switchTab = useCallback<AppNavigation['switchTab']>(
     async (to) => {
       const targetPath = localizePathname(to, locale);
-      if (surface === 'tab' && location.pathname === targetPath) return;
+      if (location.pathname === targetPath) return;
 
-      const currentHistoryIndex = readHistoryIndex();
-      const canCollapseStack =
-        surface === 'stack' &&
-        currentHistoryIndex !== null &&
-        tabHistoryIndex !== null &&
-        currentHistoryIndex > tabHistoryIndex;
-
-      if (canCollapseStack) {
-        markAppNavigation('reset-stack', { historyIndex: tabHistoryIndex });
-        await navigate(tabHistoryIndex - currentHistoryIndex);
-
-        markAppNavigation('switch-tab', { pathname: targetPath });
-        await navigate(targetPath, { replace: true });
-
-        // A same-URL round trip truncates the discarded Stack entries from the forward branch.
-        markAppNavigation('reset-stack', { pathname: targetPath });
-        await navigate(targetPath);
-        markAppNavigation('reset-stack', { historyIndex: tabHistoryIndex });
-        await navigate(-1);
-        return;
-      }
-
-      if (surface === 'tab') beginTabTransition(location.pathname, targetPath);
       markAppNavigation('switch-tab', { pathname: targetPath });
       await navigate(targetPath, { replace: true });
     },
-    [beginTabTransition, locale, location.pathname, navigate, surface, tabHistoryIndex],
+    [locale, location.pathname, navigate],
   );
 
   const navigateBack = useCallback<AppNavigation['navigateBack']>(
@@ -149,20 +112,8 @@ type NavigateToLinkProps = Omit<LinkProps, 'replace'> & { replace?: never };
 
 export function NavigateToLink({ onClick, to, ...props }: NavigateToLinkProps) {
   const locale = useCurrentLocale();
-  const localizedTo = localizeTo(to, locale);
 
-  return (
-    <Link
-      {...props}
-      onClick={(event) => {
-        onClick?.(event);
-        if (!shouldHandleNavigationClick(event)) return;
-
-        markAppNavigation('navigate-to', { pathname: getAbsolutePathname(localizedTo) });
-      }}
-      to={localizedTo}
-    />
-  );
+  return <Link {...props} onClick={onClick} to={localizeTo(to, locale)} />;
 }
 
 export function useSwitchLocale(to?: To) {
@@ -185,27 +136,6 @@ export function useSwitchLocale(to?: To) {
       ),
     [location.hash, location.pathname, location.search, navigate, to],
   );
-}
-
-function getAbsolutePathname(to: To) {
-  const path = typeof to === 'string' ? parsePath(to) : to;
-  return path.pathname?.startsWith('/') ? path.pathname : undefined;
-}
-
-function getRouteTransitionSurface(handles: unknown[]) {
-  for (const handle of handles.toReversed()) {
-    if (isRouteTransitionHandle(handle)) return handle.transitionSurface;
-  }
-
-  return 'stack';
-}
-
-function isRouteTransitionHandle(value: unknown): value is RouteTransitionHandle {
-  if (typeof value !== 'object' || value === null || !('transitionSurface' in value)) {
-    return false;
-  }
-
-  return value.transitionSurface === 'stack' || value.transitionSurface === 'tab';
 }
 
 function shouldHandleNavigationClick(event: React.MouseEvent<HTMLAnchorElement>) {

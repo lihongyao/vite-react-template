@@ -21,36 +21,37 @@ import { ROUTE_PATHS, toChildPath } from './paths';
 
 const Apply = lazy(() => import('@/pages/Apply'));
 
-const tabTransitionHandle = {
-  transitionSurface: 'tab',
-} satisfies RouteTransitionHandle;
-
 const stackTransitionHandle = {
   transitionSurface: 'stack',
 } satisfies RouteTransitionHandle;
 
 const tabRouteHandles = {
   home: {
-    ...tabTransitionHandle,
+    sceneId: 'home',
+    transitionSurface: 'tab',
     header: { title: 'Agent Center', description: 'Your monthly commission and referral data' },
   },
   goods: {
-    ...tabTransitionHandle,
+    sceneId: 'goods',
+    transitionSurface: 'tab',
     header: { title: 'Goods', description: 'Discover products worth adding to your list' },
   },
   privilegeBrand: {
-    ...tabTransitionHandle,
+    sceneId: 'privilege-brand',
+    transitionSurface: 'tab',
     header: { title: 'Brand Privileges', description: 'Exclusive offers from selected partners' },
   },
   integral: {
-    ...tabTransitionHandle,
+    sceneId: 'integral',
+    transitionSurface: 'tab',
     header: { title: 'My Points', description: 'Track your points and recent rewards' },
   },
   menu: {
-    ...tabTransitionHandle,
+    sceneId: 'menu',
+    transitionSurface: 'tab',
     header: { title: 'Menu', description: 'Explore services and account options' },
   },
-} as const;
+} as const satisfies Record<string, RouteTransitionHandle & { header: object }>;
 
 function createPageRoutes(): RouteObject[] {
   return [
