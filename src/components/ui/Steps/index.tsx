@@ -90,7 +90,7 @@ export default function Steps({
           <li
             key={item.key ?? index}
             data-status={status}
-            className="relative grid min-h-10 grid-cols-[20px_minmax(0,1fr)] gap-x-3 pb-5 last:pb-0"
+            className="relative grid min-h-10 grid-cols-[20px_minmax(0,1fr)] items-center gap-x-3 pb-5 last:pb-0"
           >
             <div aria-hidden className="relative flex min-h-5 items-center justify-center">
               {index > 0 ? (
