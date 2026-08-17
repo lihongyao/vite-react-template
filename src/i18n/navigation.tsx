@@ -1,5 +1,5 @@
 /* oxlint-disable react/only-export-components -- Localized navigation helpers share one public module. */
-import { useCallback } from 'react';
+import { useCallback, useLayoutEffect, useRef } from 'react';
 
 import type { LinkProps, NavLinkProps, NavigateOptions, To } from 'react-router';
 import { Link, NavLink, createPath, parsePath, useLocation, useNavigate } from 'react-router';
@@ -41,17 +41,50 @@ export type AppNavigation = {
   switchTab: (to: TabRoutePath) => Promise<void>;
 };
 
+function useNavigationTargetGuard() {
+  const location = useLocation();
+  const pendingTargetRef = useRef<string | null>(null);
+
+  // A navigation promise may settle before the next screen commits.
+  useLayoutEffect(() => {
+    pendingTargetRef.current = null;
+  }, [location.key]);
+
+  const start = useCallback((to: To) => {
+    const targetKey = createPath(typeof to === 'string' ? parsePath(to) : to);
+    if (pendingTargetRef.current === targetKey) return null;
+
+    pendingTargetRef.current = targetKey;
+    return targetKey;
+  }, []);
+
+  const cancel = useCallback((targetKey: string) => {
+    if (pendingTargetRef.current === targetKey) pendingTargetRef.current = null;
+  }, []);
+
+  return { cancel, start };
+}
+
 export function useAppNavigation(): AppNavigation {
   const locale = useCurrentLocale();
   const location = useLocation();
   const navigate = useNavigate();
+  const { cancel: cancelNavigation, start: startNavigation } = useNavigationTargetGuard();
 
   const navigateTo = useCallback<AppNavigation['navigateTo']>(
     async (to, options) => {
       const localizedTo = localizeTo(to, locale);
-      await navigate(localizedTo, options);
+      const targetKey = startNavigation(localizedTo);
+      if (targetKey === null) return;
+
+      try {
+        await navigate(localizedTo, options);
+      } catch (error) {
+        cancelNavigation(targetKey);
+        throw error;
+      }
     },
-    [locale, navigate],
+    [cancelNavigation, locale, navigate, startNavigation],
   );
 
   const switchTab = useCallback<AppNavigation['switchTab']>(
@@ -112,8 +145,21 @@ type NavigateToLinkProps = Omit<LinkProps, 'replace'> & { replace?: never };
 
 export function NavigateToLink({ onClick, to, ...props }: NavigateToLinkProps) {
   const locale = useCurrentLocale();
+  const { start: startNavigation } = useNavigationTargetGuard();
+  const localizedTo = localizeTo(to, locale);
 
-  return <Link {...props} onClick={onClick} to={localizeTo(to, locale)} />;
+  return (
+    <Link
+      {...props}
+      onClick={(event) => {
+        onClick?.(event);
+        if (props.reloadDocument || !shouldHandleNavigationClick(event)) return;
+
+        if (startNavigation(localizedTo) === null) event.preventDefault();
+      }}
+      to={localizedTo}
+    />
+  );
 }
 
 export function useSwitchLocale(to?: To) {

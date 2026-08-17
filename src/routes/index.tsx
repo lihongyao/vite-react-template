@@ -1,5 +1,3 @@
-import { lazy } from 'react';
-
 import type { RouteObject } from 'react-router';
 import { RouterProvider, createBrowserRouter } from 'react-router';
 
@@ -18,8 +16,6 @@ import PrivilegeBrand from '@/pages/PrivilegeBrand';
 import Profile from '@/pages/Profile';
 
 import { ROUTE_PATHS, toChildPath } from './paths';
-
-const Apply = lazy(() => import('@/pages/Apply'));
 
 const stackTransitionHandle = {
   transitionSurface: 'stack',
@@ -99,7 +95,9 @@ const localeRoutes: RouteObject[] = SUPPORTED_LOCALES.map((locale) => {
           },
           {
             path: toChildPath(ROUTE_PATHS.Apply),
-            element: <Apply />,
+            lazy: {
+              Component: async () => (await import('@/pages/Apply')).default,
+            },
             handle: stackTransitionHandle,
           },
           {
