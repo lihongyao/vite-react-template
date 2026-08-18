@@ -11,9 +11,7 @@ import { I18nextProvider } from 'react-i18next';
 import { setApiRequestContextProvider } from './api';
 import SpriteSvgSource from './assets/svg/generated/sprite-svg';
 import ApiErrorReporter from './components/features/ApiErrorReporter';
-import AppEnvGuard from './components/features/AppEnvGuard';
 import AppErrorBoundary from './components/features/AppErrorBoundary';
-import AppStartup from './components/features/AppStartup';
 import { DialogProvider } from './components/ui/Dialog';
 import { MessageProvider } from './components/ui/Message';
 import { NotificationProvider } from './components/ui/Notification';
@@ -70,11 +68,7 @@ createRoot(document.getElementById('root')!).render(
           <MessageProvider>
             <DialogProvider>
               <ApiErrorReporter />
-              <AppEnvGuard>
-                <AppStartup router={router}>
-                  <AppRoutes router={router} />
-                </AppStartup>
-              </AppEnvGuard>
+              <AppRoutes router={router} />
             </DialogProvider>
           </MessageProvider>
         </NotificationProvider>

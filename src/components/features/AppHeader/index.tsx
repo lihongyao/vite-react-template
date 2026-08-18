@@ -3,8 +3,8 @@ import { ROUTE_PATHS } from '@/routes/paths';
 
 export default function AppHeader({ title, description }: { title: string; description: string }) {
   return (
-    <header className="app-header w-full shrink-0 border-b border-[#e8e8e8] bg-white pt-[env(safe-area-inset-top)]">
-      <div className="flex min-h-[76px] w-full items-center justify-between gap-3 px-4 py-3">
+    <header className="app-header w-full shrink-0 bg-white pt-[env(safe-area-inset-top)]">
+      <div className="flex min-h-[76px] w-full items-center justify-between gap-3 border-b border-[#e8e8e8] px-4 py-3">
         <div className="flex items-center gap-2">
           <img className="size-12" src={'/logo.png'} alt="logo" />
           <div className="flex min-w-0 flex-1 items-center gap-3">

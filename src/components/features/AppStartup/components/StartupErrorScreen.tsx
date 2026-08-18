@@ -1,6 +1,6 @@
 import type { DeviceEnvironment } from '@/libs/device';
 
-export type StartupStage = 'initialization' | 'platform-auth';
+import type { StartupStage } from '../types';
 
 interface StartupErrorScreenProps {
   environment: DeviceEnvironment;

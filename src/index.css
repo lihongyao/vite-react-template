@@ -54,7 +54,7 @@ body[data-scroll-locked='true'] [data-primary-chrome='header'] {
 
 body[data-scroll-locked='true'] .app-header-lock-spacer {
   display: block;
-  height: calc(var(--app-header-height) + 1px);
+  height: var(--app-header-height);
 }
 
 @media (min-width: 501px) {

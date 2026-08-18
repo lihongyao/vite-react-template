@@ -1,15 +1,13 @@
 import type { DeviceEnvironment } from '@/libs/device';
 
+import type { StartupResult } from './types';
+
 export interface AppInitializationContext {
   environment: DeviceEnvironment;
   signal: AbortSignal;
 }
 
 type AppInitializer = (context: AppInitializationContext) => Promise<unknown>;
-
-export interface AppInitializationResult {
-  isAgent: boolean;
-}
 
 const appInitializers: AppInitializer[] = [
   // 在这里加入依赖登录态的全局初始化任务，例如用户信息、远程配置等。
@@ -30,7 +28,7 @@ const appInitializers: AppInitializer[] = [
 
 export async function initializeApp(
   context: AppInitializationContext,
-): Promise<AppInitializationResult | undefined> {
+): Promise<StartupResult | undefined> {
   if (context.signal.aborted) return;
 
   await Promise.all(appInitializers.map((initializer) => initializer(context)));
