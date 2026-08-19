@@ -1,7 +1,7 @@
 import type { RouteTransitionSnapshot, RouteTransitionSurface } from './types';
 
 export type RouteTransitionKind = 'idle' | 'popping' | 'pushing' | 'switching-tab';
-export type StackSceneMode = 'active' | 'enter' | 'exit' | 'hidden' | 'source';
+export type StackSceneMode = 'active' | 'enter' | 'exit' | 'hidden' | 'source' | 'underlay';
 
 export function getRouteTransitionKind(
   transition: RouteTransitionSnapshot,
@@ -42,6 +42,14 @@ export function getStackSceneMode({
   }
 
   if (transitionKind === 'popping' && sceneKey === transition.fromKey) return 'exit';
+  if (
+    transitionKind === 'popping' &&
+    currentSurface === 'stack' &&
+    transition.toSurface === 'stack' &&
+    sceneKey === transition.toKey
+  ) {
+    return 'underlay';
+  }
   if (currentSurface === 'stack' && sceneKey === currentKey) return 'active';
   return 'hidden';
 }

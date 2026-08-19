@@ -82,9 +82,10 @@ export function StackSceneFrame({
       aria-hidden={present ? undefined : true}
       className={cn(
         'route-stack-scene',
-        (mode === 'active' || mode === 'source') && 'route-stack-flow',
+        (mode === 'active' || mode === 'source' || mode === 'underlay') && 'route-stack-flow',
         mode === 'active' && 'route-stack-active',
         mode === 'source' && 'route-stack-source',
+        mode === 'underlay' && 'route-stack-underlay',
         fixed && 'app-fixed-frame route-stack-fixed',
       )}
       data-route-mode={mode}
@@ -99,6 +100,8 @@ export function StackSceneFrame({
           'route-stack-panel',
           mode === 'enter' && 'route-stack-enter',
           mode === 'exit' && 'route-stack-exit',
+          mode === 'source' && 'route-stack-push-source',
+          mode === 'underlay' && 'route-stack-pop-underlay',
         )}
         onAnimationEnd={handleAnimationEnd}
       >

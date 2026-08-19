@@ -1,5 +1,5 @@
 import { Activity, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 
 import { useLocation, useOutlet } from 'react-router';
 
@@ -65,8 +65,14 @@ export function RouteTransitionOutlet() {
   const completeTransition = (token: number) => {
     setSettledTransitionToken((current) => Math.max(current, token));
   };
-  const tabHostUnderlay = transitionKind === 'pushing' && transition.fromSurface === 'tab';
+  const tabHostPushSource = transitionKind === 'pushing' && transition.fromSurface === 'tab';
+  const tabHostPopUnderlay =
+    transitionKind === 'popping' && metadata.surface === 'tab' && transition.toSurface === 'tab';
+  const tabHostUnderlay = tabHostPushSource;
   const tabHostVisible = metadata.surface === 'tab' || tabHostUnderlay;
+  const tabHostStyle = tabHostUnderlay
+    ? ({ '--route-tab-scroll-offset': `-${transition.fromScrollY}px` } as CSSProperties)
+    : undefined;
 
   return (
     <>
@@ -75,16 +81,14 @@ export function RouteTransitionOutlet() {
         className={cn(
           'route-tab-host',
           tabHostUnderlay && 'route-tab-host-underlay',
+          tabHostPushSource && 'route-tab-host-push-source',
+          tabHostPopUnderlay && 'route-tab-host-pop-underlay',
           !tabHostVisible && 'route-scene-hidden',
         )}
         data-route-transition="tab"
         data-tab-cache-size={sceneCache.tabScenes.length}
         inert={tabHostVisible ? undefined : true}
-        style={
-          tabHostUnderlay
-            ? { transform: `translate3d(0, -${transition.fromScrollY}px, 0)` }
-            : undefined
-        }
+        style={tabHostStyle}
       >
         {sceneCache.tabScenes.map((scene) => {
           const activityMode = getTabActivityMode({
