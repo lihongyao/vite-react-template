@@ -1,9 +1,7 @@
-import { useDialog } from '@/components/ui/Dialog';
+import { useDialog } from './context';
+import type { X1DialogProps } from './types';
 
-export interface X1DialogProps {
-  message?: string;
-  count: number;
-}
+export type { X1DialogProps } from './types';
 
 export default function X1Dialog({ message, count }: X1DialogProps) {
   const dialog = useDialog();

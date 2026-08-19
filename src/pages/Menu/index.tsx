@@ -1,19 +1,56 @@
 import LanguageSwitcher from '@/components/features/LanguageSwitcher';
+import { NavigateToLink } from '@/i18n/navigation';
+import { ROUTE_PATHS } from '@/routes/paths';
 
 const quickLinks = ['Popular', 'Favorites', 'Recent'];
-const exploreLinks = ['VIP Club', 'Bonus', 'Rewards', 'Tournaments'];
+const exploreLinks = [
+  { label: '交易记录', description: '查看订单与付款状态', to: ROUTE_PATHS.Transactions },
+  { label: 'VIP Club' },
+  { label: 'Bonus' },
+  { label: 'Rewards' },
+  { label: 'Tournaments' },
+];
 const supportLinks = ['Live Support', 'About us'];
 
-function MenuRow({ label, trailing }: { label: string; trailing?: React.ReactNode }) {
-  return (
-    <div className="flex min-h-14 items-center justify-between gap-4 border-b border-[#ECEEF1] px-4 last:border-b-0">
-      <span className="text-sm font-semibold text-[#30343B]">{label}</span>
+function MenuRow({
+  description,
+  label,
+  to,
+  trailing,
+}: {
+  description?: string;
+  label: string;
+  to?: string;
+  trailing?: React.ReactNode;
+}) {
+  const content = (
+    <>
+      <span className="min-w-0">
+        <span className="block text-sm font-semibold text-[#30343B]">{label}</span>
+        {description ? (
+          <span className="mt-0.5 block truncate text-xs text-[#9297A1]">{description}</span>
+        ) : null}
+      </span>
       {trailing ?? (
         <span aria-hidden className="text-lg leading-none text-[#B3B8C1]">
           ›
         </span>
       )}
-    </div>
+    </>
+  );
+
+  const className =
+    'flex min-h-14 items-center justify-between gap-4 border-b border-[#ECEEF1] px-4 last:border-b-0';
+
+  return to ? (
+    <NavigateToLink
+      className={`${className} outline-none focus-visible:ring-2 focus-visible:ring-[#168653] focus-visible:ring-inset`}
+      to={to}
+    >
+      {content}
+    </NavigateToLink>
+  ) : (
+    <div className={className}>{content}</div>
   );
 }
 
@@ -52,8 +89,8 @@ export default function Page() {
         </section>
 
         <section className="mt-3 overflow-hidden rounded-lg bg-white" aria-label="Explore">
-          {exploreLinks.map((label) => (
-            <MenuRow key={label} label={label} />
+          {exploreLinks.map((item) => (
+            <MenuRow key={item.label} {...item} />
           ))}
         </section>
 

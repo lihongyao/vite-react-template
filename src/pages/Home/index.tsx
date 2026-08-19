@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 
 import { Trans, useTranslation } from 'react-i18next';
 
+import { useDialog } from '@/components/features/dialogs/context';
 import AddressPicker from '@/components/ui/AddressPicker';
 import type {
   AddressPickerDataProps,
@@ -16,7 +17,6 @@ import DataPicker from '@/components/ui/DataPicker';
 import DateLeasePicker from '@/components/ui/DateLeasePicker';
 import type { DateLeasePickerRef, DateLeasePickerResult } from '@/components/ui/DateLeasePicker';
 import DatePicker from '@/components/ui/DatePicker';
-import { useDialog } from '@/components/ui/Dialog';
 import DragView from '@/components/ui/DragView';
 import Input from '@/components/ui/Forms/Input';
 import PhoneInput from '@/components/ui/Forms/PhoneInput';

@@ -129,6 +129,20 @@ const localeRoutes: RouteObject[] = SUPPORTED_LOCALES.map((locale) => {
             handle: stackTransitionHandle,
           },
           {
+            path: toChildPath(ROUTE_PATHS.Transactions),
+            lazy: {
+              Component: async () => (await import('@/pages/Transactions')).default,
+            },
+            handle: stackTransitionHandle,
+          },
+          {
+            path: toChildPath(ROUTE_PATHS.TransactionDetail),
+            lazy: {
+              Component: async () => (await import('@/pages/TransactionDetail')).default,
+            },
+            handle: stackTransitionHandle,
+          },
+          {
             path: '*',
             element: <NotFound />,
             handle: stackTransitionHandle,

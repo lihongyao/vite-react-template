@@ -1,4 +1,4 @@
-import { useDialog } from '@/components/ui/Dialog';
+import { useDialog } from './context';
 
 export default function X3Dialog() {
   const dialog = useDialog();

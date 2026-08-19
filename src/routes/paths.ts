@@ -11,6 +11,8 @@ export const PAGE_ROUTE_PATHS = {
   Apply: '/apply',
   GoodsDetail: '/goods/:id',
   Profile: '/profile',
+  TransactionDetail: '/transactions/:id',
+  Transactions: '/transactions',
 } as const;
 
 export const ROUTE_PATHS = {

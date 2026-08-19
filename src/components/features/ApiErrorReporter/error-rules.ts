@@ -1,5 +1,5 @@
 import type { ApiError, ApiErrorHandlerContext } from '@/api';
-import type { TipsType } from '@/components/features/dialogs/Tips';
+import type { TipsType } from '@/components/features/dialogs/types';
 
 export type ApiErrorMessageVariables = Record<string, boolean | number | string | null | undefined>;
 

@@ -205,6 +205,28 @@ StrictMode
 - 根路由的 `HydrateFallback` 和 `ErrorBoundary` 分别承载启动加载、环境错误、启动失败与重试界面。
 - URL 查询参数中存在 `debug` 时才会按需加载 vConsole，例如 `?debug` 或 `?debug=1`；该行为不区分开发、QA 和生产环境，普通 URL 不会请求 vConsole 模块。
 
+### Dialog 分层与依赖边界
+
+Dialog 分为基础 UI 能力和应用业务编排两层：
+
+```text
+src/components/features/dialogs
+├── DialogProvider.tsx  # 注册表驱动的挂载、队列和实例管理
+├── context.ts          # useDialog 与全局业务 Dialog 实例
+├── types.ts            # 弹窗名称、props 映射和强类型 API
+├── index.ts            # 业务弹窗注册表
+└── *.tsx               # 具体业务弹窗
+        │
+        ▼
+src/components/ui/Dialog
+├── Dialog.tsx          # 通用 Dialog 组件和静态 API
+└── index.ts            # 基础能力导出
+```
+
+依赖只能从 `features/dialogs` 指向 `ui/Dialog`。基础 UI 层不导入业务注册表，避免反向依赖、循环依赖，以及使用基础 `Dialog` 时连带加载全部业务弹窗。
+
+应用入口从 `@/components/features/dialogs/DialogProvider` 挂载 `DialogProvider`；业务组件从 `@/components/features/dialogs/context` 使用 `useDialog()` 或 `getGlobalDialog()`；只有组件模式和 `Dialog.open()` 静态模式从 `@/components/ui/Dialog` 导入。新增业务弹窗时需要同时更新 `types.ts` 的 props 映射和 `index.ts` 的运行时注册表，`satisfies DialogRegistry` 会在编译期校验两者一致。
+
 ### 构建来源与运行环境
 
 `VITE_APP_SOURCE` 是构建时限制，`getDeviceEnvironment()` 返回的是实际运行环境，两者不能混为一谈：

@@ -1,20 +1,12 @@
-import { type ReactNode, useId, useState } from 'react';
+import { useId, useState } from 'react';
 
 import Button from '@/components/ui/Button';
-import { useDialog } from '@/components/ui/Dialog';
 import Icon, { type IconName } from '@/components/ui/Icon';
 
-export type TipsType = 'success' | 'info' | 'warning' | 'error';
+import { useDialog } from './context';
+import type { TipsProps, TipsType } from './types';
 
-export interface TipsProps {
-  title: ReactNode;
-  description?: ReactNode;
-  type?: TipsType;
-  confirmText?: ReactNode;
-  cancelText?: ReactNode;
-  onConfirm?: () => void | Promise<void>;
-  onCancel?: () => void | Promise<void>;
-}
+export type { TipsProps, TipsType } from './types';
 
 const TYPE_META: Record<
   TipsType,

@@ -17,13 +17,21 @@
 # 文件结构
 
 ```
-Dialog/
-├── Dialog.tsx     # 主组件、静态方法、Provider
-├── context.ts     # DialogContext、useDialog、全局实例
-├── index.ts       # 统一导出
-├── animate.css    # 动画样式（fade/zoom/slide）
-└── README.md
+components/
+├── ui/Dialog/
+│   ├── Dialog.tsx     # 通用组件与静态方法
+│   ├── index.ts       # 基础能力导出
+│   ├── animate.css    # 动画样式（fade/zoom/slide）
+│   └── README.md
+└── features/dialogs/
+    ├── DialogProvider.tsx # 注册表驱动的业务 Provider
+    ├── context.ts         # useDialog、Context、全局实例
+    ├── types.ts           # 业务弹窗 props 映射与强类型 API
+    ├── index.ts           # 业务弹窗注册表
+    └── *.tsx              # 具体业务弹窗
 ```
+
+基础 `ui/Dialog` 不依赖 `features/dialogs`。业务层组合基础组件、注册表和 Context，依赖方向始终保持为 `features → ui`，避免反向依赖和循环依赖。
 
 # 设计理念
 
@@ -286,33 +294,54 @@ await Dialog.close(key, { reason: 'cancel-button' }); // 使用自定义原因�
 
 ### ⭕️ 接入流程
 
-1️⃣ 编写弹窗组件
+1️⃣ 声明业务弹窗契约
+
+```ts
+// components/features/dialogs/types.ts
+export interface UserDialogProps {
+  userId: number;
+}
+
+export interface ConfirmDialogProps {
+  title: string;
+}
+
+export interface DialogPropsMap {
+  user: UserDialogProps;
+  confirm: ConfirmDialogProps;
+}
+```
+
+2️⃣ 编写弹窗组件
 
 ```tsx
 // components/features/dialogs/UserDialog.tsx
-export default function UserDialog({ userId }: { userId: number }) {
+import type { UserDialogProps } from './types';
+
+export default function UserDialog({ userId }: UserDialogProps) {
   return <div>用户：{userId}</div>;
 }
 ```
 
-2️⃣ 注册弹框
+3️⃣ 注册弹框
 
 ```tsx
 // components/features/dialogs/index.ts
 import ConfirmDialog from './ConfirmDialog';
 import UserDialog from './UserDialog';
+import type { DialogRegistry } from './types';
 
 export const dialogRegistry = {
   user: UserDialog,
   confirm: ConfirmDialog,
-} as const;
+} as const satisfies DialogRegistry;
 ```
 
-3️⃣ 挂载 DialogProvider（全局一次）
+4️⃣ 挂载 DialogProvider（全局一次）
 
 ```tsx
-// app/layout.tsx
-import { DialogProvider } from '@/components/ui/Dialog';
+// main.tsx / app/layout.tsx
+import { DialogProvider } from '@/components/features/dialogs/DialogProvider';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -325,10 +354,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 }
 ```
 
-4️⃣ useDialog 打开弹窗
+5️⃣ useDialog 打开弹窗
 
 ```tsx
-import { useDialog } from '@/components/ui/Dialog';
+import { useDialog } from '@/components/features/dialogs/context';
 
 const dialog = useDialog();
 
@@ -342,7 +371,7 @@ dialog.open('user', {
 **在非 Provider 子树中访问：** 若需要在非 `DialogProvider` 子组件中打开弹窗（如 store、utils、事件回调），可使用 `getGlobalDialog()`：
 
 ```tsx
-import { getGlobalDialog } from '@/components/ui/Dialog';
+import { getGlobalDialog } from '@/components/features/dialogs/context';
 
 // 需确保 DialogProvider 已挂载
 const dialog = getGlobalDialog();
@@ -506,4 +535,4 @@ type DialogContextValue = {
 1. **DialogProvider 挂载顺序**：`getGlobalDialog()` 需在 `DialogProvider` 挂载后调用，否则会抛错。
 2. **动画期间防抖**：进入/退出动画期间会忽略重复的关闭请求，避免动画被打断。
 3. **body 滚动锁**：多弹窗叠加时，只有全部关闭后才解锁 body 滚动。
-4. **dialogRegistry**：新增业务弹窗需在 `@/components/features/dialogs/index.ts` 中注册，类型会自动推导。
+4. **业务弹窗契约**：新增业务弹窗需同时更新 `@/components/features/dialogs/types.ts` 的 `DialogPropsMap` 和 `@/components/features/dialogs/index.ts` 的注册表；`satisfies DialogRegistry` 会校验名称与 props 是否一致。

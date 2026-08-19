@@ -12,7 +12,7 @@ import { setApiRequestContextProvider } from './api';
 import SpriteSvgSource from './assets/svg/generated/sprite-svg';
 import ApiErrorReporter from './components/features/ApiErrorReporter';
 import AppErrorBoundary from './components/features/AppErrorBoundary';
-import { DialogProvider } from './components/ui/Dialog';
+import { DialogProvider } from './components/features/dialogs/DialogProvider';
 import { MessageProvider } from './components/ui/Message';
 import { NotificationProvider } from './components/ui/Notification';
 import { DEFAULT_LOCALE, LOCALE_CONFIG, isLocale } from './i18n/config';

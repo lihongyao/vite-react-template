@@ -3,8 +3,8 @@ import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { type ApiError, type ApiErrorHandlerContext, setApiErrorHandler } from '@/api';
-import { useDialog } from '@/components/ui/Dialog';
-import type { DialogContextValue } from '@/components/ui/Dialog';
+import { useDialog } from '@/components/features/dialogs/context';
+import type { DialogContextValue } from '@/components/features/dialogs/context';
 import { notification } from '@/components/ui/Notification';
 import type { NotificationApi } from '@/components/ui/Notification';
 
