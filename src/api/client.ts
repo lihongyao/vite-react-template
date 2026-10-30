@@ -184,9 +184,9 @@ function isUnauthorized(error: ReturnType<typeof normalizeApiError>) {
  * @param config 当前请求配置；没有关联请求时可省略。
  * @returns 是否应触发全局错误提示。
  */
-function shouldReportApiError(
+function shouldReportApiError<D>(
   error: ReturnType<typeof normalizeApiError>,
-  config: ApiRequestConfig | undefined,
+  config: Pick<ApiRequestConfig<D>, 'errorHandling' | 'skipAuth'> | undefined,
 ) {
   // 取消请求属于用户/路由生命周期行为，不应该打扰用户。
   if (error.kind === 'canceled') return false;
@@ -205,7 +205,7 @@ function shouldReportApiError(
  * @param config 当前请求配置；没有关联请求时可省略。
  * @returns 归一化后的 API 错误，供调用方继续抛出。
  */
-function handleRequestError(error: unknown, config?: ApiRequestConfig) {
+function handleRequestError<D>(error: unknown, config?: ApiRequestConfig<D>) {
   const apiError = normalizeApiError(error);
 
   // 这里是 request/download 的最终出口：既保证错误继续 throw，也负责触发统一展示。

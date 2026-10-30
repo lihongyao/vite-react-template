@@ -23,14 +23,14 @@ export default defineConfig(({ mode, command }: ConfigEnv): UserConfig => {
       },
     },
     plugins: [
-      react(),
-      // tailwindcss
-      tailwindcss(),
-      // code inspector
+      // code inspector must run before the React transform.
       command === 'serve' &&
         codeInspectorPlugin({
           bundler: 'vite',
         }),
+      react(),
+      // tailwindcss
+      tailwindcss(),
       // svgr
       // svgr({
       //   svgrOptions: {

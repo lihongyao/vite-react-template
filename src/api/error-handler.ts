@@ -2,7 +2,7 @@ import type { ApiError } from './errors';
 import type { ApiRequestConfig } from './types';
 
 export interface ApiErrorHandlerContext {
-  config?: ApiRequestConfig;
+  config?: ApiRequestConfig<any>;
 }
 
 export type ApiErrorHandler = (error: ApiError, context: ApiErrorHandlerContext) => void;
