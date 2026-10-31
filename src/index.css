@@ -28,7 +28,7 @@ html {
   user-select: none;
 }
 
-html:has(.route-stack-active) {
+html:has([data-route-surface='stack']) {
   overscroll-behavior-y: none;
 }
 

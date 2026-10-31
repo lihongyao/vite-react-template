@@ -1,234 +1,120 @@
-.route-tab-host {
-  --route-stack-parallax-offset: -30%;
-  --route-tab-scroll-offset: 0px;
+.route-transition-shell {
+  min-width: 0;
+  min-height: 100svh;
+  background: var(--secondary-page-background);
+}
+
+.route-transition-page {
+  min-width: 0;
+  min-height: 100svh;
+}
+
+.route-transition-shell[data-route-surface='tab'] .route-transition-page {
   min-height: calc(100svh - var(--app-header-height));
   padding-bottom: var(--app-tabbar-height);
   background: var(--tab-page-background);
 }
 
-.route-tab-host-underlay {
-  position: fixed;
-  inset: var(--app-header-height) 0 0;
-  z-index: 0;
-  min-height: 0;
-  overflow: hidden;
-  padding-bottom: 0;
-  pointer-events: none;
-}
-
-.route-tab-host-push-source,
-.route-tab-host-pop-underlay {
-  animation-duration: 230ms;
-  animation-fill-mode: both;
-  animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
-  backface-visibility: hidden;
-  will-change: transform;
-}
-
-.route-tab-host-push-source {
-  animation-name: route-tab-push-source;
-}
-
-.route-tab-host-pop-underlay {
-  animation-name: route-tab-pop-underlay;
-}
-
-@media (min-width: 501px) {
-  .route-tab-host-underlay {
-    right: auto;
-    left: 50%;
-    width: var(--app-max-width);
-    margin-left: calc(var(--app-max-width) / -2);
-  }
-}
-
-.route-tab-scene,
-.route-stack-scene {
-  min-width: 0;
-}
-
-.route-tab-scene,
-.route-stack-flow {
-  min-height: inherit;
-}
-
-.route-tab-scene {
-  background: var(--tab-page-background);
-}
-
-.route-stack-panel {
-  --route-stack-parallax-offset: -30%;
-  min-height: inherit;
+.route-transition-shell[data-route-surface='stack'] .route-transition-page {
   background: var(--secondary-page-background);
 }
 
-.route-stack-flow {
-  position: relative;
-  z-index: 30;
-  min-height: 100svh;
+::view-transition-group(route-content) {
+  overflow: clip;
+  animation-duration: 250ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.root-layout-has-primary-header .route-stack-flow {
-  margin-top: calc(0px - var(--app-header-height));
+::view-transition-image-pair(route-content) {
+  overflow: clip;
 }
 
-.route-stack-fixed {
-  position: fixed;
-  inset-block: 0;
-  z-index: 40;
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior-y: contain;
-  scrollbar-width: none;
-  touch-action: none;
-  contain: layout paint;
-  -webkit-overflow-scrolling: touch;
+::view-transition-old(.route-tab-transition),
+::view-transition-new(.route-tab-transition) {
+  animation-duration: 250ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.route-stack-fixed .route-stack-panel {
-  min-height: 100svh;
+::view-transition-new(.route-tab-transition) {
+  animation-name: route-tab-enter;
 }
 
-.route-stack-fixed::-webkit-scrollbar {
-  display: none;
+::view-transition-old(.route-tab-transition) {
+  animation-name: route-tab-exit;
 }
 
-.route-scene-hidden {
-  display: none;
+::view-transition-new(.route-push-transition),
+::view-transition-old(.route-pop-transition) {
+  z-index: 2;
 }
 
-.route-scene-visible,
-.route-stack-active {
-  pointer-events: auto;
-  visibility: visible;
+::view-transition-old(.route-push-transition),
+::view-transition-new(.route-pop-transition) {
+  z-index: 1;
 }
 
-.route-stack-source {
-  pointer-events: none;
+::view-transition-new(.route-push-transition) {
+  animation-name: route-push-enter;
 }
 
-.route-stack-underlay {
-  pointer-events: none;
+::view-transition-old(.route-push-transition) {
+  animation-name: route-push-exit;
 }
 
-.route-tab-enter {
-  backface-visibility: hidden;
-  transform-origin: 50% 50vh;
-  will-change: transform, opacity;
+::view-transition-new(.route-pop-transition) {
+  animation-name: route-pop-enter;
 }
 
-.route-tab-enter {
-  animation: route-tab-scale-in 250ms cubic-bezier(0.22, 1, 0.36, 1) both;
+::view-transition-old(.route-pop-transition) {
+  animation-name: route-pop-exit;
 }
 
-.route-stack-enter,
-.route-stack-exit,
-.route-stack-push-source,
-.route-stack-pop-underlay {
-  animation-duration: 230ms;
-  animation-fill-mode: both;
-  animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
-  backface-visibility: hidden;
-  will-change: transform;
-}
-
-.route-stack-enter {
-  animation-name: route-stack-push-in;
-}
-
-.route-stack-exit {
-  animation-name: route-stack-pop-out;
-}
-
-.route-stack-push-source {
-  animation-name: route-stack-push-source;
-}
-
-.route-stack-pop-underlay {
-  animation-name: route-stack-pop-underlay;
-}
-
-body[data-scroll-locked='true'] .route-stack-fixed {
-  overflow-y: hidden;
-}
-
-@keyframes route-tab-scale-in {
+@keyframes route-tab-enter {
   from {
     opacity: 0;
     transform: scale(0.98);
   }
+}
+
+@keyframes route-tab-exit {
   to {
-    opacity: 1;
-    transform: scale(1);
+    opacity: 0;
   }
 }
 
-@keyframes route-tab-push-source {
+@keyframes route-push-enter {
   from {
-    transform: translate3d(0, var(--route-tab-scroll-offset), 0);
-  }
-  to {
-    transform: translate3d(var(--route-stack-parallax-offset), var(--route-tab-scroll-offset), 0);
-  }
-}
-
-@keyframes route-tab-pop-underlay {
-  from {
-    transform: translate3d(var(--route-stack-parallax-offset), 0, 0);
-  }
-  to {
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-@keyframes route-stack-push-in {
-  from {
-    transform: translate3d(100%, 0, 0);
-  }
-  to {
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-@keyframes route-stack-pop-out {
-  from {
-    transform: translate3d(0, 0, 0);
-  }
-  to {
+    opacity: 0;
     transform: translate3d(100%, 0, 0);
   }
 }
 
-@keyframes route-stack-push-source {
-  from {
-    transform: translate3d(0, 0, 0);
-  }
+@keyframes route-push-exit {
   to {
-    transform: translate3d(var(--route-stack-parallax-offset), 0, 0);
+    opacity: 0;
+    transform: translate3d(-30%, 0, 0);
   }
 }
 
-@keyframes route-stack-pop-underlay {
+@keyframes route-pop-enter {
   from {
-    transform: translate3d(var(--route-stack-parallax-offset), 0, 0);
+    opacity: 0;
+    transform: translate3d(-30%, 0, 0);
   }
+}
+
+@keyframes route-pop-exit {
   to {
-    transform: translate3d(0, 0, 0);
+    opacity: 0;
+    transform: translate3d(100%, 0, 0);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .route-tab-enter {
-    animation-duration: 0.01ms;
-    will-change: auto;
-  }
-
-  .route-tab-host-push-source,
-  .route-tab-host-pop-underlay,
-  .route-stack-enter,
-  .route-stack-exit,
-  .route-stack-push-source,
-  .route-stack-pop-underlay {
-    animation-duration: 1ms;
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
   }
 }

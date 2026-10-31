@@ -1,6 +1,6 @@
 # Vite React H5 Template
 
-一个面向移动端 H5 的 React 项目模板，基于 Vite、TypeScript 和 Tailwind CSS。项目内置多环境构建、多语言路由、原生 CSS 页面转场、Tab/Stack 场景缓存、统一 API 请求层、全局状态、错误边界、通知组件，以及微信和 Telegram WebView 的基础适配能力。
+一个面向移动端 H5 的 React 项目模板，基于 Vite、TypeScript 和 Tailwind CSS。项目内置多环境构建、多语言路由、React 原生 View Transition 页面转场、统一 API 请求层、全局状态、错误边界、通知组件，以及微信和 Telegram WebView 的基础适配能力。
 
 ## 技术栈
 
@@ -350,41 +350,37 @@ const appInitializers: AppInitializer[] = [initializeGlobalConfig];
 ```text
 LocaleLayout                     # 激活当前语言
 └── RootLayout                   # 一级页和二级页共同的持久布局
-    ├── AppHeader                # 已进入一级页后持续挂载的公共 Header
-    ├── RouteTransitionOutlet    # 单一 Outlet 消费者，管理 Tab/Stack 场景
-    ├── AppTabBar                # 始终挂载的一级页公共底部导航
-    └── routes
+    └── RouteTransition          # React 原生 ViewTransition 边界
+        ├── AppHeader            # 仅一级页渲染的公共 Header
+        ├── Outlet               # 当前路由页面
+        ├── AppTabBar            # 仅一级页渲染的底部导航
+        └── routes
         ├── Tab routes           # Home、Goods、Privilege、Integral、Menu
         └── Stack routes         # Profile、Apply、GoodsDetail、NotFound 等二级页
 ```
 
-页面通过 route handle 声明所属表面：一级页使用 `transitionSurface: 'tab'` 并提供稳定的 `sceneId`，二级页使用 `transitionSurface: 'stack'`。`navigateBack` 和 `switchTab` 会提交必要的业务意图，普通 push 直接使用 React Router navigation type；浏览器手势、浏览器按钮和地址栏跳转没有业务意图时，才根据 `location.key` 和 `window.history.state.idx` 推断方向。`RouteTransitionOutlet` 生成导航快照，再把 Router Outlet 分配给对应的 Activity scene。
+页面通过 route handle 声明所属表面：一级页使用 `transitionSurface: 'tab'` 并提供稳定的 `sceneId`，二级页使用 `transitionSurface: 'stack'`。`RootLayout` 根据当前表面决定是否渲染公共 Header 和 TabBar，整个页面壳层由 React 19.3 的持久化 `<ViewTransition>` 捕获。
 
-`RootLayout` 是所有页面的共同父布局，固定结构为 `AppHeader -> RouteTransitionOutlet -> AppTabBar`。进入二级页时，Stack scene 在 push/pop 动画期间以 fixed 前景层覆盖整个 H5 视口，动画结束后回到普通文档流。来源 Tab 只在 push 动画期间作为 fixed underlay，动画结束后进入 `Activity hidden`；pop 开始时目标 Activity 会先恢复，再由退出中的 Stack 覆盖。一级页 Header 配置与对应 route handle 一起维护在 `src/routes/index.tsx` 的 `tabRouteHandles` 中。
+页面遵循标准 React Router 生命周期，路由离开后即卸载，不缓存旧页面 DOM 或组件 state。浏览器 View Transition API 负责旧、新页面快照和合成动画，代码中不维护双页面场景、动画 token、固定滚动层或动画结束回调。
 
-### 场景缓存与动画规则
+### View Transition 动画规则
 
-| 导航场景                         | 实现                                              | 动画                                                     | 滚动行为                        |
-| -------------------------------- | ------------------------------------------------- | -------------------------------------------------------- | ------------------------------- |
-| `switchTab`：Tab -> Tab          | `replace` 当前 Tab entry，目标 Tab 保持或首次挂载 | 目标页在 250ms 内从 `scale(0.98)`、`opacity: 0` 放大淡入 | 目标 Tab 置顶                   |
-| `navigateTo`：Tab/Stack -> Stack | 来源场景保留为静态底图，只动画新建的顶层 Stack    | 230ms `translate3d(100%, 0, 0)` 推入                     | 新页面从顶部开始                |
-| `navigateBack`：Stack -> 上一页  | 目标场景保持静止，只动画当前顶层 Stack            | 230ms `translate3d(100%, 0, 0)` 推出                     | 恢复目标 history entry 原有位置 |
-| `switchTab`：Stack -> Tab        | replace 当前 entry 并清空内存中的 Stack cache     | 中性切换，不播放 push/pop 或 Tab 入场动画                | 目标 Tab 置顶                   |
-| 浏览器手势/浏览器历史前进或返回  | 底层目标已提前挂载，跳过自定义 Stack 动画         | 使用 Safari/Chrome 自身的历史效果，避免双重动画          | 恢复目标 history entry 原有位置 |
+| 导航场景                         | Transition type | 动画                                          | 滚动行为                        |
+| -------------------------------- | --------------- | --------------------------------------------- | ------------------------------- |
+| `switchTab`：Tab -> Tab          | `route-tab`     | 整体页面在 250ms 内缩放淡入                   | 目标 Tab 置顶                   |
+| `navigateTo`：Tab/Stack -> Stack | `route-push`    | 新页面从右侧推入，旧页面轻微左移              | 新页面从顶部开始                |
+| `navigateBack`：Stack -> 上一页  | `route-pop`     | 当前 History/popstate 下 React 会跳过页面动画 | 恢复目标 history entry 原有位置 |
+| 浏览器手势/浏览器历史前进或返回  | 无              | 使用浏览器自身历史效果，不叠加 React 页面动画 | 恢复目标 history entry 原有位置 |
 
-缓存规则如下：
+`useAppNavigation` 使用 `startTransition` 和 `addTransitionType` 将导航原因交给 React。`route-pop` 的反向 CSS 已定义；React 当前会为保证 History API 的同步滚动和表单恢复而跳过 `popstate` 动画，未来 Router 改用 Navigation API 后可直接启用。
 
-- 已访问的 Tab 按稳定 `sceneId` 缓存在内存中，并分别挂载在 React `Activity` 中。非当前 Tab 使用 `hidden` 模式：组件 state 和 DOM 会保留，Effects 会清理；再次显示时恢复原有 state/DOM 并重新创建 Effects。
-- Stack scene 按 history location key 缓存，每个 history entry 都有独立 Activity。隐藏的 Stack 同样保留 state 和 DOM、清理 Effects；只有参与 push/pop 的 source 和 target 临时保持 `visible`。
-- body 滚动位置由独立 scroll registry 按 `tab:sceneId` 或 `stack:locationKey` 保存，不混入 Scene 数据。Tab 切换和新 push 置顶，pop 与 browser back/forward 恢复目标 entry 原有位置。
-- 从 Stack 调用 `switchTab` 会 replace 当前 history entry 并清空内存中的 Stack Activity，不再通过同 URL round trip 改写 forward 分支。浏览器中更早的 history entry 继续遵循原生 History 语义。
-- 用户返回后再 push 新页面时，会清理已失效的 forward Stack scene，保持缓存与浏览器历史分支一致。
-- 非当前 Tab 和非活动 Stack 都由 `Activity` 使用 `display: none` 隐藏；动画 source 继续设置 `inert`、`aria-hidden` 和禁用指针事件，不参与点击或焦点导航。
-- 页面内需要 Portal 到 `document.body` 的常驻控件必须读取 `RouteScenePresentContext`，只在所属场景 present 时渲染。`DragView` 已按此规则实现，避免缓存页产生重复悬浮控件。
+- `<ViewTransition default="none">` 保证数据刷新、语言状态等普通 Transition 不会误触发页面动画。
+- 动画样式只使用 `::view-transition-old()`、`::view-transition-new()`、`transform` 和 `opacity`。
+- 不支持 View Transition API 的浏览器正常导航并自动降级为无动画。
+- `prefers-reduced-motion` 开启时，页面动画缩短到近乎即时完成。
+- 页面动画不依赖 Motion；项目中的 Motion 仅用于 `AnimatedNumber` 等页面内动画。
 
-动画只使用合成友好的 `transform` 和 `opacity`。`will-change` 仅在 250ms/230ms 动画期间启用，`animationend` 后立即释放，并带有 600ms fallback 防止异常动画事件让页面停留在过渡态。底层页面、Header 和 TabBar 不做位移动画；`prefers-reduced-motion` 开启时会把动画缩短到接近即时完成。
-
-路由转场不依赖 Motion 等 JavaScript 动画运行时。维护时不要给场景新增逐帧 React state、滚动监听驱动动画、背景页缩放、blur 或大面积 box-shadow，这些操作会增加移动端合成和重绘成本。
+维护时不要重新引入双页面 DOM 缓存、手工调用 `document.startViewTransition()`，或同时使用 React Router 已弃用的 `viewTransition` 选项，否则会与 React 的转场协调发生冲突。
 
 ### 路径与导航约定
 
@@ -400,15 +396,15 @@ React Router 的嵌套子路由需要相对 `path`，使用 `toChildPath(ROUTE_P
 const { navigateTo, navigateBack, switchTab } = useAppNavigation();
 
 void navigateTo(ROUTE_PATHS.Profile); // push 一个 Stack 页面
-void navigateBack(); // 返回上一层，播放 pop 动画
+void navigateBack(); // 返回上一层；当前 popstate 不播放 React 动画
 void switchTab(ROUTE_PATHS.Goods); // replace 当前 entry 并切换 Tab
 ```
 
 API 契约如下：
 
 - `navigateTo(to, options?)` 始终执行 push，类型上不接受 `replace`。声明式二级页入口使用 `NavigateToLink`。
-- `navigateBack({ fallback? })` 在应用 history 内返回一层并播放 pop 动画。直接打开二级页、没有可返回的应用 entry 时，使用 fallback Tab；默认是 `ROUTE_PATHS.Home`。
-- `switchTab(to)` 只接受 `TabRoutePath`。Tab 之间使用 replace 并保留现有 Tab 动画；从 Stack 切换时 replace 当前 entry、清空内存中的 Stack cache 并使用中性转场。声明式 Tab 入口使用 `SwitchTabLink`。
+- `navigateBack({ fallback? })` 在应用 history 内返回一层。直接打开二级页、没有可返回的应用 entry 时，使用 fallback Tab；默认是 `ROUTE_PATHS.Home`。
+- `switchTab(to)` 只接受 `TabRoutePath`。Tab 之间使用 replace 并播放 `route-tab` 动画。声明式 Tab 入口使用 `SwitchTabLink`。
 
 业务组件不要直接使用 React Router 的 `useNavigate()`、数字 delta 或 `{ replace: true }`，否则 history 和转场意图会分离。应用启动重定向、语言切换等基础设施流程可以直接调用 Router replace，它们按中性导航处理。`SecondaryHeader` 已统一调用 `navigateBack()`。
 
@@ -417,8 +413,8 @@ API 契约如下：
 1. 在 `src/pages/<PageName>/index.tsx` 创建并默认导出页面组件。
 2. 在 `src/routes/paths.ts` 中添加 canonical 绝对路径：一级页放入 `TAB_ROUTE_PATHS`，二级页放入 `PAGE_ROUTE_PATHS`。
 3. 在 `src/routes/index.tsx` 引入页面，并用 `toChildPath(ROUTE_PATHS.Xxx)` 将路由添加到 `RootLayout` 的 `children` 中。
-4. 明确设置带 `sceneId` 的 Tab handle 或 `stackTransitionHandle`，不要依赖默认 surface。未声明或声明错误会影响缓存、导航层级和动画方向。
-5. 非首屏页面可以通过 `lazy` 按需加载。首访期间的动态模块加载可能延迟新 scene 提交和动画起始，核心二级页应结合实际网络环境决定是否预加载；如需显示 fallback，必须保证其尺寸稳定，避免加载完成时发生布局跳动。
+4. 明确设置带 `sceneId` 的 Tab handle 或 `stackTransitionHandle`，不要依赖默认 surface。未声明或声明错误会影响公共导航和页面壳层。
+5. 非首屏页面可以通过 `lazy` 按需加载；React 会等待异步导航准备完成再启动 View Transition。
 
 ### 添加 Tab 页
 
@@ -458,7 +454,7 @@ const tabRouteHandles = {
 
 ### 添加普通二级页
 
-普通二级页也添加到 `RootLayout` 的 `children`，并设置 `handle: stackTransitionHandle`。它们会由 `RouteTransitionOutlet` 作为前景 Stack scene 覆盖整个视口；底层一级页继续保持挂载，但不可交互：
+普通二级页也添加到 `RootLayout` 的 `children`，并设置 `handle: stackTransitionHandle`。进入二级页后一级页会按标准 Router 生命周期卸载：
 
 ```tsx
 {
@@ -697,13 +693,11 @@ RUN pnpm build:prod
 
 - `html`、`body` 和 `#root` 只设置最小高度，不锁定页面高度，也不设置根级 `overflow: hidden`；一级页和二级页内容按文档流自然布局。
 - 一级页公共 Header 使用 sticky，底部 TabBar 使用 fixed；两者都通过 `.app-fixed-frame` 与桌面宽屏下最大 500px 的 H5 画布对齐。
-- 一级页 Tab scene 按稳定 `sceneId` 保活。非当前 Tab 进入 `Activity hidden`，保留组件 state 和 DOM 并清理 Effects；切回时不重新挂载页面，但会按 React 语义重新创建 Effects。
-- Stack scene 按 history location key 挂载在 Activity 中。进入二级页时目标页从文档顶部开始；返回或前进到已有 history entry 时，独立 scroll registry 通过 `window.scrollTo()` 恢复该 entry 的文档滚动位置。
-- 二级页 push/pop 动画期间，参与动画的 Stack scene 临时使用 fixed scrollport，并在动画结束后立即回到普通文档流；这个临时层只用于避免 Header、内容和滚动位置在转场中错帧。
-- 来源 Tab 只在 push 动画期间作为 fixed underlay 并带上进入二级页前的滚动偏移；动画结束后进入 `Activity hidden`，pop 时在退出层下方恢复。
-- 非当前 Tab 和非活动 Stack 都由 `Activity` 隐藏，避免缓存页面 Effects、点击、焦点和布局继续工作。
+- 路由页面不做内存保活；离开后卸载，再次进入时按正常 React 生命周期挂载。
+- View Transition 使用浏览器生成的页面快照播放动画，不需要同时挂载旧、新路由 DOM。
+- 独立 scroll registry 按 `tab:sceneId` 或 `stack:locationKey` 保存位置；新导航置顶，History POP 恢复对应 entry 的位置。
 
-业务页面不要自行创建第二层纵向滚动容器，也不要在路由切换相关逻辑中主动读取或写入 `window.scrollY`/`window.scrollTo()`；滚动位置由 `RouteTransitionOutlet` 统一管理。业务内容内需要观察可见性时，优先使用 `IntersectionObserver`。弹层内部如果确实需要独立滚动，应只在弹层内容区域设置 `overflow-y-auto` 和 `overscroll-contain`。
+业务页面不要自行创建第二层纵向滚动容器，也不要在路由切换相关逻辑中主动读取或写入 `window.scrollY`/`window.scrollTo()`；滚动位置由 `RouteTransition` 统一管理。业务内容内需要观察可见性时，优先使用 `IntersectionObserver`。弹层内部如果确实需要独立滚动，应只在弹层内容区域设置 `overflow-y-auto` 和 `overscroll-contain`。
 
 `Popup` 和 `Dialog` 通过 Portal 挂载到 `document.body`，共享 `src/libs/scroll-lock.ts` 的滚动锁。锁开启时，`body[data-scroll-locked='true']` 会禁用文档滚动，并把公共 Header 临时固定在当前 H5 画布顶部；引用计数保证多个弹层同时存在时不会提前解锁。弹层内部如果需要滚动，应在内容区域单独设置 `overflow-y-auto` 和 `overscroll-contain`。
 
@@ -713,11 +707,11 @@ RUN pnpm build:prod
 
 路由动画最终以 iOS Safari 和 Android Chrome 真机为准。开发服务器的 HMR、React StrictMode 和调试工具会放大主线程开销，性能验收应同时覆盖 QA/production 构建。建议至少验证：
 
-1. 连续切换多个 Tab，确认旧页立即消失、目标页置顶且首次加载后不再出现请求骨架。
-2. 在长列表中滚动后进入二级页，再分别使用顶部返回按钮和浏览器右滑/历史返回，确认底层 Header、内容和滚动位置没有闪烁。
+1. 连续切换多个 Tab，确认目标页缩放淡入、滚动置顶，页面 state 按标准卸载/挂载语义重置。
+2. 在长列表中滚动后进入二级页，确认新页从右侧推入；顶部返回按钮和浏览器右滑/历史返回不叠加 React 动画，并正确恢复滚动位置。
 3. 从二级页继续进入另一二级页，逐层返回并使用浏览器前进，确认每个 history entry 的滚动位置独立保留。
-4. 从二级页调用 `switchTab`，确认内存中的 Stack scene 全部移除、目标 Tab 置顶，且切换过程中不播放 push/pop 动画；浏览器更早的 entry 按原生 History 语义验收。
-5. 动画结束后检查活动 scene 已移除 `route-tab-enter`/`route-stack-enter`/`route-stack-exit`，且 `animation-name: none`、`will-change: auto`，避免长期保留临时动画提示。
+4. 从二级页调用 `switchTab`，确认目标 Tab 置顶并播放 Tab 动画，浏览器更早的 entry 继续遵循原生 History 语义。
+5. 动画期间检查 `::view-transition-old(route-content)` 和 `::view-transition-new(route-content)`，结束后确认浏览器自动移除伪元素。
 6. 默认关闭 vConsole 进行性能测试；只有需要现场调试时才在 URL 增加 `debug` 参数。
 
 ## 代码质量

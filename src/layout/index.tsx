@@ -1,10 +1,8 @@
-import { useRef } from 'react';
-
-import { useMatches } from 'react-router';
+import { Outlet, useMatches } from 'react-router';
 
 import AppHeader from '@/components/features/AppHeader';
 import TabBar from '@/components/features/AppTabBar';
-import { RouteTransitionOutlet } from '@/components/features/RouteTransition';
+import { RouteTransition } from '@/components/features/RouteTransition';
 import type { RouteTransitionHandle } from '@/components/features/RouteTransition/types';
 import { cn } from '@/libs/class-helpers';
 
@@ -22,43 +20,36 @@ export default function RootLayout() {
     .find(Boolean);
   const isStackPage = routeHandle?.transitionSurface === 'stack';
   const header = routeHandle?.header;
-  const tabHeaderRef = useRef<AppHeaderConfig | undefined>(header);
-
-  if (!isStackPage && header) tabHeaderRef.current = header;
-
-  const tabHeader = isStackPage ? tabHeaderRef.current : header;
+  const showPrimaryChrome = !isStackPage && header !== undefined;
 
   return (
-    <div
-      className={cn(
-        'relative min-h-svh w-full bg-[var(--tab-page-background)]',
-        tabHeader && 'root-layout-has-primary-header',
-      )}
-    >
-      {tabHeader ? (
-        <>
-          <div
-            aria-hidden={isStackPage || undefined}
-            className="sticky top-0 z-20"
-            data-primary-chrome="header"
-            data-route-present={isStackPage ? 'false' : 'true'}
-            inert={isStackPage ? true : undefined}
-          >
-            <AppHeader title={tabHeader.title} description={tabHeader.description} />
-          </div>
-          <div aria-hidden className="app-header-lock-spacer" />
-        </>
-      ) : null}
-      <RouteTransitionOutlet />
+    <RouteTransition>
       <div
-        aria-hidden={isStackPage || undefined}
-        className="app-fixed-frame fixed bottom-0 z-20"
-        data-primary-chrome="tabbar"
-        data-route-present={isStackPage ? 'false' : 'true'}
-        inert={isStackPage ? true : undefined}
+        className={cn(
+          'route-transition-shell relative min-h-svh w-full',
+          showPrimaryChrome
+            ? 'bg-[var(--tab-page-background)]'
+            : 'bg-[var(--secondary-page-background)]',
+        )}
+        data-route-surface={isStackPage ? 'stack' : 'tab'}
       >
-        <TabBar />
+        {showPrimaryChrome ? (
+          <>
+            <div className="sticky top-0 z-20" data-primary-chrome="header">
+              <AppHeader title={header.title} description={header.description} />
+            </div>
+            <div aria-hidden className="app-header-lock-spacer" />
+          </>
+        ) : null}
+        <main className="route-transition-page">
+          <Outlet />
+        </main>
+        {showPrimaryChrome ? (
+          <div className="app-fixed-frame fixed bottom-0 z-20" data-primary-chrome="tabbar">
+            <TabBar />
+          </div>
+        ) : null}
       </div>
-    </div>
+    </RouteTransition>
   );
 }

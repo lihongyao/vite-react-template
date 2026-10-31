@@ -3,12 +3,11 @@
   <span>Drag</span>
 </DragView>
  */
-import { memo, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { KeyboardEvent, PointerEvent, ReactNode } from 'react';
 
 import { createPortal } from 'react-dom';
 
-import { RouteScenePresentContext } from '@/components/features/RouteTransition/route-scene-context';
 import { ZIndex } from '@/constants/z-index';
 import { cn } from '@/libs/class-helpers';
 
@@ -49,7 +48,6 @@ export default memo(function DragView({
   ariaLabel = 'Draggable control',
   onPress,
 }: DragViewProps) {
-  const isRouteScenePresent = useContext(RouteScenePresentContext);
   const frameRef = useRef<HTMLDivElement>(null);
   const controlRef = useRef<HTMLButtonElement>(null);
   const pointerRef = useRef<{ id: number; start: Point; origin: Point } | null>(null);
@@ -98,13 +96,6 @@ export default memo(function DragView({
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [clampToViewport]);
-
-  useEffect(() => {
-    if (isRouteScenePresent) return;
-    pointerRef.current = null;
-    movedRef.current = false;
-    setDragging(false);
-  }, [isRouteScenePresent]);
 
   const handlePointerDown = (event: PointerEvent<HTMLButtonElement>) => {
     if (event.button !== 0 || pointerRef.current) return;
@@ -157,36 +148,34 @@ export default memo(function DragView({
     setOffset((current) => clampToViewport({ x: current.x + delta.x, y: current.y + delta.y }));
   };
 
-  return isRouteScenePresent
-    ? createPortal(
-        <div
-          ref={frameRef}
-          className="app-fixed-frame pointer-events-none fixed inset-y-0"
-          style={{ zIndex }}
-        >
-          <button
-            ref={controlRef}
-            type="button"
-            aria-label={ariaLabel}
-            aria-roledescription="draggable"
-            className={cn(
-              'ui-drag-view pointer-events-auto absolute cursor-grab touch-none border-0 bg-transparent p-0 outline-none select-none focus-visible:ring-2 focus-visible:ring-[#168653] focus-visible:ring-offset-2',
-              dragging && 'cursor-grabbing',
-              className,
-            )}
-            data-dragging={dragging ? 'true' : 'false'}
-            style={{ left: offset.x, top: offset.y }}
-            onClick={handleClick}
-            onKeyDown={handleKeyDown}
-            onPointerCancel={finishPointerInteraction}
-            onPointerDown={handlePointerDown}
-            onPointerMove={handlePointerMove}
-            onPointerUp={finishPointerInteraction}
-          >
-            {children}
-          </button>
-        </div>,
-        document.body,
-      )
-    : null;
+  return createPortal(
+    <div
+      ref={frameRef}
+      className="app-fixed-frame pointer-events-none fixed inset-y-0"
+      style={{ zIndex }}
+    >
+      <button
+        ref={controlRef}
+        type="button"
+        aria-label={ariaLabel}
+        aria-roledescription="draggable"
+        className={cn(
+          'ui-drag-view pointer-events-auto absolute cursor-grab touch-none border-0 bg-transparent p-0 outline-none select-none focus-visible:ring-2 focus-visible:ring-[#168653] focus-visible:ring-offset-2',
+          dragging && 'cursor-grabbing',
+          className,
+        )}
+        data-dragging={dragging ? 'true' : 'false'}
+        style={{ left: offset.x, top: offset.y }}
+        onClick={handleClick}
+        onKeyDown={handleKeyDown}
+        onPointerCancel={finishPointerInteraction}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={finishPointerInteraction}
+      >
+        {children}
+      </button>
+    </div>,
+    document.body,
+  );
 });

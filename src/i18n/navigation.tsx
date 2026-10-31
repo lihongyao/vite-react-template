@@ -1,10 +1,10 @@
 /* oxlint-disable react/only-export-components -- Localized navigation helpers share one public module. */
-import { useCallback, useLayoutEffect, useRef } from 'react';
+import { addTransitionType, startTransition, useCallback, useLayoutEffect, useRef } from 'react';
 
 import type { LinkProps, NavLinkProps, NavigateOptions, To } from 'react-router';
 import { Link, NavLink, createPath, parsePath, useLocation, useNavigate } from 'react-router';
 
-import { markAppNavigation, readHistoryIndex } from '@/libs/history-navigation';
+import { recordRouteScrollPosition } from '@/libs/route-scroll-restoration';
 import { ROUTE_PATHS } from '@/routes/paths';
 import type { TabRoutePath } from '@/routes/paths';
 
@@ -78,13 +78,15 @@ export function useAppNavigation(): AppNavigation {
       if (targetKey === null) return;
 
       try {
-        await navigate(localizedTo, options);
+        await navigateWithTransition('route-push', location.key, () =>
+          navigate(localizedTo, options),
+        );
       } catch (error) {
         cancelNavigation(targetKey);
         throw error;
       }
     },
-    [cancelNavigation, locale, navigate, startNavigation],
+    [cancelNavigation, locale, location.key, navigate, startNavigation],
   );
 
   const switchTab = useCallback<AppNavigation['switchTab']>(
@@ -92,10 +94,11 @@ export function useAppNavigation(): AppNavigation {
       const targetPath = localizePathname(to, locale);
       if (location.pathname === targetPath) return;
 
-      markAppNavigation('switch-tab', { pathname: targetPath });
-      await navigate(targetPath, { replace: true });
+      await navigateWithTransition('route-tab', location.key, () =>
+        navigate(targetPath, { replace: true }),
+      );
     },
-    [locale, location.pathname, navigate],
+    [locale, location.key, location.pathname, navigate],
   );
 
   const navigateBack = useCallback<AppNavigation['navigateBack']>(
@@ -106,10 +109,9 @@ export function useAppNavigation(): AppNavigation {
         return;
       }
 
-      markAppNavigation('navigate-back', { historyIndex: currentHistoryIndex - 1 });
-      await navigate(-1);
+      await navigateWithTransition('route-pop', location.key, () => navigate(-1));
     },
-    [navigate, switchTab],
+    [location.key, navigate, switchTab],
   );
 
   return {
@@ -119,7 +121,9 @@ export function useAppNavigation(): AppNavigation {
   };
 }
 
-type SwitchTabLinkProps = Omit<NavLinkProps, 'replace' | 'to'> & { to: TabRoutePath };
+type SwitchTabLinkProps = Omit<NavLinkProps, 'replace' | 'to' | 'viewTransition'> & {
+  to: TabRoutePath;
+};
 
 export function SwitchTabLink({ onClick, to, ...props }: SwitchTabLinkProps) {
   const locale = useCurrentLocale();
@@ -141,11 +145,11 @@ export function SwitchTabLink({ onClick, to, ...props }: SwitchTabLinkProps) {
   );
 }
 
-type NavigateToLinkProps = Omit<LinkProps, 'replace'> & { replace?: never };
+type NavigateToLinkProps = Omit<LinkProps, 'replace' | 'viewTransition'> & { replace?: never };
 
 export function NavigateToLink({ onClick, to, ...props }: NavigateToLinkProps) {
   const locale = useCurrentLocale();
-  const { start: startNavigation } = useNavigationTargetGuard();
+  const { navigateTo } = useAppNavigation();
   const localizedTo = localizeTo(to, locale);
 
   return (
@@ -155,7 +159,12 @@ export function NavigateToLink({ onClick, to, ...props }: NavigateToLinkProps) {
         onClick?.(event);
         if (props.reloadDocument || !shouldHandleNavigationClick(event)) return;
 
-        if (startNavigation(localizedTo) === null) event.preventDefault();
+        event.preventDefault();
+        void navigateTo(to, {
+          preventScrollReset: props.preventScrollReset,
+          relative: props.relative,
+          state: props.state,
+        });
       }}
       to={localizedTo}
     />
@@ -184,6 +193,21 @@ export function useSwitchLocale(to?: To) {
   );
 }
 
+async function navigateWithTransition(
+  type: 'route-pop' | 'route-push' | 'route-tab',
+  locationKey: string,
+  navigate: () => void | Promise<void>,
+) {
+  recordRouteScrollPosition(locationKey);
+  let navigation = Promise.resolve();
+  startTransition(() => {
+    addTransitionType(type);
+    navigation = Promise.resolve(navigate());
+    return navigation;
+  });
+  await navigation;
+}
+
 function shouldHandleNavigationClick(event: React.MouseEvent<HTMLAnchorElement>) {
   return (
     !event.defaultPrevented &&
@@ -194,4 +218,14 @@ function shouldHandleNavigationClick(event: React.MouseEvent<HTMLAnchorElement>)
     !event.shiftKey &&
     (!event.currentTarget.target || event.currentTarget.target === '_self')
   );
+}
+
+function readHistoryIndex() {
+  const state: unknown = window.history.state;
+  return typeof state === 'object' &&
+    state !== null &&
+    'idx' in state &&
+    typeof state.idx === 'number'
+    ? state.idx
+    : null;
 }
